@@ -1,6 +1,9 @@
 import { Component } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 
+import { Plugins } from '@capacitor/core';
+const { Storage } = Plugins;
+
 export class CardSetModel {
   id: number;
   name: string;
@@ -21,10 +24,10 @@ export class HomePage {
   cardSets: CardSetModel[];
 
   constructor(public alertController: AlertController) {
-    this.getCardSets();
+    this.loadData();
   }
 
-  private join() {
+  public join() {
     if (!this.code) {
       this.presentAlert('Please, insert a group code.');
       return;
@@ -33,13 +36,53 @@ export class HomePage {
       this.presentAlert('Please, insert your nickname.');
       return;
     }
+    this.goToGame();
   }
 
-  private create() {
+  public create() {
     if (!this.nickname) {
       this.presentAlert('Please, insert your nickname.');
       return;
     }
+    this.getCode();
+    this.goToGame();
+  }
+
+  private goToGame() {
+    this.saveData().then(_ => {
+    });
+  }
+
+  async presentAlert(msg: string) {
+    const alert = await this.alertController.create({
+      header: 'Wait!',
+      message: msg,
+      buttons: ['OK']
+    });
+
+    await alert.present();
+  }
+
+  private async saveData(): Promise<void> {
+    this.setStorage('nickname', this.nickname);
+  }
+
+  private async loadData(): Promise<any> {
+    const nickname = await Storage.get({ key: 'nickname' });
+    this.nickname = JSON.parse(nickname.value);
+    this.getCardSets();
+  }
+
+  async setStorage(key: string, value: any): Promise<void> {
+    await Storage.set({
+      key,
+      value: JSON.stringify(value)
+    });
+  }
+
+  async getStorage(key: string): Promise<any> {
+    const item = await Storage.get({ key });
+    return JSON.parse(item.value);
   }
 
   private getCardSets() {
@@ -52,14 +95,9 @@ export class HomePage {
     ];
   }
 
-  async presentAlert(msg: string) {
-    const alert = await this.alertController.create({
-      header: 'Wait!',
-      message: msg,
-      buttons: ['OK']
-    });
-
-    await alert.present();
+  private getCode() {
+    const code = 'AGSHD';
+    this.code = code;
   }
 
 }
