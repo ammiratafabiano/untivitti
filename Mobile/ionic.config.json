@@ -1,5 +1,7 @@
 {
   "name": "remoteCardGame",
-  "integrations": {},
+  "integrations": {
+    "capacitor": {}
+  },
   "type": "angular"
 }
