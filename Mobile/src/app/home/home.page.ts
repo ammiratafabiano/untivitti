@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { AlertController } from '@ionic/angular';
 
 import { Plugins } from '@capacitor/core';
+import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 const { Storage } = Plugins;
 
 export class CardSetModel {
@@ -23,7 +24,10 @@ export class HomePage {
 
   cardSets: CardSetModel[];
 
-  constructor(public alertController: AlertController) {
+  constructor(
+    public alertController: AlertController,
+    private route: ActivatedRoute,
+    private router: Router) {
     this.loadData();
   }
 
@@ -50,6 +54,13 @@ export class HomePage {
 
   private goToGame() {
     this.saveData().then(_ => {
+      const navigationExtras: NavigationExtras = {
+        queryParams: {
+            code: this.code,
+            nickname: this.nickname
+        }
+      };
+      this.router.navigate(['/game'], navigationExtras);
     });
   }
 
@@ -68,6 +79,7 @@ export class HomePage {
   }
 
   private async loadData(): Promise<any> {
+    this.code = this.route.snapshot.paramMap.get('code');
     const nickname = await Storage.get({ key: 'nickname' });
     this.nickname = JSON.parse(nickname.value);
     this.getCardSets();
