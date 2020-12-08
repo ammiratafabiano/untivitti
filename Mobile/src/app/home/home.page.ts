@@ -1,11 +1,9 @@
 import { Component } from '@angular/core';
 import { AlertController } from '@ionic/angular';
-
-import { Plugins } from '@capacitor/core';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { CardSetModel, CardTypeEnum } from '../models/card-set.model';
 import { ApiService } from '../services/api.service';
-const { Storage } = Plugins;
+import { UtilsService } from '../services/utils.service';
 
 @Component({
   selector: 'app-home',
@@ -24,7 +22,8 @@ export class HomePage {
     public alertController: AlertController,
     private route: ActivatedRoute,
     private router: Router,
-    private api: ApiService) {
+    private api: ApiService,
+    private utils: UtilsService) {
     this.loadData();
   }
 
@@ -37,7 +36,7 @@ export class HomePage {
       this.presentAlert('Please, insert your nickname.');
       return;
     }
-    this.goToGame();
+    this.retrieveGroup();
   }
 
   public create() {
@@ -71,26 +70,15 @@ export class HomePage {
   }
 
   private async saveData(): Promise<void> {
-    this.setStorage('nickname', this.nickname);
+    this.utils.setStorage('nickname', this.nickname);
   }
 
   private async loadData(): Promise<any> {
     this.code = this.route.snapshot.paramMap.get('code');
-    const nickname = await Storage.get({ key: 'nickname' });
-    this.nickname = JSON.parse(nickname.value);
-    this.getCardSets();
-  }
-
-  async setStorage(key: string, value: any): Promise<void> {
-    await Storage.set({
-      key,
-      value: JSON.stringify(value)
+    this.utils.getStorage('nickname').then((nickname) => {
+      this.nickname = nickname;
     });
-  }
-
-  async getStorage(key: string): Promise<any> {
-    const item = await Storage.get({ key });
-    return JSON.parse(item.value);
+    this.getCardSets();
   }
 
   private getCardSets() {
@@ -106,6 +94,16 @@ export class HomePage {
       if (response.success && response.data) {
         this.code = response.data;
         this.goToGame();
+      }
+    });
+  }
+
+  private retrieveGroup() {
+    this.api.joinGroup(this.nickname, this.code).subscribe((response) => {
+      if (response.success) {
+        this.goToGame();
+      } else {
+        this.presentAlert('It seems this group doesn\'t exists. Check code and try again.');
       }
     });
   }

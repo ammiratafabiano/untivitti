@@ -57,12 +57,14 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
   const nickname = req.params['nick']
   let group = groups.find(x => x.code == req.params['code'])
   let response
-  if (group && !group.players.includes(nickname)) {
-    const player = {
-      name: nickname,
-      isAdmin: false
+  if (group) {
+    if (!group.players.includes(nickname)) {
+      const player = {
+        name: nickname,
+        isAdmin: false
+      }
+      group.players.push(player)
     }
-    group.players.push(player)
 
     response = {
       success: true
