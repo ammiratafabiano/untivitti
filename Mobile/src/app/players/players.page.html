@@ -10,7 +10,7 @@
 </ion-header>
 
 <ion-content>
-  <ion-reorder-group (ionItemReorder)="reorderPlayers($event)" disabled="false">
+  <ion-reorder-group (ionItemReorder)="reorderPlayers($event)" disabled="true">
     <ion-item *ngFor="let player of players">
       <ion-label>
         {{ player.name }}
