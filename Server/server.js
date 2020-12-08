@@ -91,6 +91,20 @@ app.get('/getState/:code', cors(corsOptions), (req, res) => {
   res.send(response)
 })
 
+app.get('/getCardSet', cors(corsOptions), (req, res) => {
+  const response = {
+    success: false,
+    data: [
+      {
+        id: 0,
+        name: 'Siciliane',
+        size: 40
+      }
+    ]
+  }
+  res.send(response)
+})
+
 app.listen(port, (err) => {
   if (err) console.log(err); 
   console.log(`Example app listening at http://localhost:${port}`)
