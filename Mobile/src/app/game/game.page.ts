@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { ModalController } from '@ionic/angular';
 import { GameStateModel } from '../models/game-state.model';
+import { PlayersPage } from '../players/players.page';
 import { ApiService } from '../services/api.service';
 
 @Component({
@@ -22,7 +24,8 @@ export class GamePage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private api: ApiService) {
+    private api: ApiService,
+    public modalController: ModalController) {
     this.route.queryParams.subscribe(params => {
       if (params && params.code && params.nickname) {
         this.code = params.code;
@@ -87,6 +90,14 @@ export class GamePage implements OnInit {
     if (this.state) {
       return this.state.players.find(x => x.name === this.nickname).isAdmin;
     }
+  }
+
+  async openPlayersModal() {
+    const modal = await this.modalController.create({
+      component: PlayersPage,
+      componentProps: { state: this.state }
+    });
+    return await modal.present();
   }
 
 }

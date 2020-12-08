@@ -1,0 +1,21 @@
+<ion-header>
+  <ion-toolbar>
+      <ion-buttons slot="end">
+          <ion-button color="dark" (click)="dismiss()">
+              <ion-icon name="close"></ion-icon>
+          </ion-button>
+      </ion-buttons>
+      <ion-title>Online Players</ion-title> 
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <ion-reorder-group (ionItemReorder)="reorderPlayers($event)" disabled="false">
+    <ion-item *ngFor="let player of players">
+      <ion-label>
+        {{ player.name }}
+      </ion-label>
+      <ion-reorder slot="end"></ion-reorder>
+    </ion-item>
+  </ion-reorder-group>
+</ion-content>

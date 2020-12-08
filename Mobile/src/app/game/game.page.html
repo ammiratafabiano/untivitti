@@ -2,10 +2,12 @@
   <ion-toolbar>
     <ion-item lines="none">
       <ion-title mode="md">{{ title }}</ion-title>
-      <ion-icon name="people-outline"></ion-icon>
-      <ion-badge *ngIf="state && state.players" color="success" slot="end">
-        {{ state.players.length }}
-      </ion-badge>
+      <ng-container *ngIf="state && state.players">
+        <ion-icon name="people-outline" (click)="isAdmin() && openPlayersModal()"></ion-icon>
+        <ion-badge color="success" slot="end">
+          {{ state.players.length }}
+        </ion-badge>
+      </ng-container>
     </ion-item>
   </ion-toolbar>
 </ion-header>
