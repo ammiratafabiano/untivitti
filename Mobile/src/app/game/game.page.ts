@@ -1,20 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-
-export enum CardTypeEnum {
-  Siciliane = 0
-}
-
-export class PlayerModel {
-  name: string;
-  isAdmin: boolean;
-}
-
-export class GameStateModel {
-  code: string;
-  type: CardTypeEnum;
-  players: PlayerModel[];
-}
+import { GameStateModel } from '../models/game-state.model';
+import { ApiService } from '../services/api.service';
 
 @Component({
   selector: 'app-game',
@@ -23,11 +10,16 @@ export class GameStateModel {
 })
 export class GamePage implements OnInit {
 
+  loop: any;
+
   nickname: string;
   code: string;
   state: GameStateModel;
 
-  constructor(private route: ActivatedRoute, private router: Router) {
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private api: ApiService) {
     this.route.queryParams.subscribe(params => {
       if (params && params.code && params.nickname) {
         this.code = params.code;
@@ -39,17 +31,21 @@ export class GamePage implements OnInit {
   }
 
   ngOnInit() {
-    const loop = setInterval(_ => {
-      this.updateState();
-
-    }, 1000);
-    clearInterval(loop);
+    if (this.code) {
+      this.loop = setInterval(_ => {
+        return this.api.getState(this.code).subscribe((state) => {
+          this.state = state;
+        });
+      }, 1000);
+    }
   }
 
-  updateState() {
+  ionViewWillLeave() {
+    clearInterval(this.loop);
   }
 
   exitGame() {
+    clearInterval(this.loop);
     this.router.navigate(['/']);
   }
 

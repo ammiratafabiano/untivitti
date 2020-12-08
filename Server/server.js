@@ -1,15 +1,39 @@
 const express = require('express')
 const crypto = require("crypto");
+const cors = require('cors');
 
 const app = express()
 const port = 3000
 
 let groups = []
 
-app.get('/', (req, res) => {
+const allowedOrigins = [
+  'capacitor://localhost',
+  'ionic://localhost',
+  'http://localhost',
+  'http://localhost:8080',
+  'http://localhost:8100'
+];
+
+// Reflect the origin if it's in the allowed list or not defined (cURL, Postman, etc.)
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error('Origin not allowed by CORS'));
+    }
+  }
+}
+
+// Enable preflight requests for all routes
+app.options('*', cors(corsOptions));
+
+app.get('/', cors(corsOptions), (req, res) => {
   res.send('Server untivitti.\nStatus: Ok')
 })
-app.get('/createGroup/:nick/:type', (req, res) => {
+
+app.get('/createGroup/:nick/:type', cors(corsOptions), (req, res) => {
   const group = {
     code: newCode(),
     type: req.params['type'],
@@ -28,9 +52,11 @@ app.get('/createGroup/:nick/:type', (req, res) => {
   }
   res.send(response)
 })
-app.get('/joinGroup/:nick/:code', (req, res) => {
+
+app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
   const nickname = req.params['nick']
   let group = groups.find(x => x.code == req.params['code'])
+  let response
   if (group && !group.players.includes(nickname)) {
     const player = {
       name: nickname,
@@ -38,20 +64,31 @@ app.get('/joinGroup/:nick/:code', (req, res) => {
     }
     group.players.push(player)
 
-    const response = {
+    response = {
       success: true
     }
-    res.send(response)
   } else {
-    const response = {
+    response = {
       success: false
     }
-    res.send(response)
   }
+  res.send(response)
 })
-app.get('/getState/:code', (req, res) => {
+
+app.get('/getState/:code', cors(corsOptions), (req, res) => {
   const group = groups.find(x => x.code == req.params['code'])
-  res.send(group)
+  let response
+  if (group) {
+    response = {
+      success: true,
+      data: group
+    }
+  } else {
+    response = {
+      success: false
+    }
+  }
+  res.send(response)
 })
 
 app.listen(port, (err) => {
