@@ -1,6 +1,12 @@
 <ion-header>
   <ion-toolbar>
-    <ion-title>game</ion-title>
+    <ion-item lines="none">
+      <ion-title mode="md">{{ title }}</ion-title>
+      <ion-icon name="people-outline"></ion-icon>
+      <ion-badge *ngIf="state && state.players" color="success" slot="end">
+        {{ state.players.length }}
+      </ion-badge>
+    </ion-item>
   </ion-toolbar>
 </ion-header>
 

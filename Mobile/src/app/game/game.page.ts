@@ -14,7 +14,10 @@ export class GamePage implements OnInit {
 
   nickname: string;
   code: string;
+
   state: GameStateModel;
+
+  title: string;
 
   constructor(
     private route: ActivatedRoute,
@@ -33,11 +36,8 @@ export class GamePage implements OnInit {
   ngOnInit() {
     if (this.code) {
       this.loop = setInterval(_ => {
-        return this.api.getState(this.code).subscribe((response) => {
-          if (response.success && response.data) {
-            this.state = response.data;
-          }
-        });
+        this.updateTitle();
+        this.updateState();
       }, 1000);
     }
   }
@@ -46,9 +46,47 @@ export class GamePage implements OnInit {
     clearInterval(this.loop);
   }
 
-  exitGame() {
+  private updateState() {
+    return this.api.getState(this.code).subscribe(
+      response => {
+        if (response.success && response.data) {
+          this.state = response.data;
+        } else {
+          this.exitGame();
+        }
+      },
+      err => {
+        this.exitGame();
+      }
+    );
+  }
+
+
+  private updateTitle() {
+    if (this.state) {
+      if (this.state.players && this.state.players.length > 1) {
+        if (this.isAdmin()) {
+          this.title = 'Group ready to start';
+        } else {
+          this.title = 'Waiting for admin to start';
+        }
+      } else {
+        this.title = 'Waiting for people...';
+      }
+    } else {
+      this.title = 'Waiting for people...';
+    }
+  }
+
+  private exitGame() {
     clearInterval(this.loop);
     this.router.navigate(['/']);
+  }
+
+  private isAdmin(): boolean {
+    if (this.state) {
+      return this.state.players.find(x => x.name === this.nickname).isAdmin;
+    }
   }
 
 }
