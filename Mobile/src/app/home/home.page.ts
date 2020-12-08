@@ -3,13 +3,9 @@ import { AlertController } from '@ionic/angular';
 
 import { Plugins } from '@capacitor/core';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
+import { CardSetModel, CardTypeEnum } from '../models/card-set.model';
+import { ApiService } from '../services/api.service';
 const { Storage } = Plugins;
-
-export class CardSetModel {
-  id: number;
-  name: string;
-  size: number;
-}
 
 @Component({
   selector: 'app-home',
@@ -20,14 +16,15 @@ export class HomePage {
 
   code: string;
   nickname: string;
-  selectedSet = 0;
+  selectedSet: CardTypeEnum = 0;
 
   cardSets: CardSetModel[];
 
   constructor(
     public alertController: AlertController,
     private route: ActivatedRoute,
-    private router: Router) {
+    private router: Router,
+    private api: ApiService) {
     this.loadData();
   }
 
@@ -49,7 +46,6 @@ export class HomePage {
       return;
     }
     this.getCode();
-    this.goToGame();
   }
 
   private goToGame() {
@@ -98,18 +94,20 @@ export class HomePage {
   }
 
   private getCardSets() {
-    this.cardSets = [
-      {
-        id: 0,
-        name: 'Siciliane',
-        size: 40
+    this.api.getCardSets().subscribe((response) => {
+      if (response.success && response.data) {
+        this.cardSets = response.data;
       }
-    ];
+    });
   }
 
   private getCode() {
-    const code = 'AGSHD';
-    this.code = code;
+    this.api.createGroup(this.nickname, this.selectedSet).subscribe((response) => {
+      if (response.success && response.data) {
+        this.code = response.data;
+        this.goToGame();
+      }
+    });
   }
 
 }

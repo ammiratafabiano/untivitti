@@ -2,7 +2,9 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
+import { CardSetModel, CardTypeEnum } from '../models/card-set.model';
 import { GameStateModel } from '../models/game-state.model';
+import { ResponseModel } from '../models/response.model';
 
 @Injectable({
   providedIn: 'root'
@@ -30,9 +32,27 @@ export class ApiService {
       'Something bad happened; please try again later.');
   }
 
-  getState(code: string): Observable<GameStateModel>{
+  getCardSets(): Observable<ResponseModel<CardSetModel[]>>{
     return this.http
-      .get<GameStateModel>(this.endpoint + '/getState/' + code)
+      .get<ResponseModel<CardSetModel[]>>(this.endpoint + '/getCardSets')
+      .pipe(
+        retry(2),
+        catchError(this.handleError)
+      );
+  }
+
+  createGroup(nickname: string, type: CardTypeEnum): Observable<ResponseModel<any>>{
+    return this.http
+      .get<ResponseModel<any>>(this.endpoint + '/createGroup/' + nickname + '/' + type)
+      .pipe(
+        retry(2),
+        catchError(this.handleError)
+      );
+  }
+
+  getState(code: string): Observable<ResponseModel<GameStateModel>>{
+    return this.http
+      .get<ResponseModel<GameStateModel>>(this.endpoint + '/getState/' + code)
       .pipe(
         retry(2),
         catchError(this.handleError)

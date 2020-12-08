@@ -93,7 +93,7 @@ app.get('/getState/:code', cors(corsOptions), (req, res) => {
 
 app.get('/getCardSets', cors(corsOptions), (req, res) => {
   const response = {
-    success: false,
+    success: true,
     data: [
       {
         id: 0,

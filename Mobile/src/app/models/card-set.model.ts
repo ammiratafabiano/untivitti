@@ -1,5 +1,9 @@
+export enum CardTypeEnum {
+  Siciliane = 0
+}
+
 export class CardSetModel {
-    id: number;
-    name: string;
-    size: number;
-  }
+  id: CardTypeEnum;
+  name: string;
+  size: number;
+}

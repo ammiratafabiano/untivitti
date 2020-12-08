@@ -1,6 +1,4 @@
-export enum CardTypeEnum {
-    Siciliane = 0
-}
+import { CardTypeEnum } from './card-set.model';
 
 export class PlayerModel {
     name: string;

@@ -33,8 +33,10 @@ export class GamePage implements OnInit {
   ngOnInit() {
     if (this.code) {
       this.loop = setInterval(_ => {
-        return this.api.getState(this.code).subscribe((state) => {
-          this.state = state;
+        return this.api.getState(this.code).subscribe((response) => {
+          if (response.success && response.data) {
+            this.state = response.data;
+          }
         });
       }, 1000);
     }
