@@ -151,7 +151,6 @@ export class GamePage implements OnInit {
         }
       });
       if (!found) {
-        console.log(player.name + ' logged in');
         this.notificationService.addNotification(player.name + ' logged in', NotificationIcons.Login);
       }
     });

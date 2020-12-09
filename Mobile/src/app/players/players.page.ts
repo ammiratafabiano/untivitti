@@ -78,4 +78,8 @@ export class PlayersPage implements OnInit {
     this.notificationService.addNotification('Link was copied in clipboard');
   }
 
+  remove(player: PlayerModel) {
+    this.api.exitGroup(player.name, this.code).subscribe();
+  }
+
 }
