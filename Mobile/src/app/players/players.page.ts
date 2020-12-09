@@ -15,6 +15,8 @@ export class PlayersPage implements OnInit {
   players: PlayerModel[];
   loop: any;
 
+  reordering = false;
+
   constructor(
     public modalController: ModalController,
     public navParams: NavParams,
@@ -34,14 +36,18 @@ export class PlayersPage implements OnInit {
   }
 
   reorderPlayers(ev: any) {
+    this.reordering = true;
     const itemMove = this.players.splice(ev.detail.from, 1)[0];
     this.players.splice(ev.detail.to, 0, itemMove);
     ev.detail.complete();
+    this.reordering = false;
   }
 
   private startLoop() {
     this.loop = setInterval(_ => {
-      this.updateState();
+      if (!this.reordering) {
+        this.updateState();
+      }
     }, 1000);
   }
 
@@ -53,7 +59,7 @@ export class PlayersPage implements OnInit {
     return this.api.getState(this.currentPlayer.name, this.code).subscribe(
       response => {
         if (response.success && response.data) {
-          if (this.detectChange(this.players, response.data.players)) {
+          if (!this.reordering && this.detectChange(this.players, response.data.players)) {
             this.players = response.data.players;
           }
         } else {

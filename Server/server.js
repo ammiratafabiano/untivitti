@@ -98,7 +98,6 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
 app.get('/exitGroup/:nick/:code', cors(corsOptions), (req, res) => {
   const nickname = req.params['nick']
   const code = req.params['code']
-  console.log(nickname, code);
   let response
   if (deletePlayer(code, nickname)) {
     response = {
@@ -177,7 +176,11 @@ function deletePlayer(code, nick) {
     const playerToDelete = group.players.find(x => x.name == nick)
     const indexToDelete = group.players.indexOf(playerToDelete)
     if (indexToDelete > -1) {
+      const wasAdmin = playerToDelete.isAdmin ? true : false;
       group.players.splice(indexToDelete,1)
+      if (wasAdmin) {
+        group.players[0].isAdmin = true;
+      }
       return true
     } {
       return false

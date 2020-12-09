@@ -3,16 +3,16 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   {
-    path: 'home',
+    path: 'untivitti',
     loadChildren: () => import('./home/home.module').then( m => m.HomePageModule)
   },
   {
-    path: 'join/:code',
+    path: 'untivitti/join/:code',
     loadChildren: () => import('./home/home.module').then( m => m.HomePageModule)
   },
   {
     path: '',
-    redirectTo: 'home',
+    redirectTo: 'untivitti',
     pathMatch: 'full'
   },
   {

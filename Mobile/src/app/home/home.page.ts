@@ -56,7 +56,8 @@ export class HomePage {
         queryParams: {
             group: JSON.stringify(group),
             player: JSON.stringify(currentPlayer)
-        }
+        },
+        skipLocationChange: true
       };
       this.router.navigate(['/game'], navigationExtras);
     });
