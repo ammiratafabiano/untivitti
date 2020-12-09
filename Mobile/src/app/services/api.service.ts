@@ -4,7 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { CardSetModel, CardTypeEnum } from '../models/card-set.model';
 import { GameStateModel, PlayerModel } from '../models/game-state.model';
-import { GameModel, GameTypeEnum } from '../models/games.model';
+import { GameModel, GameTypeEnum } from '../models/game.model';
 import { ResponseModel } from '../models/response.model';
 
 @Injectable({

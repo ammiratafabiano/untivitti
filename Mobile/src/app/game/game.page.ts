@@ -4,6 +4,7 @@ import { AlertController, ModalController, PopoverController } from '@ionic/angu
 import { BehaviorSubject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { GameStateModel, MoveModel, PlayerModel } from '../models/game-state.model';
+import { GameModel } from '../models/game.model';
 import { NotificationIcons } from '../models/notification.model';
 import { PlayersPage } from '../players/players.page';
 import { ApiService } from '../services/api.service';
@@ -20,6 +21,7 @@ export class GamePage implements OnInit {
   canUpdate: boolean = true;
 
   currentPlayer: PlayerModel;
+  currentGame: GameModel;
   state: GameStateModel;
   prevState: GameStateModel;
   stateListener: BehaviorSubject<GameStateModel>;
@@ -39,6 +41,7 @@ export class GamePage implements OnInit {
         this.state = JSON.parse(params.group);
         this.stateListener = new BehaviorSubject<GameStateModel>(this.state);
         this.currentPlayer = JSON.parse(params.player);
+        this.currentGame = JSON.parse(params.game);
       } else {
         this.exitGame();
       }

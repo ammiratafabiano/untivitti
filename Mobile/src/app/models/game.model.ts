@@ -6,4 +6,5 @@ export class GameModel {
     id: number;
     name: string;
     handCards: number;
+    minPlayers: number;
 }

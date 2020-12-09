@@ -1,5 +1,5 @@
 import { CardTypeEnum } from './card-set.model';
-import { GameTypeEnum } from './games.model';
+import { GameTypeEnum } from './game.model';
 
 export class MoveModel {
     name: string;

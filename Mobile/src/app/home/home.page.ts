@@ -7,7 +7,7 @@ import { UtilsService } from '../services/utils.service';
 import { GameStateModel, PlayerModel } from '../models/game-state.model';
 import { NotificationService } from '../services/notification.service';
 import { NotificationIcons } from '../models/notification.model';
-import { GameModel, GameTypeEnum } from '../models/games.model';
+import { GameModel, GameTypeEnum } from '../models/game.model';
 
 @Component({
   selector: 'app-home',
@@ -64,7 +64,8 @@ export class HomePage {
       const navigationExtras: NavigationExtras = {
         queryParams: {
             group: JSON.stringify(group),
-            player: JSON.stringify(currentPlayer)
+            player: JSON.stringify(currentPlayer),
+            game: JSON.stringify(this.games.find(x => x.id == group.game))
         },
         skipLocationChange: true
       };

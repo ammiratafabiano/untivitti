@@ -22,7 +22,9 @@ const games = [
   {
     id: 0,
     name: 'Cucù',
-    handCards: 1
+    handCards: 1,
+    minPlayers: 2,
+    maxPlayers: 39
   }
 ]
 
@@ -98,20 +100,27 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
   let group = groups.find(x => x.code == req.params['code'])
   let response
   if (group && group.status != true) {
-    if (!group.players.find(x => x.name == nickname)) {
-      const player = {
-        name: nickname,
-        isAdmin: false,
-        canMove: false,
-        moves: [],
-        timestamp: getTime()
+    const game = games.find(x => x.id == group.game)
+    if (group.players < game.maxPlayers) {
+      if (!group.players.find(x => x.name == nickname)) {
+        const player = {
+          name: nickname,
+          isAdmin: false,
+          canMove: false,
+          moves: [],
+          timestamp: getTime()
+        }
+        group.players.push(player)
       }
-      group.players.push(player)
-    }
 
-    response = {
-      success: true,
-      data: group
+      response = {
+        success: true,
+        data: group
+      }
+    } else {
+      response = {
+        success: false
+      }
     }
   } else {
     response = {
