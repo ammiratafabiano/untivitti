@@ -69,6 +69,7 @@ export class PlayersPage implements OnInit {
         if (response.success && response.data) {
           if (!this.reordering && this.detectChange(this.players, response.data.players)) {
             this.players = response.data.players;
+            this.currentPlayer = this.players.find(x => x.name == this.currentPlayer.name);
           }
         } else {
           this.dismiss();
