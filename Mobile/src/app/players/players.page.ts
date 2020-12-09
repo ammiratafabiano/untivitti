@@ -4,6 +4,7 @@ import { PlayerModel } from '../models/game-state.model';
 import { ApiService } from '../services/api.service';
 import { Clipboard } from '@ionic-native/clipboard/ngx';
 import { ToastController } from '@ionic/angular';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-players',
@@ -44,7 +45,8 @@ export class PlayersPage implements OnInit {
     const itemMove = this.players.splice(ev.detail.from, 1)[0];
     this.players.splice(ev.detail.to, 0, itemMove);
     ev.detail.complete();
-    this.reordering = false;
+    this.api.updatePlayers(this.players, this.code).pipe(
+      finalize(() => this.reordering = false)).subscribe();
   }
 
   private startLoop() {

@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { CardSetModel, CardTypeEnum } from '../models/card-set.model';
-import { GameStateModel } from '../models/game-state.model';
+import { GameStateModel, PlayerModel } from '../models/game-state.model';
 import { ResponseModel } from '../models/response.model';
 
 @Injectable({
@@ -72,6 +72,15 @@ export class ApiService {
   getState(nickname: string, code: string): Observable<ResponseModel<GameStateModel>>{
     return this.http
       .get<ResponseModel<GameStateModel>>(this.endpoint + '/getState/' + nickname + '/' + code)
+      .pipe(
+        retry(2),
+        catchError(this.handleError)
+      );
+  }
+
+  updatePlayers(players: PlayerModel[], code: string): Observable<ResponseModel<any>>{
+    return this.http
+      .post<ResponseModel<any>>(this.endpoint + '/updatePlayers/', { players: players, code: code })
       .pipe(
         retry(2),
         catchError(this.handleError)

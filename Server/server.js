@@ -1,10 +1,13 @@
 const express = require('express')
+const bodyParser = require('body-parser')
 const crypto = require("crypto");
 const cors = require('cors');
 const { groupCollapsed } = require('console');
 
 const app = express()
 const port = 3000
+
+const jsonParser = bodyParser.json()
 
 let groups = []
 
@@ -124,6 +127,10 @@ app.get('/getState/:nick/:code', cors(corsOptions), (req, res) => {
         success: true,
         data: group
       }
+    } else {
+      response = {
+        success: false
+      }
     }
   } else {
     response = {
@@ -146,6 +153,24 @@ app.get('/getCardSets', cors(corsOptions), (req, res) => {
   }
   res.send(response)
 })
+
+app.post('/updatePlayers', jsonParser, cors(corsOptions), (req, res) => {
+  let newPlayers = req.body.players;
+  const code = req.body.code;
+  const group = groups.find(x => x.code == code);
+  let response
+  if (group) {
+    group.players = solveConflicts(group.players, newPlayers);
+    response = {
+      success: true
+    }
+  } else {
+    response = {
+      success: false
+    }
+  }
+  res.send(response)
+});
 
 app.listen(port, (err) => {
   if (err) console.log(err); 
@@ -207,4 +232,15 @@ function deleteGroup(code) {
 
 function getTime() {
   return Math.floor(Date.now() / 1000)
+}
+
+function solveConflicts(players, newPlayers) {
+  players.forEach(player => {
+    let found = false;
+    newPlayers.forEach(newPlayer => {
+      if (player.name == newPlayer.name) found = true;
+    });
+    if (!found) newPlayers.push(player);
+  });
+  return newPlayers;
 }
