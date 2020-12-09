@@ -52,7 +52,7 @@ app.get('/createGroup/:nick/:type', cors(corsOptions), (req, res) => {
   const newGroup = {
     code: code,
     type: req.params['type'],
-    status: 0,
+    status: false,
     players: [
       {
         name: req.params['nick'],
