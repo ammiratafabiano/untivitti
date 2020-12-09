@@ -6,7 +6,8 @@ import { ApiService } from '../services/api.service';
 import { UtilsService } from '../services/utils.service';
 import { GameStateModel, PlayerModel } from '../models/game-state.model';
 import { NotificationService } from '../services/notification.service';
-import { NotificationIcons, NotificationModel } from '../models/notification.model';
+import { NotificationIcons } from '../models/notification.model';
+import { GameModel, GameTypeEnum } from '../models/games.model';
 
 @Component({
   selector: 'app-home',
@@ -17,11 +18,14 @@ export class HomePage {
 
   code: string;
   nickname: string;
+
   selectedSet: CardTypeEnum = 0;
+  selectedGame: GameTypeEnum = 0;
 
   currentPlayer: PlayerModel;
 
   cardSets: CardSetModel[];
+  games: GameModel[];
 
   isOffline: boolean = false;
 
@@ -88,6 +92,7 @@ export class HomePage {
       this.nickname = nickname;
     });
     this.getCardSets();
+    this.getGames();
   }
 
   private getCardSets() {
@@ -105,8 +110,23 @@ export class HomePage {
     );
   }
 
+  private getGames() {
+    this.api.getGames().subscribe(
+      response => {
+        if (response.success && response.data) {
+          this.games = response.data;
+        } else {
+          this.setOfflineStatus();
+        }
+      },
+      err => {
+        this.setOfflineStatus();
+      }
+    );
+  }
+
   private getCode() {
-    this.api.createGroup(this.nickname, this.selectedSet).subscribe((response) => {
+    this.api.createGroup(this.nickname, this.selectedSet, this.selectedGame).subscribe((response) => {
       if (response.success && response.data) {
         const group = response.data;
         const currentPlayer = response.data.players.find(x => x.name === this.nickname);
@@ -130,9 +150,11 @@ export class HomePage {
   }
 
   setOfflineStatus() {
-    this.isOffline = true;
-    this.notificationService.enableNotifications();
-    this.notificationService.addNotification('Sorry, server is offline', NotificationIcons.Info, 10000);
+    if (!this.isOffline) {
+      this.isOffline = true;
+      this.notificationService.enableNotifications();
+      this.notificationService.addNotification('Sorry, server is offline', NotificationIcons.Info, 10000);
+    }
   }
 
   setOnlineStatus() {

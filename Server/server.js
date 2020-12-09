@@ -10,6 +10,21 @@ const port = 3000
 const jsonParser = bodyParser.json()
 
 let groups = []
+const cardSets = [
+  {
+    id: 0,
+    name: 'Siciliane',
+    size: 40
+  }
+]
+
+const games = [
+  {
+    id: 0,
+    name: 'Cucù',
+    handCards: 1
+  }
+]
 
 const allowedOrigins = [
   'capacitor://localhost',
@@ -42,7 +57,7 @@ app.get('/', cors(corsOptions), (req, res) => {
   res.send('Server untivitti.\nStatus: Ok')
 })
 
-app.get('/createGroup/:nick/:type', cors(corsOptions), (req, res) => {
+app.get('/createGroup/:nick/:cardSet/:game', cors(corsOptions), (req, res) => {
   let code
   let group
   do {
@@ -51,13 +66,20 @@ app.get('/createGroup/:nick/:type', cors(corsOptions), (req, res) => {
   } while (group)
   const newGroup = {
     code: code,
-    type: req.params['type'],
+    cardSet: req.params['cardSet'],
+    game: req.params['game'],
     status: false,
     players: [
       {
         name: req.params['nick'],
         isAdmin: true,
-        canMove: false,
+        canMove: true,
+        moves: [
+          {
+            name: 'Start',
+            id: 0
+          }
+        ],
         timestamp: getTime()
       }
     ]
@@ -75,12 +97,13 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
   const nickname = req.params['nick']
   let group = groups.find(x => x.code == req.params['code'])
   let response
-  if (group) {
+  if (group && group.status != true) {
     if (!group.players.find(x => x.name == nickname)) {
       const player = {
         name: nickname,
         isAdmin: false,
         canMove: false,
+        moves: [],
         timestamp: getTime()
       }
       group.players.push(player)
@@ -143,13 +166,15 @@ app.get('/getState/:nick/:code', cors(corsOptions), (req, res) => {
 app.get('/getCardSets', cors(corsOptions), (req, res) => {
   const response = {
     success: true,
-    data: [
-      {
-        id: 0,
-        name: 'Siciliane',
-        size: 40
-      }
-    ]
+    data: cardSets
+  }
+  res.send(response)
+})
+
+app.get('/getGames', cors(corsOptions), (req, res) => {
+  const response = {
+    success: true,
+    data: games
   }
   res.send(response)
 })
@@ -171,6 +196,37 @@ app.post('/updatePlayers', jsonParser, cors(corsOptions), (req, res) => {
   }
   res.send(response)
 });
+
+app.get('/sendMove/:nick/:code/:move', cors(corsOptions), (req, res) => {
+  const nickname = req.params['nick']
+  const code = req.params['code']
+  const move = req.params['move']
+  const group = groups.find(x => x.code == code)
+  let response
+  if (group) {
+    const player = group.players.find(x => x.name == nickname)
+    if (player) {
+      if (executeMove(group, player, move)) {
+        response = {
+          success: true
+        }
+      } else {
+        response = {
+          success: false
+        }
+      }
+    } else {
+      response = {
+        success: false
+      }
+    }
+  } else {
+    response = {
+      success: false
+    }
+  }
+  res.send(response)
+})
 
 app.listen(port, (err) => {
   if (err) console.log(err); 
@@ -236,11 +292,32 @@ function getTime() {
 
 function solveConflicts(players, newPlayers) {
   players.forEach(player => {
-    let found = false;
+    let found = false
     newPlayers.forEach(newPlayer => {
-      if (player.name == newPlayer.name) found = true;
-    });
-    if (!found) newPlayers.push(player);
-  });
-  return newPlayers;
+      if (player.name == newPlayer.name) found = true
+    })
+    if (!found) newPlayers.push(player)
+  })
+  return newPlayers
+}
+
+function executeMove(group, player, move) {
+  switch (move) {
+    case "0":
+      return startMove(group, player)
+    default:
+      return false
+  }
+}
+
+function startMove(group, player) {
+  if (player.isAdmin) {
+    group.status = true
+    player.moves = []
+
+    const handCards = group.game.handCards;
+    return true
+  } else {
+    return false
+  }
 }

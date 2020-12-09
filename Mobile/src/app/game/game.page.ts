@@ -3,9 +3,8 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, ModalController, PopoverController } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
-import { GameStateModel, PlayerModel } from '../models/game-state.model';
-import { NotificationIcons, NotificationModel } from '../models/notification.model';
-import { MovesComponent } from '../moves/moves.component';
+import { GameStateModel, MoveModel, PlayerModel } from '../models/game-state.model';
+import { NotificationIcons } from '../models/notification.model';
 import { PlayersPage } from '../players/players.page';
 import { ApiService } from '../services/api.service';
 import { NotificationService } from '../services/notification.service';
@@ -79,6 +78,7 @@ export class GamePage implements OnInit {
           this.prevState = this.state;
           this.state = response.data;
           this.stateListener.next(this.state);
+          this.currentPlayer = this.state.players.find(x => x.name == this.currentPlayer.name);
           this.checkNotifications();
         } else {
           this.exitGame();
@@ -172,6 +172,10 @@ export class GamePage implements OnInit {
     if (admin != prevAdmin) {
       this.notificationService.addNotification(admin + ' is the Admin now', NotificationIcons.Logout);
     }
+  }
+
+  sendMove(move: MoveModel) {
+    this.api.sendMove(this.currentPlayer.name, this.state.code, move.id).subscribe(_ => {});
   }
 
 }

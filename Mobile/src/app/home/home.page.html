@@ -41,6 +41,12 @@
         <ion-select-option *ngFor="let set of cardSets" [value]="set.id">{{ set.name }}</ion-select-option>
       </ion-select>
     </ion-item>
+    <ion-item>
+      <ion-label>Game</ion-label>
+      <ion-select required [(ngModel)]="selectedGame" [ngModelOptions]="{standalone: true}">
+        <ion-select-option *ngFor="let game of games" [value]="game.id">{{ game.name }}</ion-select-option>
+      </ion-select>
+    </ion-item>
     <ion-button color="warning" (click)="create()">Create</ion-button>
   </div>
   <div *ngIf="isOffline" id="container">

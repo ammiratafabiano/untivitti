@@ -1,9 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController, NavParams } from '@ionic/angular';
-import { GameStatusEnum, PlayerModel } from '../models/game-state.model';
+import { PlayerModel } from '../models/game-state.model';
 import { ApiService } from '../services/api.service';
 import { Clipboard } from '@ionic-native/clipboard/ngx';
-import { ToastController } from '@ionic/angular';
 import { finalize } from 'rxjs/operators';
 import { NotificationService } from '../services/notification.service';
 import { NotificationModel } from '../models/notification.model';
@@ -38,7 +37,7 @@ export class PlayersPage implements OnInit {
         this.players = value.players;
         this.code = value.code;
         this.currentPlayer = this.navParams.get('player');
-        this.canInvite = value.status == GameStatusEnum.Starting;
+        this.canInvite = value.status == false;
       }
     });
   }

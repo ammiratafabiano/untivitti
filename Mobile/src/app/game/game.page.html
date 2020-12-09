@@ -15,20 +15,20 @@
 
 <ion-content>
   <ion-fab vertical="center" horizontal="center" slot="fixed">
-    <ion-fab-button>
+    <ion-fab-button color="warning">
       <ion-icon name="caret-up-outline"></ion-icon>
     </ion-fab-button>
-    <ion-fab-list side="top">
-      Ciao
+    <ion-fab-list *ngIf="currentPlayer.moves.length > 0" side="top">
+      <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[0])">{{ currentPlayer.moves[0].name }}</ion-fab-button>
     </ion-fab-list>
-    <ion-fab-list side="bottom">
-      <ion-fab-button><ion-icon name="logo-facebook"></ion-icon></ion-fab-button>
+    <ion-fab-list *ngIf="currentPlayer.moves.length > 1" side="bottom">
+      <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[1])">{{ currentPlayer.moves[1].name }}</ion-fab-button>
     </ion-fab-list>
-    <ion-fab-list side="start">
-      <ion-fab-button><ion-icon name="logo-instagram"></ion-icon></ion-fab-button>
+    <ion-fab-list *ngIf="currentPlayer.moves.length > 2" side="start">
+      <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[2])">{{ currentPlayer.moves[2].name }}</ion-fab-button>
     </ion-fab-list>
-    <ion-fab-list side="end">
-      <ion-fab-button><ion-icon name="logo-twitter"></ion-icon></ion-fab-button>
+    <ion-fab-list *ngIf="currentPlayer.moves.length > 3" side="end">
+      <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[3])">{{ currentPlayer.moves[3].name }}</ion-fab-button>
     </ion-fab-list>
   </ion-fab>
 </ion-content>

@@ -1,17 +1,23 @@
 import { CardTypeEnum } from './card-set.model';
+import { GameTypeEnum } from './games.model';
 
-export enum GameStatusEnum {
-    Starting = 0,
-    Running = 1
+export class MoveModel {
+    name: string;
+    id: number;
 }
 
 export class PlayerModel {
     name: string;
     isAdmin: boolean;
+    canMove: boolean;
+    moves: MoveModel[];
+    timestamp: number;
 }
 
 export class GameStateModel {
     code: string;
-    type: CardTypeEnum;
+    cardSet: CardTypeEnum;
+    game: GameTypeEnum;
+    status: boolean;
     players: PlayerModel[];
 }

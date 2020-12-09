@@ -4,6 +4,7 @@ import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { CardSetModel, CardTypeEnum } from '../models/card-set.model';
 import { GameStateModel, PlayerModel } from '../models/game-state.model';
+import { GameModel, GameTypeEnum } from '../models/games.model';
 import { ResponseModel } from '../models/response.model';
 
 @Injectable({
@@ -42,9 +43,18 @@ export class ApiService {
       );
   }
 
-  createGroup(nickname: string, type: CardTypeEnum): Observable<ResponseModel<GameStateModel>>{
+  getGames(): Observable<ResponseModel<GameModel[]>>{
     return this.http
-      .get<ResponseModel<any>>(this.endpoint + '/createGroup/' + nickname + '/' + type)
+      .get<ResponseModel<GameModel[]>>(this.endpoint + '/getGames')
+      .pipe(
+        retry(2),
+        catchError(this.handleError)
+      );
+  }
+
+  createGroup(nickname: string, cardSet: CardTypeEnum, game: GameTypeEnum): Observable<ResponseModel<GameStateModel>>{
+    return this.http
+      .get<ResponseModel<any>>(this.endpoint + '/createGroup/' + nickname + '/' + cardSet + '/' + game)
       .pipe(
         retry(2),
         catchError(this.handleError)
@@ -81,6 +91,15 @@ export class ApiService {
   updatePlayers(players: PlayerModel[], code: string): Observable<ResponseModel<any>>{
     return this.http
       .post<ResponseModel<any>>(this.endpoint + '/updatePlayers/', { players: players, code: code })
+      .pipe(
+        retry(2),
+        catchError(this.handleError)
+      );
+  }
+
+  sendMove(nickname: string, code: string, move: number): Observable<ResponseModel<any>>{
+    return this.http
+      .get<ResponseModel<GameStateModel>>(this.endpoint + '/sendMove/' + nickname + '/' + code + '/' + move)
       .pipe(
         retry(2),
         catchError(this.handleError)
