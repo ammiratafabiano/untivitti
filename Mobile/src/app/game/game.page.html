@@ -1,10 +1,11 @@
 <ion-header>
   <ion-toolbar>
     <ion-item lines="none">
+      <ion-icon name="arrow-back-circle-outline" color="danger" (click)="confirmExit()"></ion-icon>
       <ion-title mode="md">{{ title }}</ion-title>
       <ng-container *ngIf="state && state.players">
-        <ion-icon name="people-outline" (click)="isAdmin() && openPlayersModal()"></ion-icon>
-        <ion-badge color="success" slot="end">
+        <ion-icon name="people-outline" (click)="openPlayersModal()"></ion-icon>
+        <ion-badge color="success" slot="end" (click)="openPlayersModal()">
           {{ state.players.length }}
         </ion-badge>
       </ng-container>

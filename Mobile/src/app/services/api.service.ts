@@ -41,7 +41,7 @@ export class ApiService {
       );
   }
 
-  createGroup(nickname: string, type: CardTypeEnum): Observable<ResponseModel<any>>{
+  createGroup(nickname: string, type: CardTypeEnum): Observable<ResponseModel<GameStateModel>>{
     return this.http
       .get<ResponseModel<any>>(this.endpoint + '/createGroup/' + nickname + '/' + type)
       .pipe(
@@ -50,7 +50,7 @@ export class ApiService {
       );
   }
 
-  joinGroup(nickname: string, code: string): Observable<ResponseModel<any>>{
+  joinGroup(nickname: string, code: string): Observable<ResponseModel<GameStateModel>>{
     return this.http
       .get<ResponseModel<any>>(this.endpoint + '/joinGroup/' + nickname + '/' + code)
       .pipe(
@@ -59,9 +59,18 @@ export class ApiService {
       );
   }
 
-  getState(code: string): Observable<ResponseModel<GameStateModel>>{
+  exitGroup(nickname: string, code: string): Observable<ResponseModel<any>>{
     return this.http
-      .get<ResponseModel<GameStateModel>>(this.endpoint + '/getState/' + code)
+      .get<ResponseModel<any>>(this.endpoint + '/exitGroup/' + nickname + '/' + code)
+      .pipe(
+        retry(2),
+        catchError(this.handleError)
+      );
+  }
+
+  getState(nickname: string, code: string): Observable<ResponseModel<GameStateModel>>{
+    return this.http
+      .get<ResponseModel<GameStateModel>>(this.endpoint + '/getState/' + nickname + '/' + code)
       .pipe(
         retry(2),
         catchError(this.handleError)

@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { ModalController } from '@ionic/angular';
-import { GameStateModel } from '../models/game-state.model';
+import { AlertController, ModalController } from '@ionic/angular';
+import { finalize } from 'rxjs/operators';
+import { GameStateModel, PlayerModel } from '../models/game-state.model';
 import { PlayersPage } from '../players/players.page';
 import { ApiService } from '../services/api.service';
 
@@ -14,9 +15,7 @@ export class GamePage implements OnInit {
 
   loop: any;
 
-  nickname: string;
-  code: string;
-
+  currentPlayer: PlayerModel;
   state: GameStateModel;
 
   title: string;
@@ -25,11 +24,12 @@ export class GamePage implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private api: ApiService,
-    public modalController: ModalController) {
+    public modalController: ModalController,
+    public alertController: AlertController) {
     this.route.queryParams.subscribe(params => {
-      if (params && params.code && params.nickname) {
-        this.code = params.code;
-        this.nickname = params.nickname;
+      if (params && params.group && params.player) {
+        this.state = JSON.parse(params.group);
+        this.currentPlayer = JSON.parse(params.player);
       } else {
         this.exitGame();
       }
@@ -37,20 +37,28 @@ export class GamePage implements OnInit {
   }
 
   ngOnInit() {
-    if (this.code) {
-      this.loop = setInterval(_ => {
-        this.updateTitle();
-        this.updateState();
-      }, 1000);
+    if (this.state.code) {
+      this.startLoop();
     }
   }
 
   ionViewWillLeave() {
+    this.stopLoop();
+  }
+
+  private startLoop() {
+    this.loop = setInterval(_ => {
+      this.updateTitle();
+      this.updateState();
+    }, 1000);
+  }
+
+  private stopLoop() {
     clearInterval(this.loop);
   }
 
   private updateState() {
-    return this.api.getState(this.code).subscribe(
+    return this.api.getState(this.currentPlayer.name, this.state.code).subscribe(
       response => {
         if (response.success && response.data) {
           this.state = response.data;
@@ -64,40 +72,53 @@ export class GamePage implements OnInit {
     );
   }
 
-
   private updateTitle() {
-    if (this.state) {
-      if (this.state.players && this.state.players.length > 1) {
-        if (this.isAdmin()) {
-          this.title = 'Group ready to start';
-        } else {
-          this.title = 'Waiting for admin to start';
-        }
-      } else {
-        this.title = 'Waiting for people...';
-      }
+    if (this.state && this.state.players && this.state.players.length > 1) {
+      this.title = 'Ready to start';
     } else {
       this.title = 'Waiting for people...';
     }
   }
 
-  private exitGame() {
-    clearInterval(this.loop);
-    this.router.navigate(['/']);
+  async confirmExit() {
+    const alert = await this.alertController.create({
+      header: 'Wait!',
+      message: 'Are you sure you want to quit?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Yes',
+          handler: () => {
+            this.exitGame();
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
-  private isAdmin(): boolean {
+  private exitGame() {
+    this.stopLoop();
+    this.api.exitGroup(this.currentPlayer.name, this.state.code).pipe(
+      finalize(() => this.router.navigate(['/']))).subscribe();
+  }
+
+  isAdmin(): boolean {
     if (this.state) {
-      return this.state.players.find(x => x.name === this.nickname).isAdmin;
+      return this.state.players.find(x => x.name === this.currentPlayer.name).isAdmin;
     }
   }
 
   async openPlayersModal() {
     const modal = await this.modalController.create({
       component: PlayersPage,
-      componentProps: { state: this.state }
+      componentProps: { state: this.state, player: this.currentPlayer }
     });
-    return await modal.present();
+    modal.onWillDismiss().then(_ => this.startLoop());
+    await modal.present().then(_ => this.stopLoop());
   }
 
 }

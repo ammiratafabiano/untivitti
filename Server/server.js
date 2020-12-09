@@ -1,6 +1,7 @@
 const express = require('express')
 const crypto = require("crypto");
 const cors = require('cors');
+const { groupCollapsed } = require('console');
 
 const app = express()
 const port = 3000
@@ -26,6 +27,11 @@ const corsOptions = {
   }
 }
 
+// Check dead players and unusued groups
+setInterval(function() {
+  checkGroups();
+}, 5000);
+
 // Enable preflight requests for all routes
 app.options('*', cors(corsOptions));
 
@@ -34,21 +40,30 @@ app.get('/', cors(corsOptions), (req, res) => {
 })
 
 app.get('/createGroup/:nick/:type', cors(corsOptions), (req, res) => {
-  const group = {
-    code: newCode(),
+  let code
+  let group
+  do {
+    code = newCode()
+    group = groups.find(x => x.code == code)
+  } while (group)
+  const newGroup = {
+    code: code,
     type: req.params['type'],
+    status: false,
     players: [
       {
         name: req.params['nick'],
-        isAdmin: true
+        isAdmin: true,
+        canMove: false,
+        timestamp: getTime()
       }
     ]
   }
-  groups.push(group)
+  groups.push(newGroup)
 
   const response = {
     success: true,
-    data: group.code
+    data: newGroup
   }
   res.send(response)
 })
@@ -58,14 +73,34 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
   let group = groups.find(x => x.code == req.params['code'])
   let response
   if (group) {
-    if (!group.players.includes(nickname)) {
+    if (!group.players.find(x => x.name == nickname)) {
       const player = {
         name: nickname,
-        isAdmin: false
+        isAdmin: false,
+        canMove: false,
+        timestamp: getTime()
       }
       group.players.push(player)
     }
 
+    response = {
+      success: true,
+      data: group
+    }
+  } else {
+    response = {
+      success: false
+    }
+  }
+  res.send(response)
+})
+
+app.get('/exitGroup/:nick/:code', cors(corsOptions), (req, res) => {
+  const nickname = req.params['nick']
+  const code = req.params['code']
+  console.log(nickname, code);
+  let response
+  if (deletePlayer(code, nickname)) {
     response = {
       success: true
     }
@@ -77,13 +112,19 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
   res.send(response)
 })
 
-app.get('/getState/:code', cors(corsOptions), (req, res) => {
-  const group = groups.find(x => x.code == req.params['code'])
+app.get('/getState/:nick/:code', cors(corsOptions), (req, res) => {
+  const nickname = req.params['nick']
+  const code = req.params['code']
+  const group = groups.find(x => x.code == code)
   let response
   if (group) {
-    response = {
-      success: true,
-      data: group
+    const player = group.players.find(x => x.name == nickname)
+    if (player) {
+      player.timestamp = getTime()
+      response = {
+        success: true,
+        data: group
+      }
     }
   } else {
     response = {
@@ -115,4 +156,52 @@ app.listen(port, (err) => {
 function newCode() {
   const id = crypto.randomBytes(3).toString("hex")
   return id
+}
+
+function checkGroups() {
+  groups.forEach(group => {
+    group.players.forEach(player => {
+      if (getTime() - player.timestamp > 30) {
+        deletePlayer(group.code, player.name)
+      }
+    });
+    if (group.players.length == 0) {
+      deleteGroup(group.code)
+    }
+  });
+}
+
+function deletePlayer(code, nick) {
+  let group = groups.find(x => x.code == code)
+  if (group) {
+    const playerToDelete = group.players.find(x => x.name == nick)
+    const indexToDelete = group.players.indexOf(playerToDelete)
+    if (indexToDelete > -1) {
+      group.players.splice(indexToDelete,1)
+      return true
+    } {
+      return false
+    }
+  } else {
+    return false
+  }
+}
+
+function deleteGroup(code) {
+  let group = groups.find(x => x.code == code)
+  if (group) {
+    const indexToDelete = groups.indexOf(group)
+    if (indexToDelete > -1) {
+      groups.splice(indexToDelete,1)
+      return true
+    } else {
+      return false
+    }
+  } else {
+    return false
+  }
+}
+
+function getTime() {
+  return Math.floor(Date.now() / 1000)
 }
