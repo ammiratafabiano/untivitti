@@ -17,10 +17,12 @@ import { NotificationService } from '../services/notification.service';
 export class GamePage implements OnInit {
 
   loop: any;
+  canUpdate: boolean = true;
 
   currentPlayer: PlayerModel;
   state: GameStateModel;
   prevState: GameStateModel;
+  stateListener: BehaviorSubject<GameStateModel>;
 
   title: string;
   
@@ -34,6 +36,7 @@ export class GamePage implements OnInit {
     this.route.queryParams.subscribe(params => {
       if (params && params.group && params.player) {
         this.state = JSON.parse(params.group);
+        this.stateListener = new BehaviorSubject<GameStateModel>(this.state);
         this.currentPlayer = JSON.parse(params.player);
       } else {
         this.exitGame();
@@ -54,8 +57,10 @@ export class GamePage implements OnInit {
 
   private startLoop() {
     this.loop = setInterval(_ => {
-      this.updateTitle();
-      this.updateState();
+      if (this.canUpdate) {
+        this.updateTitle();
+        this.updateState();
+      }
     }, 1000);
   }
 
@@ -64,11 +69,14 @@ export class GamePage implements OnInit {
   }
 
   private updateState() {
-    return this.api.getState(this.currentPlayer.name, this.state.code).subscribe(
+    this.canUpdate = false;
+    return this.api.getState(this.currentPlayer.name, this.state.code).pipe(
+      finalize(() => this.canUpdate = true)).subscribe(
       response => {
         if (response.success && response.data) {
           this.prevState = this.state;
           this.state = response.data;
+          this.stateListener.next(this.state);
           this.checkNotifications();
         } else {
           this.exitGame();
@@ -123,10 +131,9 @@ export class GamePage implements OnInit {
   async openPlayersModal() {
     const modal = await this.modalController.create({
       component: PlayersPage,
-      componentProps: { state: this.state, player: this.currentPlayer }
+      componentProps: { state: this.stateListener, player: this.currentPlayer }
     });
-    modal.onWillDismiss().then(_ => this.startLoop());
-    await modal.present().then(_ => this.stopLoop());
+    await modal.present();
   }
 
   private checkNotifications() {
@@ -135,9 +142,6 @@ export class GamePage implements OnInit {
     const prevPlayers = this.prevState.players;
     const admin = this.state.players.find(x => x.isAdmin == true).name;
     const prevAdmin = this.prevState.players.find(x => x.isAdmin == true).name;
-
-    console.log(players);
-    console.log(prevPlayers);
     // check log in
     players.forEach(player => {
       let found = false;

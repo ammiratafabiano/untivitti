@@ -15,10 +15,12 @@ import { NotificationModel } from '../models/notification.model';
 })
 export class PlayersPage implements OnInit {
 
+  loop: any;
+  canUpdate: boolean = true;
+
   code: string;
   currentPlayer: PlayerModel;
-  players: PlayerModel[];
-  loop: any;
+  players: PlayerModel[] = [];
 
   reordering = false;
 
@@ -28,17 +30,20 @@ export class PlayersPage implements OnInit {
     private api: ApiService,
     private clipboard: Clipboard,
     private notificationService: NotificationService) {
-    this.players = this.navParams.get('state').players;
-    this.code = this.navParams.get('state').code;
-    this.currentPlayer = this.navParams.get('player');
+    const stateListener = this.navParams.get('state');
+    stateListener.subscribe(value => {
+      if (!this.reordering && this.detectChange(this.players, value.players)) {
+        this.players = value.players;
+        this.code = value.code;
+        this.currentPlayer = this.navParams.get('player');
+      }
+    });
   }
 
   ngOnInit() {
-    this.startLoop();
   }
 
   dismiss() {
-    this.stopLoop();
     this.modalController.dismiss();
   }
 
@@ -49,36 +54,6 @@ export class PlayersPage implements OnInit {
     ev.detail.complete();
     this.api.updatePlayers(this.players, this.code).pipe(
       finalize(() => this.reordering = false)).subscribe();
-  }
-
-  private startLoop() {
-    this.loop = setInterval(_ => {
-      if (!this.reordering) {
-        this.updateState();
-      }
-    }, 1000);
-  }
-
-  private stopLoop() {
-    clearInterval(this.loop);
-  }
-
-  private updateState() {
-    return this.api.getState(this.currentPlayer.name, this.code).subscribe(
-      response => {
-        if (response.success && response.data) {
-          if (!this.reordering && this.detectChange(this.players, response.data.players)) {
-            this.players = response.data.players;
-            this.currentPlayer = this.players.find(x => x.name == this.currentPlayer.name);
-          }
-        } else {
-          this.dismiss();
-        }
-      },
-      err => {
-        this.dismiss();
-      }
-    );
   }
 
   detectChange(list1, list2) {
