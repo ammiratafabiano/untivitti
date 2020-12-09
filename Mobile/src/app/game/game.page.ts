@@ -174,13 +174,4 @@ export class GamePage implements OnInit {
     }
   }
 
-  async presentMovesPopover(ev: any) {
-    const popover = await this.popoverController.create({
-      component: MovesComponent,
-      event: ev,
-      translucent: true
-    });
-    return await popover.present();
-  }
-
 }
