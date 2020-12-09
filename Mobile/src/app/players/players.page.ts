@@ -5,6 +5,8 @@ import { ApiService } from '../services/api.service';
 import { Clipboard } from '@ionic-native/clipboard/ngx';
 import { ToastController } from '@ionic/angular';
 import { finalize } from 'rxjs/operators';
+import { NotificationService } from '../services/notification.service';
+import { NotificationModel } from '../models/notification.model';
 
 @Component({
   selector: 'app-players',
@@ -25,7 +27,7 @@ export class PlayersPage implements OnInit {
     public navParams: NavParams,
     private api: ApiService,
     private clipboard: Clipboard,
-    public toastController: ToastController) {
+    private notificationService: NotificationService) {
     this.players = this.navParams.get('state').players;
     this.code = this.navParams.get('state').code;
     this.currentPlayer = this.navParams.get('player');
@@ -96,16 +98,9 @@ export class PlayersPage implements OnInit {
     document.execCommand('copy');
     document.body.removeChild(el);
 
-    const msg = 'Link was copied in clipboard'
-    this.presentToast(msg);
-  }
-
-  async presentToast(msg: string) {
-    const toast = await this.toastController.create({
-      message: msg,
-      duration: 2000
-    });
-    toast.present();
+    const notification: NotificationModel = new NotificationModel();
+    notification.message = 'Link was copied in clipboard';
+    this.notificationService.addNotification(notification);
   }
 
 }

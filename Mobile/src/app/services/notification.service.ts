@@ -10,6 +10,8 @@ export class NotificationService {
 
   notifications: NotificationModel[] = [];
   notificationListener = new BehaviorSubject<NotificationModel[]>(this.notifications);
+  queue: number = -1;
+  notificationTime = 2000;
 
   constructor(private toastController: ToastController) { }
 
@@ -29,11 +31,15 @@ export class NotificationService {
   }
 
   async showNotification(notification: NotificationModel) {
-    const toast = await this.toastController.create({
-      message: notification.message,
-      duration: 2000
-    });
-    toast.present();
+    this.queue++;
+    setTimeout(async() => {
+      const toast = await this.toastController.create({
+        message: notification.message,
+        duration: this.notificationTime
+      });
+      toast.onDidDismiss().then(_ => { this.queue-- });
+      toast.present();
+    }, this.notificationTime * this.queue);
   }
   
 }
