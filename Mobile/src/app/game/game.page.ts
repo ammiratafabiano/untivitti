@@ -1,10 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertController, ModalController } from '@ionic/angular';
+import { AlertController, ModalController, PopoverController } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { GameStateModel, PlayerModel } from '../models/game-state.model';
 import { NotificationIcons, NotificationModel } from '../models/notification.model';
+import { MovesComponent } from '../moves/moves.component';
 import { PlayersPage } from '../players/players.page';
 import { ApiService } from '../services/api.service';
 import { NotificationService } from '../services/notification.service';
@@ -32,7 +33,8 @@ export class GamePage implements OnInit {
     private api: ApiService,
     public modalController: ModalController,
     public alertController: AlertController,
-    private notificationService: NotificationService) {
+    private notificationService: NotificationService,
+    public popoverController: PopoverController) {
     this.route.queryParams.subscribe(params => {
       if (params && params.group && params.player) {
         this.state = JSON.parse(params.group);
@@ -170,7 +172,15 @@ export class GamePage implements OnInit {
     if (admin != prevAdmin) {
       this.notificationService.addNotification(admin + ' is the Admin now', NotificationIcons.Logout);
     }
+  }
 
+  async presentMovesPopover(ev: any) {
+    const popover = await this.popoverController.create({
+      component: MovesComponent,
+      event: ev,
+      translucent: true
+    });
+    return await popover.present();
   }
 
 }
