@@ -1,7 +1,9 @@
-import { Component, Input, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ModalController, NavParams } from '@ionic/angular';
-import { GameStateModel, PlayerModel } from '../models/game-state.model';
+import { PlayerModel } from '../models/game-state.model';
 import { ApiService } from '../services/api.service';
+import { Clipboard } from '@ionic-native/clipboard/ngx';
+import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-players',
@@ -20,7 +22,9 @@ export class PlayersPage implements OnInit {
   constructor(
     public modalController: ModalController,
     public navParams: NavParams,
-    private api: ApiService) {
+    private api: ApiService,
+    private clipboard: Clipboard,
+    public toastController: ToastController) {
     this.players = this.navParams.get('state').players;
     this.code = this.navParams.get('state').code;
     this.currentPlayer = this.navParams.get('player');
@@ -76,6 +80,30 @@ export class PlayersPage implements OnInit {
     list1.forEach(x => x.timestamp = undefined);
     list2.forEach(x => x.timestamp = undefined);
     return JSON.stringify(list1) !== JSON.stringify(list2);
+  }
+
+  shareLink() {
+    // Mobile App
+    const link = this.api.clientEndpoint + '/join/' + this.code;
+    this.clipboard.copy(link);
+    // Web App
+    const el = document.createElement('textarea');
+    el.value = link;
+    document.body.appendChild(el);
+    el.select();
+    document.execCommand('copy');
+    document.body.removeChild(el);
+
+    const msg = 'Link was copied in clipboard'
+    this.presentToast(msg);
+  }
+
+  async presentToast(msg: string) {
+    const toast = await this.toastController.create({
+      message: msg,
+      duration: 2000
+    });
+    toast.present();
   }
 
 }

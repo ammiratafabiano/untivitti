@@ -178,7 +178,7 @@ function deletePlayer(code, nick) {
     if (indexToDelete > -1) {
       const wasAdmin = playerToDelete.isAdmin ? true : false;
       group.players.splice(indexToDelete,1)
-      if (wasAdmin) {
+      if (wasAdmin && group.players.length > 0) {
         group.players[0].isAdmin = true;
       }
       return true

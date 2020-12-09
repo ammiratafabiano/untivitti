@@ -12,6 +12,7 @@ import { ResponseModel } from '../models/response.model';
 export class ApiService {
 
   endpoint = 'http://localhost:3000';
+  clientEndpoint = 'http://localhost:8100/untivitti';
 
   constructor(private http: HttpClient) { }
 
