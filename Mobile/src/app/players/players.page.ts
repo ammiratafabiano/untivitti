@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ModalController, NavParams } from '@ionic/angular';
-import { PlayerModel } from '../models/game-state.model';
+import { GameStatusEnum, PlayerModel } from '../models/game-state.model';
 import { ApiService } from '../services/api.service';
 import { Clipboard } from '@ionic-native/clipboard/ngx';
 import { ToastController } from '@ionic/angular';
@@ -22,7 +22,9 @@ export class PlayersPage implements OnInit {
   currentPlayer: PlayerModel;
   players: PlayerModel[] = [];
 
-  reordering = false;
+  reordering: boolean = false;
+
+  canInvite: boolean = true;
 
   constructor(
     public modalController: ModalController,
@@ -36,6 +38,7 @@ export class PlayersPage implements OnInit {
         this.players = value.players;
         this.code = value.code;
         this.currentPlayer = this.navParams.get('player');
+        this.canInvite = value.status == GameStatusEnum.Starting;
       }
     });
   }

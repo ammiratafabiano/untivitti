@@ -41,7 +41,10 @@
       </ion-item-options>
     </ion-item-sliding>
   </ion-reorder-group>
-  <ion-item (click)="shareLink()">
-    <ion-label position="floating" color="primary">Invite friends</ion-label>
+  <ion-item *ngIf="canInvite" class="ion-padding-top" (click)="shareLink()">
+    <ion-label color="primary">Invite friends</ion-label>
+  </ion-item>
+  <ion-item *ngIf="!canInvite" class="ion-padding-top" (click)="shareLink()" disabled="true">
+    <ion-label color="primary">Invite friends</ion-label>
   </ion-item>
 </ion-content>
