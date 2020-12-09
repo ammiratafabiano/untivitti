@@ -99,8 +99,7 @@ export class PlayersPage implements OnInit {
     document.body.removeChild(el);
 
     const notification: NotificationModel = new NotificationModel();
-    notification.message = 'Link was copied in clipboard';
-    this.notificationService.addNotification(notification);
+    this.notificationService.addNotification('Link was copied in clipboard');
   }
 
 }

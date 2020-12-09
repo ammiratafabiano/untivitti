@@ -4,7 +4,7 @@ import { AlertController, ModalController } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { GameStateModel, PlayerModel } from '../models/game-state.model';
-import { NotificationModel } from '../models/notification.model';
+import { NotificationIcons, NotificationModel } from '../models/notification.model';
 import { PlayersPage } from '../players/players.page';
 import { ApiService } from '../services/api.service';
 import { NotificationService } from '../services/notification.service';
@@ -20,6 +20,7 @@ export class GamePage implements OnInit {
 
   currentPlayer: PlayerModel;
   state: GameStateModel;
+  prevState: GameStateModel;
 
   title: string;
   
@@ -37,7 +38,7 @@ export class GamePage implements OnInit {
       } else {
         this.exitGame();
       }
-      this.notificationService.handleNotifications();
+      this.notificationService.enableNotifications();
     });
   }
 
@@ -66,6 +67,7 @@ export class GamePage implements OnInit {
     return this.api.getState(this.currentPlayer.name, this.state.code).subscribe(
       response => {
         if (response.success && response.data) {
+          this.prevState = this.state;
           this.state = response.data;
           this.checkNotifications();
         } else {
@@ -128,12 +130,44 @@ export class GamePage implements OnInit {
   }
 
   private checkNotifications() {
-    if (false) {
-      const newNotification: NotificationModel = {
-        message: "Hello World!"
+
+    const players = this.state.players;
+    const prevPlayers = this.prevState.players;
+    const admin = this.state.players.find(x => x.isAdmin == true).name;
+    const prevAdmin = this.prevState.players.find(x => x.isAdmin == true).name;
+
+    console.log(players);
+    console.log(prevPlayers);
+    // check log in
+    players.forEach(player => {
+      let found = false;
+      prevPlayers.forEach(prevPlayer => {
+        if (player.name == prevPlayer.name) {
+          found = true;
+        }
+      });
+      if (!found) {
+        console.log(player.name + ' logged in');
+        this.notificationService.addNotification(player.name + ' logged in', NotificationIcons.Login);
       }
-      this.notificationService.addNotification(newNotification);
+    });
+    // check log out
+    prevPlayers.forEach(prevPlayer => {
+      let found = false;
+      players.forEach(player => {
+        if (player.name == prevPlayer.name) {
+          found = true;
+        }
+      });
+      if (!found) {
+        this.notificationService.addNotification(prevPlayer.name + ' logged out', NotificationIcons.Logout);
+      }
+    });
+    // check admin change
+    if (admin != prevAdmin) {
+      this.notificationService.addNotification(admin + ' is the Admin now', NotificationIcons.Logout);
     }
+
   }
 
 }

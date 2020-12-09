@@ -5,6 +5,8 @@ import { CardSetModel, CardTypeEnum } from '../models/card-set.model';
 import { ApiService } from '../services/api.service';
 import { UtilsService } from '../services/utils.service';
 import { GameStateModel, PlayerModel } from '../models/game-state.model';
+import { NotificationService } from '../services/notification.service';
+import { NotificationIcons, NotificationModel } from '../models/notification.model';
 
 @Component({
   selector: 'app-home',
@@ -28,7 +30,8 @@ export class HomePage {
     private route: ActivatedRoute,
     private router: Router,
     private api: ApiService,
-    private utils: UtilsService) {
+    private utils: UtilsService,
+    private notificationService: NotificationService) {
     this.loadData();
   }
 
@@ -93,11 +96,11 @@ export class HomePage {
         if (response.success && response.data) {
           this.cardSets = response.data;
         } else {
-          this.isOffline = true;
+          this.setOfflineStatus();
         }
       },
       err => {
-        this.isOffline = true;
+        this.setOfflineStatus();
       }
     );
   }
@@ -124,6 +127,17 @@ export class HomePage {
         this.presentAlert('It seems this group doesn\'t exists. Check code and try again.');
       }
     });
+  }
+
+  setOfflineStatus() {
+    this.isOffline = true;
+    this.notificationService.enableNotifications();
+    this.notificationService.addNotification('Sorry, server is offline', NotificationIcons.Info, 10000);
+  }
+
+  setOnlineStatus() {
+    this.isOffline = false;
+    this.notificationService.disableNotifications();
   }
 
 }
