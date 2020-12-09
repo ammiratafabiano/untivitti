@@ -1,10 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, ModalController } from '@ionic/angular';
+import { BehaviorSubject } from 'rxjs';
 import { finalize } from 'rxjs/operators';
 import { GameStateModel, PlayerModel } from '../models/game-state.model';
+import { NotificationModel } from '../models/notification.model';
 import { PlayersPage } from '../players/players.page';
 import { ApiService } from '../services/api.service';
+import { NotificationService } from '../services/notification.service';
 
 @Component({
   selector: 'app-game',
@@ -19,13 +22,14 @@ export class GamePage implements OnInit {
   state: GameStateModel;
 
   title: string;
-
+  
   constructor(
     private route: ActivatedRoute,
     private router: Router,
     private api: ApiService,
     public modalController: ModalController,
-    public alertController: AlertController) {
+    public alertController: AlertController,
+    private notificationService: NotificationService) {
     this.route.queryParams.subscribe(params => {
       if (params && params.group && params.player) {
         this.state = JSON.parse(params.group);
@@ -33,6 +37,7 @@ export class GamePage implements OnInit {
       } else {
         this.exitGame();
       }
+      this.notificationService.handleNotifications();
     });
   }
 
@@ -62,6 +67,7 @@ export class GamePage implements OnInit {
       response => {
         if (response.success && response.data) {
           this.state = response.data;
+          this.checkNotifications();
         } else {
           this.exitGame();
         }
@@ -119,6 +125,15 @@ export class GamePage implements OnInit {
     });
     modal.onWillDismiss().then(_ => this.startLoop());
     await modal.present().then(_ => this.stopLoop());
+  }
+
+  private checkNotifications() {
+    if (false) {
+      const newNotification: NotificationModel = {
+        message: "Hello World!"
+      }
+      this.notificationService.addNotification(newNotification);
+    }
   }
 
 }

@@ -9,7 +9,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content class="ion-padding-top">
   <ng-container *ngIf="!(currentPlayer.isAdmin && players.length > 1)" >
     <ion-item-sliding *ngFor="let player of players">
       <ion-item>

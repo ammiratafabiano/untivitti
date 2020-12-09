@@ -21,6 +21,8 @@ export class HomePage {
 
   cardSets: CardSetModel[];
 
+  isOffline: boolean = false;
+
   constructor(
     public alertController: AlertController,
     private route: ActivatedRoute,
@@ -86,11 +88,18 @@ export class HomePage {
   }
 
   private getCardSets() {
-    this.api.getCardSets().subscribe((response) => {
-      if (response.success && response.data) {
-        this.cardSets = response.data;
+    this.api.getCardSets().subscribe(
+      response => {
+        if (response.success && response.data) {
+          this.cardSets = response.data;
+        } else {
+          this.isOffline = true;
+        }
+      },
+      err => {
+        this.isOffline = true;
       }
-    });
+    );
   }
 
   private getCode() {

@@ -15,7 +15,7 @@
     </ion-toolbar>
   </ion-header>
 
-  <div id="container">
+  <div *ngIf="!isOffline" id="container">
     <ion-item>
       <ion-label position="floating">Nickname</ion-label>
       <ion-input type="text" required [(ngModel)]="nickname"></ion-input>
@@ -42,5 +42,8 @@
       </ion-select>
     </ion-item>
     <ion-button color="warning" (click)="create()">Create</ion-button>
+  </div>
+  <div *ngIf="isOffline" id="container">
+    <ion-icon name="cloud-offline-outline" style="zoom:4.0;"></ion-icon>
   </div>
 </ion-content>
