@@ -99,13 +99,13 @@ export class GamePage implements OnInit {
     if (this.state) {
       if (this.state.status == false) {
         if (this.state && this.state.players && this.state.players.length > 1) {
-          this.title = 'Ready to start';
+          this.title = 'Pronti a partire';
         } else {
-          this.title = 'Waiting for people...';
+          this.title = 'In attesa...';
         }
       } else {
         if (this.currentPlayer.canMove) {
-          this.title = 'It\'s your turn';
+          this.title = 'E\' il tuo turno!';
         } else {
           this.title = '';
         }
@@ -117,15 +117,15 @@ export class GamePage implements OnInit {
 
   async confirmExit() {
     const alert = await this.alertController.create({
-      header: 'Wait!',
-      message: 'Are you sure you want to quit?',
+      header: 'Aspetta!',
+      message: 'Sei proprio sicuro di volere uscire?',
       buttons: [
         {
-          text: 'Cancel',
+          text: 'Annulla',
           role: 'cancel'
         },
         {
-          text: 'Yes',
+          text: 'Si',
           handler: () => {
             this.exitGame();
           }
@@ -151,7 +151,7 @@ export class GamePage implements OnInit {
   async openPlayersModal() {
     this.playerModal = await this.modalController.create({
       component: PlayersPage,
-      componentProps: { state: this.stateListener, player: this.currentPlayer }
+      componentProps: { state: this.stateListener, nickname: this.currentPlayer.name }
     });
     await this.playerModal.present();
   }
@@ -171,7 +171,7 @@ export class GamePage implements OnInit {
         }
       });
       if (!found) {
-        this.notificationService.addNotification(player.name + ' logged in', NotificationIcons.Login);
+        this.notificationService.addNotification(player.name + ' si è connesso/a', NotificationIcons.Login);
       }
     });
     // check log out
@@ -183,12 +183,12 @@ export class GamePage implements OnInit {
         }
       });
       if (!found) {
-        this.notificationService.addNotification(prevPlayer.name + ' logged out', NotificationIcons.Logout);
+        this.notificationService.addNotification(prevPlayer.name + ' si è disconnesso/a', NotificationIcons.Logout);
       }
     });
     // check admin change
     if (admin != prevAdmin) {
-      this.notificationService.addNotification(admin + ' is the Admin now', NotificationIcons.Logout);
+      this.notificationService.addNotification(admin + ' è il nuovo mazziere', NotificationIcons.Logout);
     }
   }
 

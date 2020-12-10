@@ -21,6 +21,7 @@ export class HomePage {
 
   selectedSet: CardTypeEnum;
   selectedGame: GameTypeEnum;
+  money: boolean = false;
 
   currentPlayer: PlayerModel;
 
@@ -43,11 +44,11 @@ export class HomePage {
 
   public join() {
     if (!this.code) {
-      this.presentAlert('Please, insert a group code.');
+      this.presentAlert('Per favore, inserisci il codice.');
       return;
     }
     if (!this.nickname) {
-      this.presentAlert('Please, insert your nickname.');
+      this.presentAlert('Per favore, inserisci il nickname.');
       return;
     }
     this.retrieveGroup();
@@ -55,7 +56,7 @@ export class HomePage {
 
   public create() {
     if (!this.nickname) {
-      this.presentAlert('Please, insert your nickname.');
+      this.presentAlert('Per favore, inserisci il nickname.');
       return;
     }
     this.getCode();
@@ -77,9 +78,9 @@ export class HomePage {
 
   async presentAlert(msg: string) {
     const alert = await this.alertController.create({
-      header: 'Wait!',
+      header: 'Attenzione',
       message: msg,
-      buttons: ['OK']
+      buttons: ['Ok']
     });
 
     await alert.present();
@@ -131,13 +132,13 @@ export class HomePage {
   }
 
   private getCode() {
-    this.api.createGroup(this.nickname, this.selectedSet, this.selectedGame).subscribe((response) => {
+    this.api.createGroup(this.nickname, this.selectedSet, this.selectedGame, this.money).subscribe((response) => {
       if (response.success && response.data) {
         const group = response.data;
         const currentPlayer = response.data.players.find(x => x.name === this.nickname);
         this.goToGame(currentPlayer, group);
       } else {
-        this.presentAlert('Sorry, something doesn\'t work, try later');
+        this.presentAlert('Qualcosa non va, riprova più tardi.');
       }
     });
   }
@@ -149,7 +150,7 @@ export class HomePage {
         const currentPlayer = response.data.players.find(x => x.name === this.nickname);
         this.goToGame(currentPlayer, group);
       } else {
-        this.presentAlert('It seems this group doesn\'t exists. Check code and try again.');
+        this.presentAlert('Sembra che la partità è già cominciata o che non esiste.');
       }
     });
   }
@@ -157,7 +158,7 @@ export class HomePage {
   setOfflineStatus() {
     this.isOffline = true;
     this.notificationService.enableNotifications();
-    this.notificationService.addNotification('Sorry, server is offline', NotificationIcons.Info, 5000);
+    this.notificationService.addNotification('Ops, il server non risponde', NotificationIcons.Info, 5000);
   }
 
   setOnlineStatus() {

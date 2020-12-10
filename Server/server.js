@@ -25,7 +25,34 @@ const games = [
     handCards: 1,
     minPlayers: 2,
     maxPlayers: 39,
-    clockwise: false
+    clockwise: false,
+    swapOffset: 1,
+    defaultBalance: 3,
+    mustShow: true,
+    adminMoves: [
+      {
+        name: 'Inizia',
+        id: 0
+      },
+      {
+        name: 'Termina',
+        id: 1
+      }
+    ],
+    playerMoves: [
+      {
+        name: 'Dichiara',
+        id: 2
+      },
+      {
+        name: 'Ti stai',
+        id: 3
+      },
+      {
+        name: 'Cambia',
+        id: 4
+      }
+    ]
   }
 ]
 
@@ -60,31 +87,30 @@ app.get('/', cors(corsOptions), (req, res) => {
   res.send('Server untivitti.\nStatus: Ok')
 })
 
-app.get('/createGroup/:nick/:cardSet/:game', cors(corsOptions), (req, res) => {
+app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
   let code
   let group
   do {
     code = newCode()
     group = groups.find(x => x.code == code)
   } while (group)
+  const game = games.find(x => x.id == req.body.game)
   const newGroup = {
     code: code,
-    cardSet: req.params['cardSet'],
-    game: req.params['game'],
+    cardSet: req.body.cardSet,
+    game: req.body.game,
     status: false,
+    money: req.body.money,
     players: [
       {
-        name: req.params['nick'],
+        name: req.body.nickname,
         isAdmin: true,
-        canMove: true,
-        moves: [
-          {
-            name: 'Start',
-            id: 0
-          }
-        ],
+        canMove: false,
+        moves: game.adminMoves,
         timestamp: getTime(),
-        cards: []
+        cards: [],
+        visible: false,
+        balance: game.defaultBalance
       }
     ]
   }
@@ -107,9 +133,9 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
       if (!group.players.find(x => x.name == nickname)) {
         const player = {
           name: nickname,
-          isAdmin: false,
+          isAdmin: group.players.length > 0 ? false : true,
           canMove: false,
-          moves: [],
+          moves: group.players.length > 0 ? [] : game.adminMoves,
           timestamp: getTime(),
           cards: []
         }
@@ -156,7 +182,15 @@ app.get('/getState/:nick/:code', cors(corsOptions), (req, res) => {
   let response
   if (group) {
     const game = games.find(x => x.id == group.game)
-    if (group.players.length < game.minPlayers) group.status = false
+    if (group.players.length < game.minPlayers) {
+      group.status = false
+      group.cards = []
+      group.players.forEach(player => {
+        player.canMove = false
+        player.cards = []
+        player.moves = player.isAdmin ? game.adminMoves : []
+      })
+    }
     const player = group.players.find(x => x.name == nickname)
     if (player) {
       player.timestamp = getTime()
@@ -199,7 +233,7 @@ app.post('/updatePlayers', jsonParser, cors(corsOptions), (req, res) => {
   const group = groups.find(x => x.code == code);
   let response
   if (group) {
-    group.players = solveConflicts(group.players, newPlayers);
+    group.players = solveConflicts(group, newPlayers);
     response = {
       success: true
     }
@@ -268,20 +302,15 @@ function checkGroups() {
 function deletePlayer(code, nick) {
   let group = groups.find(x => x.code == code)
   if (group) {
+    const game = games.find(x => x.id == group.game)
     const playerToDelete = group.players.find(x => x.name == nick)
     const indexToDelete = group.players.indexOf(playerToDelete)
     if (indexToDelete > -1) {
       const wasAdmin = playerToDelete.isAdmin ? true : false;
       group.players.splice(indexToDelete,1)
       if (wasAdmin && group.players.length > 0) {
-        group.players[0].isAdmin = true;
-        group.players[0].canMove = true;
-        group.players[0].moves = [
-          {
-            name: 'Start',
-            id: 0
-          }
-        ]
+        group.players[0].isAdmin = true
+        group.players[0].moves = game.adminMoves
       }
       return true
     } {
@@ -311,14 +340,21 @@ function getTime() {
   return Math.floor(Date.now() / 1000)
 }
 
-function solveConflicts(players, newPlayers) {
-  players.forEach(player => {
+function solveConflicts(group, newPlayers) {
+  const game = games.find(x => x.id == group.game)
+  group.players.forEach(player => {
     let found = false
     newPlayers.forEach(newPlayer => {
       if (player.name == newPlayer.name) found = true
     })
     if (!found) newPlayers.push(player)
   })
+  let admin = newPlayers.find(x => x.isAdmin == true)
+  admin.isAdmin = false
+  admin.moves = []
+  let newAdmin = newPlayers[0]
+  newAdmin.isAdmin = true
+  newAdmin.moves = game.adminMoves
   return newPlayers
 }
 
@@ -326,6 +362,14 @@ function executeMove(group, player, move) {
   switch (move) {
     case "0":
       return startMove(group, player)
+    case "1":
+      return stopMove(group,player)
+    case "2":
+      return showMove(group, player)
+    case "3":
+      return skipMove(group, player)
+    case "4":
+      return swapMove(group, player)
     default:
       return false
   }
@@ -334,7 +378,6 @@ function executeMove(group, player, move) {
 function startMove(group, player) {
   if (player.isAdmin) {
     group.status = true
-    player.canMove = false
     group.cards = getShuffledSet(group.cardSet)
     const game = games.find(x => x.id == group.game)
     for (let i = 0; i < group.players.length; i++) {
@@ -343,10 +386,82 @@ function startMove(group, player) {
         group.players[i].cards.push(group.cards.pop())
       }
     }
+    return turnChange(group, player)
+  } else {
+    return false
+  }
+}
+
+function stopMove(group, player) {
+  if (player.isAdmin) {
+    group.status = false
+    group.cards = []
+    for (let i = 0; i < group.players.length; i++) {
+      group.players[i].cards = []
+      group.players[i].canMove = false
+      player.visible = false
+    }
     return true
   } else {
     return false
   }
+}
+
+function showMove(group, player) {
+  player.visible = true
+  if (!player.isAdmin) {
+    return turnChange(group, player)
+  } else {
+    return turnStop(group, player)
+  }
+}
+
+function skipMove(group, player) {
+  if (!player.isAdmin) {
+    return turnChange(group, player)
+  } else {
+    return turnStop(group, player)
+  }
+}
+
+function swapMove(group, player) {
+  const game = games.find(x => x.id == group.game)
+  const index = group.players.findIndex(x => x.name == player.name)
+  const newIndex = (index + game.swapOffset) % group.players.length
+  if (!player.isAdmin) {
+    const tempCards = [...group.players[index].cards]
+    group.players[index].cards = group.players[newIndex].cards
+    group.players[newIndex].cards = tempCards;
+    return turnChange(group, player)
+  } else {
+    group.players[index].cards = []
+    for (let j = 0; j < game.handCards; j++) {
+      group.players[index].cards.push(group.cards.pop())
+    }
+    return turnStop(group, player)
+  }
+}
+
+function turnChange(group, player) {
+  const index = group.players.findIndex(x => x.name == player.name)
+  const newIndex = (index + 1) % group.players.length
+  const game = games.find(x => x.id == group.game)
+  group.players[index].canMove = false;
+  group.players[index].moves = group.players[index].isAdmin ? game.adminMoves : []
+  group.players[newIndex].canMove = true;
+  group.players[newIndex].moves = group.players[newIndex].moves.concat(game.playerMoves)
+  return true
+}
+
+function turnStop(group, player) {
+  const index = group.players.findIndex(x => x.name == player.name)
+  const game = games.find(x => x.id == group.game)
+  group.players[index].canMove = false;
+  group.players[index].moves = group.players[index].isAdmin ? game.adminMoves : []
+  if (game.mustShow) {
+      group.players.forEach(x => x.visible = true)
+  }
+  return true
 }
 
 function getShuffledSet(cardSet) {

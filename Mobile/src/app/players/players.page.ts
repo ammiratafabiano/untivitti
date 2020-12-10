@@ -31,11 +31,12 @@ export class PlayersPage implements OnInit {
     private clipboard: Clipboard,
     private notificationService: NotificationService) {
     const stateListener = this.navParams.get('state');
+    const nickname = this.navParams.get('nickname');
     stateListener.subscribe(value => {
       if (!this.reordering && this.detectChange(this.players, value.players)) {
         this.players = value.players;
         this.code = value.code;
-        this.currentPlayer = this.navParams.get('player');
+        this.currentPlayer = value.players.find(x => x.name == nickname);
         this.status = value.status;
       }
     });
