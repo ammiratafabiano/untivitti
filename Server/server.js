@@ -155,6 +155,8 @@ app.get('/getState/:nick/:code', cors(corsOptions), (req, res) => {
   const group = groups.find(x => x.code == code)
   let response
   if (group) {
+    const game = games.find(x => x.id == group.game)
+    if (group.players.length < game.minPlayers) group.status = false
     const player = group.players.find(x => x.name == nickname)
     if (player) {
       player.timestamp = getTime()
@@ -332,12 +334,11 @@ function executeMove(group, player, move) {
 function startMove(group, player) {
   if (player.isAdmin) {
     group.status = true
-    player.moves = []
     player.canMove = false
     group.cards = getShuffledSet(group.cardSet)
-    console.log(group.cards);
     const game = games.find(x => x.id == group.game)
     for (let i = 0; i < group.players.length; i++) {
+      group.players[i].cards = []
       for (let j = 0; j < game.handCards; j++) {
         group.players[i].cards.push(group.cards.pop())
       }

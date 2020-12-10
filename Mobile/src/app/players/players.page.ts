@@ -36,7 +36,7 @@ export class PlayersPage implements OnInit {
         this.players = value.players;
         this.code = value.code;
         this.currentPlayer = this.navParams.get('player');
-        this.status = value.status == false;
+        this.status = value.status;
       }
     });
   }
