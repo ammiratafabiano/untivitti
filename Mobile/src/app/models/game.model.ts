@@ -7,4 +7,6 @@ export class GameModel {
     name: string;
     handCards: number;
     minPlayers: number;
+    maxPlayers: number;
+    clockwise: boolean;
 }

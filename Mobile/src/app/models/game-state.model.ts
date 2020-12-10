@@ -1,9 +1,14 @@
-import { CardTypeEnum } from './card-set.model';
+import { CardSetModel, CardTypeEnum } from './card-set.model';
 import { GameTypeEnum } from './game.model';
 
 export class MoveModel {
     name: string;
     id: number;
+}
+
+export class CardModel {
+    set: CardSetModel;
+    index: number;
 }
 
 export class PlayerModel {
@@ -12,6 +17,7 @@ export class PlayerModel {
     canMove: boolean;
     moves: MoveModel[];
     timestamp: number;
+    cards: CardModel[];
 }
 
 export class GameStateModel {

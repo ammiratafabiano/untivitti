@@ -27,6 +27,8 @@ export class GamePage implements OnInit {
   stateListener: BehaviorSubject<GameStateModel>;
 
   title: string;
+
+  playerModal: any;
   
   constructor(
     private route: ActivatedRoute,
@@ -123,6 +125,7 @@ export class GamePage implements OnInit {
 
   private exitGame() {
     this.stopLoop();
+    if (this.playerModal) this.playerModal.dismiss();
     this.api.exitGroup(this.currentPlayer.name, this.state.code).pipe(
       finalize(() => this.router.navigate(['/']))).subscribe();
   }
@@ -134,11 +137,11 @@ export class GamePage implements OnInit {
   }
 
   async openPlayersModal() {
-    const modal = await this.modalController.create({
+    this.playerModal = await this.modalController.create({
       component: PlayersPage,
       componentProps: { state: this.stateListener, player: this.currentPlayer }
     });
-    await modal.present();
+    await this.playerModal.present();
   }
 
   private checkNotifications() {

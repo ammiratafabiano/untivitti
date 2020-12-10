@@ -15,7 +15,6 @@ import { NotificationModel } from '../models/notification.model';
 export class PlayersPage implements OnInit {
 
   loop: any;
-  canUpdate: boolean = true;
 
   code: string;
   currentPlayer: PlayerModel;
@@ -23,7 +22,7 @@ export class PlayersPage implements OnInit {
 
   reordering: boolean = false;
 
-  canInvite: boolean = true;
+  status: boolean = true;
 
   constructor(
     public modalController: ModalController,
@@ -37,7 +36,7 @@ export class PlayersPage implements OnInit {
         this.players = value.players;
         this.code = value.code;
         this.currentPlayer = this.navParams.get('player');
-        this.canInvite = value.status == false;
+        this.status = value.status == false;
       }
     });
   }

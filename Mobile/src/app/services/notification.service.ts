@@ -11,6 +11,7 @@ export class NotificationService {
   notifications: NotificationModel[] = [];
   notificationListener = new BehaviorSubject<NotificationModel[]>(this.notifications);
   queue: number = -1;
+  initialized: boolean = false;
 
   constructor(private toastController: ToastController) { }
 
@@ -30,17 +31,21 @@ export class NotificationService {
   }
 
   enableNotifications() {
-    this.notificationListener.subscribe(async (notifications) => {
-      if (notifications.length != 0) {
-        const notification = this.notifications.pop();
-        this.notificationListener.next(this.notifications);
-        await this.showNotification(notification);
-      }
-    });
+    if (!this.initialized) {
+      this.initialized = true;
+      this.notificationListener.subscribe(async (notifications) => {
+        if (notifications.length != 0) {
+          const notification = this.notifications.pop();
+          this.notificationListener.next(this.notifications);
+          await this.showNotification(notification);
+        }
+      });
+    }
   }
 
   disableNotifications() {
     this.notificationListener.unsubscribe();
+    this.initialized = false;
   }
 
   async showNotification(notification: NotificationModel) {

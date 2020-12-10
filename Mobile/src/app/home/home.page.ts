@@ -35,7 +35,9 @@ export class HomePage {
     private router: Router,
     private api: ApiService,
     private utils: UtilsService,
-    private notificationService: NotificationService) {
+    private notificationService: NotificationService) {}
+
+  ionViewWillEnter() {
     this.loadData();
   }
 
@@ -151,11 +153,9 @@ export class HomePage {
   }
 
   setOfflineStatus() {
-    if (!this.isOffline) {
-      this.isOffline = true;
-      this.notificationService.enableNotifications();
-      this.notificationService.addNotification('Sorry, server is offline', NotificationIcons.Info, 10000);
-    }
+    this.isOffline = true;
+    this.notificationService.enableNotifications();
+    this.notificationService.addNotification('Sorry, server is offline', NotificationIcons.Info, 5000);
   }
 
   setOnlineStatus() {

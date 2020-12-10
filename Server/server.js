@@ -24,7 +24,8 @@ const games = [
     name: 'Cucù',
     handCards: 1,
     minPlayers: 2,
-    maxPlayers: 39
+    maxPlayers: 39,
+    clockwise: false
   }
 ]
 
@@ -82,7 +83,8 @@ app.get('/createGroup/:nick/:cardSet/:game', cors(corsOptions), (req, res) => {
             id: 0
           }
         ],
-        timestamp: getTime()
+        timestamp: getTime(),
+        cards: []
       }
     ]
   }
@@ -101,14 +103,15 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
   let response
   if (group && group.status != true) {
     const game = games.find(x => x.id == group.game)
-    if (group.players < game.maxPlayers) {
+    if (group.players.length < game.maxPlayers) {
       if (!group.players.find(x => x.name == nickname)) {
         const player = {
           name: nickname,
           isAdmin: false,
           canMove: false,
           moves: [],
-          timestamp: getTime()
+          timestamp: getTime(),
+          cards: []
         }
         group.players.push(player)
       }
@@ -270,6 +273,13 @@ function deletePlayer(code, nick) {
       group.players.splice(indexToDelete,1)
       if (wasAdmin && group.players.length > 0) {
         group.players[0].isAdmin = true;
+        group.players[0].canMove = true;
+        group.players[0].moves = [
+          {
+            name: 'Start',
+            id: 0
+          }
+        ]
       }
       return true
     } {
@@ -323,10 +333,30 @@ function startMove(group, player) {
   if (player.isAdmin) {
     group.status = true
     player.moves = []
-
-    const handCards = group.game.handCards;
+    player.canMove = false
+    group.cards = getShuffledSet(group.cardSet)
+    console.log(group.cards);
+    const game = games.find(x => x.id == group.game)
+    for (let i = 0; i < group.players.length; i++) {
+      for (let j = 0; j < game.handCards; j++) {
+        group.players[i].cards.push(group.cards.pop())
+      }
+    }
     return true
   } else {
     return false
   }
+}
+
+function getShuffledSet(cardSet) {
+  const size = cardSets.find(x => x.id == cardSet).size
+  for (var array=[],i=0; i < size; ++i) array[i]=i
+  var tmp, current, top = array.length
+  if(top) while(--top) {
+    current = Math.floor(Math.random() * (top + 1))
+    tmp = array[current]
+    array[current] = array[top]
+    array[top] = tmp
+  }
+  return array
 }
