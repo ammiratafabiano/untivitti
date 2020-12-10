@@ -36,4 +36,9 @@
       <ion-icon name="caret-up-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
+  <div *ngIf="currentPlayer.cards.length > 0" class="cards-container">
+    <div class="card">
+      <img src="./assets/cardSets/{{state.cardSet}}/{{currentPlayer.cards[0]}}.png" />
+    </div>
+  </div>
 </ion-content>

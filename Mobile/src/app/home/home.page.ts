@@ -19,8 +19,8 @@ export class HomePage {
   code: string;
   nickname: string;
 
-  selectedSet: CardTypeEnum = 0;
-  selectedGame: GameTypeEnum = 0;
+  selectedSet: CardTypeEnum;
+  selectedGame: GameTypeEnum;
 
   currentPlayer: PlayerModel;
 
@@ -103,6 +103,7 @@ export class HomePage {
       response => {
         if (response.success && response.data) {
           this.cardSets = response.data;
+          this.selectedSet = this.cardSets[0].id;
         } else {
           this.setOfflineStatus();
         }
@@ -118,6 +119,7 @@ export class HomePage {
       response => {
         if (response.success && response.data) {
           this.games = response.data;
+          this.selectedGame = this.games[0].id;
         } else {
           this.setOfflineStatus();
         }

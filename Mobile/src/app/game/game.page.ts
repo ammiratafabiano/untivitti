@@ -96,10 +96,22 @@ export class GamePage implements OnInit {
   }
 
   private updateTitle() {
-    if (this.state && this.state.players && this.state.players.length > 1) {
-      this.title = 'Ready to start';
+    if (this.state) {
+      if (this.state.status == false) {
+        if (this.state && this.state.players && this.state.players.length > 1) {
+          this.title = 'Ready to start';
+        } else {
+          this.title = 'Waiting for people...';
+        }
+      } else {
+        if (this.currentPlayer.canMove) {
+          this.title = 'It\'s your turn';
+        } else {
+          this.title = '';
+        }
+      }
     } else {
-      this.title = 'Waiting for people...';
+      this.title = '';
     }
   }
 
