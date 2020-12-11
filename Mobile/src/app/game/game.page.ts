@@ -98,8 +98,8 @@ export class GamePage implements OnInit {
   private updateTitle() {
     if (this.state) {
       if (this.state.status == false) {
-        if (this.state && this.state.players && this.state.players.length > 1) {
-          this.title = 'Pronti a partire';
+        if (this.state.players.length > 1) {
+          this.title = 'Partita in pausa';
         } else {
           this.title = 'In attesa...';
         }
@@ -107,7 +107,10 @@ export class GamePage implements OnInit {
         if (this.currentPlayer.canMove) {
           this.title = 'E\' il tuo turno!';
         } else {
-          this.title = '';
+          const name = this.state.players.find(x => x.canMove == true).name;
+          if (name) {
+            this.title = `E' il turno di ${ name }`;
+          }
         }
       }
     } else {

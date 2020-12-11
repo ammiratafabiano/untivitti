@@ -11,40 +11,43 @@
 
 <ion-content class="ion-padding-top">
   <ng-container *ngIf="!(currentPlayer.isAdmin && players.length > 1 && !status)" >
-    <ion-item-sliding *ngFor="let player of players">
-      <ion-item>
-        <ion-label *ngIf="player.name == currentPlayer.name">
-          <ion-text color="danger">{{ player.name }}</ion-text>
-        </ion-label>
-        <ion-label *ngIf="player.name != currentPlayer.name">
-          {{ player.name }}
-        </ion-label>
-        <ion-chip *ngIf="player.isAdmin">
-          <ion-label>Mazziere</ion-label>
+    <ion-item-sliding *ngFor="let player of players" [ngClass]="{'canMove': player.canMove}">
+      <ion-item class="player-container">
+        <ion-label [ngClass]="{'myself': player.name == currentPlayer.name}">{{ player.name }}</ion-label>
+        <div *ngIf="player.cards.length > 0 && player.visible || (status && player.name == currentPlayer.name)" class="cards-container">
+          <div class="card">
+            <img src="./assets/cardSets/{{cardSet}}/{{player.cards[0]}}.png" />
+          </div>
+        </div>
+        <ion-icon *ngIf="player.isAdmin" name="albums-outline" class="rotate90"></ion-icon>
+        <ion-chip outline *ngIf="moneyMode" (click)="currentPlayer.isAdmin && changeBalance(player)">
+          <ion-icon name="server" color="warning"></ion-icon>
+          <ion-label>{{ player.balance }}</ion-label>
         </ion-chip>
-        <ion-icon *ngIf="player.canMove" name="flag-outline"></ion-icon>
       </ion-item>
       <ion-item-options side="end">
-        <ion-item-option *ngIf="currentPlayer.isAdmin && currentPlayer.name != player.name" (click)="remove(player)">Rimuovi</ion-item-option>
+        <ion-item-option *ngIf="currentPlayer.isAdmin && currentPlayer.name != player.name && !status" (click)="remove(player)">Rimuovi</ion-item-option>
       </ion-item-options>
     </ion-item-sliding>
   </ng-container>
   <ion-reorder-group *ngIf="currentPlayer.isAdmin && players.length > 1 && !status" (ionItemReorder)="reorderPlayers($event)" disabled="false">
-    <ion-item-sliding *ngFor="let player of players">
-      <ion-item>
-        <ion-label *ngIf="player.name == currentPlayer.name">
-          <ion-text color="danger">{{ player.name }}</ion-text>
-        </ion-label>
-        <ion-label *ngIf="player.name != currentPlayer.name">
-          {{ player.name }}
-        </ion-label>
-        <ion-chip *ngIf="player.isAdmin">
-          <ion-label>Mazziere</ion-label>
+    <ion-item-sliding *ngFor="let player of players" [ngClass]="{'canMove': player.canMove}">
+      <ion-item class="player-container">
+        <ion-label [ngClass]="{'myself': player.name == currentPlayer.name}">{{ player.name }}</ion-label>
+        <div *ngIf="player.cards.length > 0 && player.visible || (status && player.name == currentPlayer.name)" class="cards-container">
+          <div class="card">
+            <img src="./assets/cardSets/{{cardSet}}/{{player.cards[0]}}.png" />
+          </div>
+        </div>
+        <ion-icon *ngIf="player.isAdmin" name="albums-outline" class="rotate90"></ion-icon>
+        <ion-chip outline *ngIf="moneyMode" (click)="currentPlayer.isAdmin && changeBalance(player)">
+          <ion-icon name="server" color="warning"></ion-icon>
+          <ion-label>{{ player.balance }}</ion-label>
         </ion-chip>
         <ion-reorder slot="end"></ion-reorder>
       </ion-item>
       <ion-item-options side="end">
-        <ion-item-option *ngIf="currentPlayer.isAdmin && currentPlayer.name != player.name" (click)="remove(player)">Remove</ion-item-option>
+        <ion-item-option *ngIf="currentPlayer.isAdmin && currentPlayer.name != player.name && !status"  (click)="remove(player)">Remove</ion-item-option>
       </ion-item-options>
     </ion-item-sliding>
   </ion-reorder-group>

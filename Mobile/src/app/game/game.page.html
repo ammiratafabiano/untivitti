@@ -1,4 +1,4 @@
-<ion-header>
+<ion-header [translucent]="true">
   <ion-toolbar>
     <ion-item lines="none">
       <ion-icon name="arrow-back-circle-outline" color="danger" (click)="confirmExit()"></ion-icon>
@@ -13,9 +13,20 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-fab *ngIf="(currentPlayer.isAdmin || (!currentPlayer.isAdmin && currentPlayer.canMove)) && state.players.length >= currentGame.minPlayers" vertical="center" horizontal="center" slot="fixed">
-    <ion-fab-button color="warning">
+<ion-content [fullscreen]="true">
+  <ion-header collapse="condense">
+    <ion-toolbar>
+      <ion-item lines="none">
+        <ion-title>{{ title }}</ion-title>
+        <ion-chip slot="end" outline *ngIf="state.money" (click)="currentPlayer.isAdmin && changeBalance(player)">
+          <ion-icon name="server" color="warning"></ion-icon>
+          <ion-label>{{ currentPlayer.balance }}</ion-label>
+        </ion-chip>
+      </ion-item>
+    </ion-toolbar>
+  </ion-header>
+  <ion-fab vertical="center" horizontal="center" slot="fixed">
+    <ion-fab-button color="warning" [disabled]="!((currentPlayer.isAdmin || (!currentPlayer.isAdmin && currentPlayer.canMove)) && state.players.length >= currentGame.minPlayers)">
       <ion-icon name="caret-up-outline"></ion-icon>
     </ion-fab-button>
     <ng-container *ngIf="currentPlayer.isAdmin">
@@ -46,11 +57,6 @@
         <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[2])">{{ currentPlayer.moves[2].name }}</ion-fab-button>
       </ion-fab-list>
     </ng-container>
-  </ion-fab>
-  <ion-fab *ngIf="!((currentPlayer.isAdmin || (!currentPlayer.isAdmin && currentPlayer.canMove)) && state.players.length >= currentGame.minPlayers)" vertical="center" horizontal="center" slot="fixed">
-    <ion-fab-button color="warning" disabled="true">
-      <ion-icon name="caret-up-outline"></ion-icon>
-    </ion-fab-button>
   </ion-fab>
   <div *ngIf="currentPlayer.cards.length > 0" class="cards-container">
     <div class="card">

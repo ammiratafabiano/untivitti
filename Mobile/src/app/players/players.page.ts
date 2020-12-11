@@ -1,11 +1,12 @@
 import { Component, OnInit } from '@angular/core';
-import { ModalController, NavParams } from '@ionic/angular';
-import { PlayerModel } from '../models/game-state.model';
+import { AlertController, ModalController, NavParams } from '@ionic/angular';
+import { GameStateModel, PlayerModel } from '../models/game-state.model';
 import { ApiService } from '../services/api.service';
 import { Clipboard } from '@ionic-native/clipboard/ngx';
 import { finalize } from 'rxjs/operators';
 import { NotificationService } from '../services/notification.service';
 import { NotificationModel } from '../models/notification.model';
+import { CardTypeEnum } from '../models/card-set.model';
 
 @Component({
   selector: 'app-players',
@@ -23,13 +24,17 @@ export class PlayersPage implements OnInit {
   reordering: boolean = false;
 
   status: boolean = true;
+  cardSet: CardTypeEnum;
+
+  moneyMode: boolean;
 
   constructor(
     public modalController: ModalController,
     public navParams: NavParams,
     private api: ApiService,
     private clipboard: Clipboard,
-    private notificationService: NotificationService) {
+    private notificationService: NotificationService,
+    public alertController: AlertController) {
     const stateListener = this.navParams.get('state');
     const nickname = this.navParams.get('nickname');
     stateListener.subscribe(value => {
@@ -38,6 +43,8 @@ export class PlayersPage implements OnInit {
         this.code = value.code;
         this.currentPlayer = value.players.find(x => x.name == nickname);
         this.status = value.status;
+        this.cardSet = value.cardSet;
+        this.moneyMode = value.money;
       }
     });
   }
@@ -77,11 +84,42 @@ export class PlayersPage implements OnInit {
     document.body.removeChild(el);
 
     const notification: NotificationModel = new NotificationModel();
-    this.notificationService.addNotification('Link was copied in clipboard');
+    this.notificationService.addNotification('Link copiato negli appunti');
   }
 
   remove(player: PlayerModel) {
     this.api.exitGroup(player.name, this.code).subscribe();
+  }
+
+  async changeBalance(player: PlayerModel) {
+    const alert = await this.alertController.create({
+      header: 'Cambio bilancio',
+      inputs: [
+        {
+          name: 'value',
+          value: player.balance,
+          type: 'number',
+          min: 0
+        }
+      ],
+      buttons: [
+        {
+          text: 'Annulla',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {}
+        }, {
+          text: 'Conferma',
+          handler: (out) => {
+            this.api.updateBalance(player.name, this.code, out.value).subscribe(_ => {
+
+            });
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
 }

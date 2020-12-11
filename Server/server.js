@@ -137,7 +137,9 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
           canMove: false,
           moves: group.players.length > 0 ? [] : game.adminMoves,
           timestamp: getTime(),
-          cards: []
+          cards: [],
+          visible: false,
+          balance: game.defaultBalance
         }
         group.players.push(player)
       }
@@ -276,6 +278,26 @@ app.get('/sendMove/:nick/:code/:move', cors(corsOptions), (req, res) => {
   res.send(response)
 })
 
+app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => {
+  const nickname = req.params['nick']
+  const code = req.params['code']
+  const newBalance = req.params['balance']
+  const group = groups.find(x => x.code == code)
+  let response
+  if (group) {
+    const player = group.players.find(x => x.name == nickname)
+    player.balance = newBalance
+    response = {
+      success: true
+    }
+  } else {
+    response = {
+      success: false
+    }
+  }
+  res.send(response)
+})
+
 app.listen(port, (err) => {
   if (err) console.log(err); 
   console.log(`Example app listening at http://localhost:${port}`)
@@ -399,6 +421,7 @@ function stopMove(group, player) {
     for (let i = 0; i < group.players.length; i++) {
       group.players[i].cards = []
       group.players[i].canMove = false
+      group.players[i].visible = false
       player.visible = false
     }
     return true

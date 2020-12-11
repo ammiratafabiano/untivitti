@@ -105,4 +105,13 @@ export class ApiService {
         catchError(this.handleError)
       );
   }
+
+  updateBalance(nickname: string, code: string, newBalance: number): Observable<ResponseModel<any>>{
+    return this.http
+      .get<ResponseModel<GameStateModel>>(this.endpoint + '/updateBalance/' + nickname + '/' + code + '/' + newBalance)
+      .pipe(
+        retry(2),
+        catchError(this.handleError)
+      );
+  }
 }

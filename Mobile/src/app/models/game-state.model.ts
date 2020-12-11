@@ -18,6 +18,8 @@ export class PlayerModel {
     moves: MoveModel[];
     timestamp: number;
     cards: CardModel[];
+    visible: boolean;
+    balance: number;
 }
 
 export class GameStateModel {
@@ -26,4 +28,5 @@ export class GameStateModel {
     game: GameTypeEnum;
     status: boolean;
     players: PlayerModel[];
+    money: boolean;
 }
