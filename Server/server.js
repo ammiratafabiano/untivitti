@@ -41,7 +41,7 @@ const games = [
     ],
     playerMoves: [
       {
-        name: 'Dichiara',
+        name: 'Mostra',
         id: 2
       },
       {
@@ -101,6 +101,7 @@ app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
     game: req.body.game,
     status: false,
     money: req.body.money,
+    round: 0,
     players: [
       {
         name: req.body.nickname,
@@ -110,7 +111,8 @@ app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
         timestamp: getTime(),
         cards: [],
         visible: false,
-        balance: game.defaultBalance
+        balance: game.defaultBalance,
+        ghost: false
       }
     ]
   }
@@ -139,7 +141,8 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
           timestamp: getTime(),
           cards: [],
           visible: false,
-          balance: game.defaultBalance
+          balance: game.defaultBalance,
+          ghost: false
         }
         group.players.push(player)
       }
@@ -290,6 +293,29 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
     response = {
       success: true
     }
+    if (newBalance == 0) {
+      player.ghost = true
+    }
+  } else {
+    response = {
+      success: false
+    }
+  }
+  res.send(response)
+})
+
+app.get('/setGhost/:nick/:code/:value', cors(corsOptions), (req, res) => {
+  const nickname = req.params['nick']
+  const code = req.params['code']
+  const value = req.params['value']
+  const group = groups.find(x => x.code == code)
+  let response
+  if (group) {
+    const player = group.players.find(x => x.name == nickname)
+    player.ghost = value == "true" ? true : false
+    response = {
+      success: true
+    }
   } else {
     response = {
       success: false
@@ -398,16 +424,23 @@ function executeMove(group, player, move) {
 }
 
 function startMove(group, player) {
+  const game = games.find(x => x.id == group.game)
   if (player.isAdmin) {
+    /*
+    const newPlayers = [...group.players]
+    const shifted = newPlayers.shift()
+    newPlayers.push(shifted)
+    group.players = solveConflicts(group, newPlayers);
+    */
     group.status = true
     group.cards = getShuffledSet(group.cardSet)
-    const game = games.find(x => x.id == group.game)
     for (let i = 0; i < group.players.length; i++) {
       group.players[i].cards = []
       for (let j = 0; j < game.handCards; j++) {
         group.players[i].cards.push(group.cards.pop())
       }
     }
+    group.round += 1;
     return turnChange(group, player)
   } else {
     return false
@@ -415,12 +448,14 @@ function startMove(group, player) {
 }
 
 function stopMove(group, player) {
+  const game = games.find(x => x.id == group.game)
   if (player.isAdmin) {
     group.status = false
     group.cards = []
     for (let i = 0; i < group.players.length; i++) {
       group.players[i].cards = []
       group.players[i].canMove = false
+      group.players[i].moves = group.players[i].isAdmin ? game.adminMoves : []
       group.players[i].visible = false
       player.visible = false
     }
@@ -466,9 +501,12 @@ function swapMove(group, player) {
 }
 
 function turnChange(group, player) {
-  const index = group.players.findIndex(x => x.name == player.name)
-  const newIndex = (index + 1) % group.players.length
   const game = games.find(x => x.id == group.game)
+  const index = group.players.findIndex(x => x.name == player.name)
+  let newIndex = index
+  do {
+    newIndex = (newIndex + 1) % group.players.length
+  } while (group.players[newIndex].ghost)
   group.players[index].canMove = false;
   group.players[index].moves = group.players[index].isAdmin ? game.adminMoves : []
   group.players[newIndex].canMove = true;

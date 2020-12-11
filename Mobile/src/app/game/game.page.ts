@@ -104,17 +104,17 @@ export class GamePage implements OnInit {
           this.title = 'In attesa...';
         }
       } else {
-        if (this.currentPlayer.canMove) {
-          this.title = 'E\' il tuo turno!';
-        } else {
-          const name = this.state.players.find(x => x.canMove == true).name;
-          if (name) {
-            this.title = `E' il turno di ${ name }`;
+        const player = this.state.players.find(x => x.canMove == true);
+        if (player) {
+          if (this.currentPlayer.canMove) {
+            this.title = 'E\' il tuo turno!';
+          } else {
+            this.title = `E' il turno di ${ player.name }`;
           }
+        } else {
+          this.title = 'Giro terminato'
         }
       }
-    } else {
-      this.title = '';
     }
   }
 

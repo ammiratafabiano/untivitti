@@ -18,14 +18,22 @@
     <ion-toolbar>
       <ion-item lines="none">
         <ion-title>{{ title }}</ion-title>
-        <ion-chip slot="end" outline *ngIf="state.money" (click)="currentPlayer.isAdmin && changeBalance(player)">
+        <ion-chip slot="end" outline *ngIf="state.money">
           <ion-icon name="server" color="warning"></ion-icon>
           <ion-label>{{ currentPlayer.balance }}</ion-label>
         </ion-chip>
       </ion-item>
     </ion-toolbar>
   </ion-header>
-  <ion-fab vertical="center" horizontal="center" slot="fixed">
+  <div class="cards-area">
+    <div class="other-cards-container"></div>
+    <div *ngIf="currentPlayer.cards.length > 0" class="cards-container">
+      <div class="card">
+        <img src="./assets/cardSets/{{state.cardSet}}/{{currentPlayer.cards[0]}}.png" />
+      </div>
+    </div>
+  </div>
+  <ion-fab class="action-button" horizontal="center" slot="fixed">
     <ion-fab-button color="warning" [disabled]="!((currentPlayer.isAdmin || (!currentPlayer.isAdmin && currentPlayer.canMove)) && state.players.length >= currentGame.minPlayers)">
       <ion-icon name="caret-up-outline"></ion-icon>
     </ion-fab-button>
@@ -58,9 +66,4 @@
       </ion-fab-list>
     </ng-container>
   </ion-fab>
-  <div *ngIf="currentPlayer.cards.length > 0" class="cards-container">
-    <div class="card">
-      <img src="./assets/cardSets/{{state.cardSet}}/{{currentPlayer.cards[0]}}.png" />
-    </div>
-  </div>
 </ion-content>

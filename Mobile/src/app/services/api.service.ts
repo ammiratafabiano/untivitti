@@ -114,4 +114,13 @@ export class ApiService {
         catchError(this.handleError)
       );
   }
+
+  setGhost(nickname: string, code: string, value: boolean): Observable<ResponseModel<any>>{
+    return this.http
+      .get<ResponseModel<GameStateModel>>(this.endpoint + '/setGhost/' + nickname + '/' + code + '/' + value)
+      .pipe(
+        retry(2),
+        catchError(this.handleError)
+      );
+  }
 }

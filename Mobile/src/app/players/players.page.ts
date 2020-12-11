@@ -122,4 +122,8 @@ export class PlayersPage implements OnInit {
     await alert.present();
   }
 
+  setGhost(player, value) {
+    this.api.setGhost(player.name, this.code, value).subscribe(_ => {});
+  }
+
 }
