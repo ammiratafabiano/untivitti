@@ -1,0 +1,21 @@
+{
+  "name": "tivitti",
+  "version": "1.0.0",
+  "description": "server of the tivitti app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "tsc": "tsc"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "ws": "^7.4.1"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.9",
+    "@types/ws": "^7.4.0",
+    "typescript": "^4.1.3"
+  }
+}
