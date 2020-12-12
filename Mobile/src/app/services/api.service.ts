@@ -12,8 +12,10 @@ import { ResponseModel } from '../models/response.model';
 })
 export class ApiService {
 
-  endpoint = 'http://2.238.108.96:3000';
-  clientEndpoint = 'http://localhost:8100/untivitti';
+  ip = '2.238.108.96';
+  domain = 'ammireto.cloud';
+  endpoint = 'http://' + this.ip + ':3000';
+  clientEndpoint = 'http://' +  this.domain + ':8100';
 
   constructor(private http: HttpClient) { }
 

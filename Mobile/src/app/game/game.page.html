@@ -14,19 +14,13 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-item lines="none">
-        <ion-title>{{ title }}</ion-title>
-        <ion-chip slot="end" outline *ngIf="state.money">
-          <ion-icon name="server" color="warning"></ion-icon>
-          <ion-label>{{ currentPlayer.balance }}</ion-label>
-        </ion-chip>
-      </ion-item>
-    </ion-toolbar>
-  </ion-header>
   <div class="cards-area">
-    <div class="other-cards-container"></div>
+    <div class="other-cards-container">
+      <ion-chip class="my-balance" outline *ngIf="state.money">
+        <ion-icon name="server" color="warning"></ion-icon>
+        <ion-label>{{ currentPlayer.balance }}</ion-label>
+      </ion-chip>
+    </div>
     <div *ngIf="currentPlayer.cards.length > 0" class="cards-container">
       <div class="card">
         <img src="./assets/cardSets/{{state.cardSet}}/{{currentPlayer.cards[0]}}.png" />
