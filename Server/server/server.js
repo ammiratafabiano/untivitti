@@ -371,13 +371,15 @@ wsServer.on('connection', function (socket) {
     }, 1000);
 });
 setInterval(function () {
-    console.log(groups);
-    console.log(subscribers);
-    var list = [];
-    wsServer.clients.forEach(function (ws) {
-        list.push(ws.uuid);
-    });
-    console.log(list);
+    /*
+    console.log(groups)
+    console.log(subscribers)
+    let list = []
+    wsServer.clients.forEach((ws) => {
+      list.push(ws.uuid)
+    })
+    console.log(list)
+    */
     wsServer.clients.forEach(function (ws) {
         if (!ws.isAlive) {
             return ws.terminate();
@@ -399,7 +401,7 @@ setInterval(function () {
             subscribers.splice(indexToDelete, 1);
         }
     });
-}, 10000);
+}, 5000);
 var server = app.listen(port, function (err) {
     if (err)
         console.log(err);

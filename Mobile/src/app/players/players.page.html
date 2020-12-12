@@ -27,6 +27,8 @@
       </ion-item>
       <ion-item-options side="end">
         <ion-item-option *ngIf="currentPlayer.isAdmin && currentPlayer.name != player.name && !status" (click)="remove(player)">Rimuovi</ion-item-option>
+        <ion-item-option *ngIf="currentPlayer.isAdmin && !player.ghost && !status"  (click)="setGhost(player, true)">Spettatore</ion-item-option>
+        <ion-item-option *ngIf="currentPlayer.isAdmin && player.ghost && !status"  (click)="setGhost(player, false)">Giocatore</ion-item-option>
       </ion-item-options>
     </ion-item-sliding>
   </ng-container>
@@ -48,8 +50,8 @@
       </ion-item>
       <ion-item-options side="end">
         <ion-item-option *ngIf="currentPlayer.isAdmin && currentPlayer.name != player.name && !status"  (click)="remove(player)">Rimuovi</ion-item-option>
-        <ion-item-option *ngIf="currentPlayer.isAdmin && currentPlayer.name != player.name && !player.ghost && !status"  (click)="setGhost(player, true)">Spettatore</ion-item-option>
-        <ion-item-option *ngIf="currentPlayer.isAdmin && currentPlayer.name != player.name && player.ghost && !status"  (click)="setGhost(player, false)">Giocatore</ion-item-option>
+        <ion-item-option *ngIf="currentPlayer.isAdmin && !player.ghost && !status"  (click)="setGhost(player, true)">Spettatore</ion-item-option>
+        <ion-item-option *ngIf="currentPlayer.isAdmin && player.ghost && !status"  (click)="setGhost(player, false)">Giocatore</ion-item-option>
       </ion-item-options>
     </ion-item-sliding>
   </ion-reorder-group>
