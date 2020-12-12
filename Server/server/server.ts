@@ -4,11 +4,14 @@ const crypt = require("crypto")
 const cors = require('cors')
 const { groupCollapsed } = require('console')
 const ws = require('ws');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const port = 3000
 
 const jsonParser = bodyParser.json()
+
+let subscribers = []
 
 let groups = []
 const cardSets = [
@@ -75,11 +78,6 @@ const corsOptions = {
     }
   }
 }
-
-// Check dead players and unusued groups
-setInterval(function() {
-  checkGroups();
-}, 5000);
 
 // Enable preflight requests for all routes
 app.options('*', cors(corsOptions));
@@ -327,8 +325,88 @@ app.get('/setGhost/:nick/:code/:value', cors(corsOptions), (req, res) => {
 
 const wsServer = new ws.Server({ noServer: true });
 wsServer.on('connection', (socket: any) => {
-  socket.on('message', (message: any) => console.log(message));
+  socket.isAlive = true;
+
+  socket.on('pong', () => {
+    socket.isAlive = true;
+  });
+
+  socket.on('message', (message: any) => {
+    const newSubscriber = JSON.parse(message)
+    let found = false;
+    subscribers.forEach(subscriber => {
+      if (subscriber.code == newSubscriber.code && subscriber.nick == newSubscriber.nick) {
+        found = true
+      }
+    })
+    if (!found) {
+      const uuid = uuidv4()
+      socket.uuid = uuid
+      socket.send(JSON.stringify({type: 'init', uuid: uuid}))
+      subscribers.push({uuid: uuid, code: newSubscriber.code, nick: newSubscriber.nick})
+    }
+  });
+  setInterval(function() {
+    subscribers.forEach(subscriber => {
+      const group = groups.find(x => x.code == subscriber.code)
+      let response
+      if (group) {
+        const game = games.find(x => x.id == group.game)
+        if (group.players.length < game.minPlayers) {
+          group.status = false
+          group.cards = []
+          group.players.forEach(player => {
+            player.canMove = false
+            player.cards = []
+            player.moves = player.isAdmin ? game.adminMoves : []
+          })
+        }
+        const player = group.players.find(x => x.name == subscriber.nick)
+        if (player) {
+          player.timestamp = getTime()
+          wsServer.clients.forEach((ws) => {
+            if (ws.uuid == subscriber.uuid && ws.isAlive) {
+              ws.send(JSON.stringify({type: 'update', state: group}))
+            }
+          });
+        } 
+      } 
+    })
+  }, 1000);
 });
+
+setInterval(() => {
+  /*
+  console.log(groups)
+  console.log(subscribers)
+  let list = []
+  wsServer.clients.forEach((ws) => {
+    list.push(ws.uuid)
+  })
+  console.log(list)
+  */
+  wsServer.clients.forEach((ws) => {
+    if (!ws.isAlive) {
+      return ws.terminate();
+    }
+    ws.isAlive = false;
+    ws.ping(null, false, true);
+  });
+  subscribers.forEach(subscriber => {
+    let found = false
+    wsServer.clients.forEach((ws) => {
+      if (subscriber.uuid == ws.uuid) {
+        found = true;
+      }
+    });
+    if (!found) {
+      const indexToDelete = subscribers.indexOf(subscriber)
+      deletePlayer(subscriber.code, subscriber.nick)
+      checkGroup(subscriber.code)
+      subscribers.splice(indexToDelete, 1)
+    }
+  })
+}, 5000);
 
 const server = app.listen(port, (err: any) => {
   if (err) console.log(err); 
@@ -346,17 +424,11 @@ function newCode() {
   return id
 }
 
-function checkGroups() {
-  groups.forEach(group => {
-    group.players.forEach(player => {
-      if (getTime() - player.timestamp > 30) {
-        deletePlayer(group.code, player.name)
-      }
-    });
-    if (group.players.length == 0) {
-      deleteGroup(group.code)
-    }
-  });
+function checkGroup(code) {
+  const group = groups.find(x => x.code == code)
+  if (group && group.players.length == 0) {
+    deleteGroup(group.code)
+  }
 }
 
 function deletePlayer(code, nick) {

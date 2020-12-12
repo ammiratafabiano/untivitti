@@ -9,6 +9,7 @@ import { NotificationIcons } from '../models/notification.model';
 import { PlayersPage } from '../players/players.page';
 import { ApiService } from '../services/api.service';
 import { NotificationService } from '../services/notification.service';
+import { StateUpdateService } from '../services/state-update.service';
 
 @Component({
   selector: 'app-game',
@@ -18,7 +19,7 @@ import { NotificationService } from '../services/notification.service';
 export class GamePage implements OnInit {
 
   loop: any;
-  canUpdate: boolean = true;
+  //canUpdate = true;
 
   currentPlayer: PlayerModel;
   currentGame: GameModel;
@@ -29,7 +30,7 @@ export class GamePage implements OnInit {
   title: string;
 
   playerModal: any;
-  
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -37,7 +38,8 @@ export class GamePage implements OnInit {
     public modalController: ModalController,
     public alertController: AlertController,
     private notificationService: NotificationService,
-    public popoverController: PopoverController) {
+    public popoverController: PopoverController,
+    private updateStateService: StateUpdateService) {
     this.route.queryParams.subscribe(params => {
       if (params && params.group && params.player) {
         this.state = JSON.parse(params.group);
@@ -48,12 +50,31 @@ export class GamePage implements OnInit {
         this.exitGame();
       }
       this.notificationService.enableNotifications();
+      this.updateStateService.initWebSocket(this.state, this.currentPlayer)
+        .subscribe(response => {
+            if (response) {
+              this.prevState = this.state;
+              this.state = response;
+              this.stateListener.next(this.state);
+              this.currentPlayer = this.state.players.find(x => x.name === this.currentPlayer.name);
+              this.checkNotifications();
+              this.updateTitle();
+            } else {
+              this.exitGame();
+            }
+          }
+      );
     });
   }
 
   ngOnInit() {
+
+  }
+
+  /*
+  ionViewWillEnter() {
     if (this.state.code) {
-      this.startLoop();
+      // this.startLoop();
     }
   }
 
@@ -83,7 +104,7 @@ export class GamePage implements OnInit {
           this.prevState = this.state;
           this.state = response.data;
           this.stateListener.next(this.state);
-          this.currentPlayer = this.state.players.find(x => x.name == this.currentPlayer.name);
+          this.currentPlayer = this.state.players.find(x => x.name === this.currentPlayer.name);
           this.checkNotifications();
         } else {
           this.exitGame();
@@ -95,16 +116,18 @@ export class GamePage implements OnInit {
     );
   }
 
+  */
+
   private updateTitle() {
     if (this.state) {
-      if (this.state.status == false) {
+      if (this.state.status === false) {
         if (this.state.players.length > 1) {
           this.title = 'Partita in pausa';
         } else {
           this.title = 'In attesa...';
         }
       } else {
-        const player = this.state.players.find(x => x.canMove == true);
+        const player = this.state.players.find(x => x.canMove === true);
         if (player) {
           if (this.currentPlayer.canMove) {
             this.title = 'E\' il tuo turno!';
@@ -112,7 +135,7 @@ export class GamePage implements OnInit {
             this.title = `E' il turno di ${ player.name }`;
           }
         } else {
-          this.title = 'Giro terminato'
+          this.title = 'Giro terminato';
         }
       }
     }
@@ -139,8 +162,11 @@ export class GamePage implements OnInit {
   }
 
   private exitGame() {
-    this.stopLoop();
-    if (this.playerModal) this.playerModal.dismiss();
+    //this.stopLoop();
+    if (this.playerModal) {
+      this.playerModal.dismiss();
+    }
+    this.updateStateService.closeWebSocket();
     this.api.exitGroup(this.currentPlayer.name, this.state.code).pipe(
       finalize(() => this.router.navigate(['/']))).subscribe();
   }
@@ -163,13 +189,13 @@ export class GamePage implements OnInit {
 
     const players = this.state.players;
     const prevPlayers = this.prevState.players;
-    const admin = this.state.players.find(x => x.isAdmin == true).name;
-    const prevAdmin = this.prevState.players.find(x => x.isAdmin == true).name;
+    const admin = this.state.players.find(x => x.isAdmin === true).name;
+    const prevAdmin = this.prevState.players.find(x => x.isAdmin === true).name;
     // check log in
     players.forEach(player => {
       let found = false;
       prevPlayers.forEach(prevPlayer => {
-        if (player.name == prevPlayer.name) {
+        if (player.name === prevPlayer.name) {
           found = true;
         }
       });
@@ -181,7 +207,7 @@ export class GamePage implements OnInit {
     prevPlayers.forEach(prevPlayer => {
       let found = false;
       players.forEach(player => {
-        if (player.name == prevPlayer.name) {
+        if (player.name === prevPlayer.name) {
           found = true;
         }
       });
@@ -190,7 +216,7 @@ export class GamePage implements OnInit {
       }
     });
     // check admin change
-    if (admin != prevAdmin) {
+    if (admin !== prevAdmin) {
       this.notificationService.addNotification(admin + ' è il nuovo mazziere', NotificationIcons.Logout);
     }
   }

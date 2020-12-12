@@ -21,9 +21,9 @@ export class PlayersPage implements OnInit {
   currentPlayer: PlayerModel;
   players: PlayerModel[] = [];
 
-  reordering: boolean = false;
+  reordering = false;
 
-  status: boolean = true;
+  status = true;
   cardSet: CardTypeEnum;
 
   moneyMode: boolean;
@@ -41,7 +41,7 @@ export class PlayersPage implements OnInit {
       if (!this.reordering && this.detectChange(this.players, value.players)) {
         this.players = value.players;
         this.code = value.code;
-        this.currentPlayer = value.players.find(x => x.name == nickname);
+        this.currentPlayer = value.players.find(x => x.name === nickname);
         this.status = value.status;
         this.cardSet = value.cardSet;
         this.moneyMode = value.money;

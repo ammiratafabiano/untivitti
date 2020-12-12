@@ -21,14 +21,14 @@ export class HomePage {
 
   selectedSet: CardTypeEnum;
   selectedGame: GameTypeEnum;
-  money: boolean = false;
+  money = false;
 
   currentPlayer: PlayerModel;
 
   cardSets: CardSetModel[];
   games: GameModel[];
 
-  isOffline: boolean = false;
+  isOffline = false;
 
   constructor(
     public alertController: AlertController,
@@ -68,7 +68,7 @@ export class HomePage {
         queryParams: {
             group: JSON.stringify(group),
             player: JSON.stringify(currentPlayer),
-            game: JSON.stringify(this.games.find(x => x.id == group.game))
+            game: JSON.stringify(this.games.find(x => x.id === group.game))
         },
         skipLocationChange: true
       };
