@@ -176,43 +176,43 @@ app.get('/exitGroup/:nick/:code', cors(corsOptions), function (req, res) {
     }
     res.send(response);
 });
-app.get('/getState/:nick/:code', cors(corsOptions), function (req, res) {
-    var nickname = req.params['nick'];
-    var code = req.params['code'];
-    var group = groups.find(function (x) { return x.code == code; });
-    var response;
-    if (group) {
-        var game_1 = games.find(function (x) { return x.id == group.game; });
-        if (group.players.length < game_1.minPlayers) {
-            group.status = false;
-            group.cards = [];
-            group.players.forEach(function (player) {
-                player.canMove = false;
-                player.cards = [];
-                player.moves = player.isAdmin ? game_1.adminMoves : [];
-            });
-        }
-        var player = group.players.find(function (x) { return x.name == nickname; });
-        if (player) {
-            player.timestamp = getTime();
-            response = {
-                success: true,
-                data: group
-            };
-        }
-        else {
-            response = {
-                success: false
-            };
-        }
+/*
+app.get('/getState/:nick/:code', cors(corsOptions), (req, res) => {
+  const nickname = req.params['nick']
+  const code = req.params['code']
+  const group = groups.find(x => x.code == code)
+  let response
+  if (group) {
+    const game = games.find(x => x.id == group.game)
+    if (group.players.length < game.minPlayers) {
+      group.status = false
+      group.cards = []
+      group.players.forEach(player => {
+        player.canMove = false
+        player.cards = []
+        player.moves = player.isAdmin ? game.adminMoves : []
+      })
     }
-    else {
-        response = {
-            success: false
-        };
+    const player = group.players.find(x => x.name == nickname)
+    if (player) {
+      player.timestamp = getTime()
+      response = {
+        success: true,
+        data: group
+      }
+    } else {
+      response = {
+        success: false
+      }
     }
-    res.send(response);
-});
+  } else {
+    response = {
+      success: false
+    }
+  }
+  res.send(response)
+})
+*/
 app.get('/getCardSets', cors(corsOptions), function (req, res) {
     var response = {
         success: true,
@@ -245,39 +245,38 @@ app.post('/updatePlayers', jsonParser, cors(corsOptions), function (req, res) {
     }
     res.send(response);
 });
-app.get('/sendMove/:nick/:code/:move', cors(corsOptions), function (req, res) {
-    var nickname = req.params['nick'];
-    var code = req.params['code'];
-    var move = req.params['move'];
-    var group = groups.find(function (x) { return x.code == code; });
-    var response;
-    if (group) {
-        var player = group.players.find(function (x) { return x.name == nickname; });
-        if (player) {
-            if (executeMove(group, player, move)) {
-                response = {
-                    success: true
-                };
-            }
-            else {
-                response = {
-                    success: false
-                };
-            }
-        }
-        else {
-            response = {
-                success: false
-            };
-        }
-    }
-    else {
+/*
+app.get('/sendMove/:nick/:code/:move', cors(corsOptions), (req, res) => {
+  const nickname = req.params['nick']
+  const code = req.params['code']
+  const move = req.params['move']
+  const group = groups.find(x => x.code == code)
+  let response
+  if (group) {
+    const player = group.players.find(x => x.name == nickname)
+    if (player) {
+      if (executeMove(group, player, move)) {
         response = {
-            success: false
-        };
+          success: true
+        }
+      } else {
+        response = {
+          success: false
+        }
+      }
+    } else {
+      response = {
+        success: false
+      }
     }
-    res.send(response);
-});
+  } else {
+    response = {
+      success: false
+    }
+  }
+  res.send(response)
+})
+*/
 app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), function (req, res) {
     var nickname = req.params['nick'];
     var code = req.params['code'];
@@ -328,18 +327,44 @@ wsServer.on('connection', function (socket) {
         socket.isAlive = true;
     });
     socket.on('message', function (message) {
-        var newSubscriber = JSON.parse(message);
-        var found = false;
-        subscribers.forEach(function (subscriber) {
-            if (subscriber.code == newSubscriber.code && subscriber.nick == newSubscriber.nick) {
-                found = true;
-            }
-        });
-        if (!found) {
-            var uuid = uuidv4();
-            socket.uuid = uuid;
-            socket.send(JSON.stringify({ type: 'init', uuid: uuid }));
-            subscribers.push({ uuid: uuid, code: newSubscriber.code, nick: newSubscriber.nick });
+        var msg = JSON.parse(message);
+        switch (msg.type) {
+            case 'init':
+                var found_1 = false;
+                subscribers.forEach(function (subscriber) {
+                    if (subscriber.code == msg.code && subscriber.nick == msg.nick) {
+                        found_1 = true;
+                    }
+                });
+                if (!found_1) {
+                    var uuid = uuidv4();
+                    socket.uuid = uuid;
+                    socket.send(JSON.stringify({ success: true, type: msg.type, uuid: uuid }));
+                    subscribers.push({ uuid: uuid, code: msg.code, nick: msg.nick });
+                }
+                break;
+            case 'move':
+                var subscriber_1 = subscribers.find(function (x) { return x.uuid == msg.uuid; });
+                var group = groups.find(function (x) { return x.code == subscriber_1.code; });
+                if (group) {
+                    var player = group.players.find(function (x) { return x.name == subscriber_1.nick; });
+                    if (player) {
+                        if (executeMove(group, player, msg.move)) {
+                            socket.send(JSON.stringify({ success: true, type: msg.type }));
+                        }
+                        else {
+                            socket.send(JSON.stringify({ success: false, type: msg.type }));
+                        }
+                    }
+                    else {
+                        socket.send(JSON.stringify({ success: false, type: msg.type }));
+                    }
+                }
+                else {
+                    socket.send(JSON.stringify({ success: false, type: msg.type }));
+                }
+            default:
+                socket.send(JSON.stringify({ success: false, type: msg.type }));
         }
     });
     setInterval(function () {
@@ -347,14 +372,14 @@ wsServer.on('connection', function (socket) {
             var group = groups.find(function (x) { return x.code == subscriber.code; });
             var response;
             if (group) {
-                var game_2 = games.find(function (x) { return x.id == group.game; });
-                if (group.players.length < game_2.minPlayers) {
+                var game_1 = games.find(function (x) { return x.id == group.game; });
+                if (group.players.length < game_1.minPlayers) {
                     group.status = false;
                     group.cards = [];
                     group.players.forEach(function (player) {
                         player.canMove = false;
                         player.cards = [];
-                        player.moves = player.isAdmin ? game_2.adminMoves : [];
+                        player.moves = player.isAdmin ? game_1.adminMoves : [];
                     });
                 }
                 var player = group.players.find(function (x) { return x.name == subscriber.nick; });
@@ -485,15 +510,15 @@ function solveConflicts(group, newPlayers) {
 }
 function executeMove(group, player, move) {
     switch (move) {
-        case "0":
+        case 0:
             return startMove(group, player);
-        case "1":
+        case 1:
             return stopMove(group, player);
-        case "2":
+        case 2:
             return showMove(group, player);
-        case "3":
+        case 3:
             return skipMove(group, player);
-        case "4":
+        case 4:
             return swapMove(group, player);
         default:
             return false;
