@@ -20,14 +20,14 @@ export class StateUpdateService {
 
   public initWebSocket(state: GameStateModel, player: PlayerModel): BehaviorSubject<GameStateModel> {
     this.websocket = new WebSocket(this.endpoint);
-    this.subscribeUpdate(state.code, player.name);
+    this.subscribeUpdate(player.name, state.code);
     this.stateListener = new BehaviorSubject<GameStateModel>(state);
     return this.stateListener;
   }
 
-  private subscribeUpdate(code: string, nick: string) {
+  private subscribeUpdate(nick: string, code: string) {
     this.websocket.onopen = () => {
-      this.websocket.send(JSON.stringify({code, nick}));
+      this.websocket.send(JSON.stringify({type: 'init', nick, code}));
       this.websocket.onmessage = (event) => {
         const msg = JSON.parse(event.data);
         switch (msg.type) {
@@ -37,7 +37,10 @@ export class StateUpdateService {
           case 'update':
             this.stateListener.next(msg.state);
             break;
+          case 'move':
+            break;
           default:
+            this.stateListener.next(undefined);
             console.log(msg);
         }
       };
@@ -47,7 +50,15 @@ export class StateUpdateService {
     };
   }
 
+  public sendMove(move: number) {
+    if (this.websocket) {
+      this.websocket.send(JSON.stringify({type: 'move', uuid: this.uuid, move}));
+    }
+  }
+
   public closeWebSocket() {
-    this.websocket.close();
+    if (this.websocket) {
+      this.websocket.close();
+    }
   }
 }

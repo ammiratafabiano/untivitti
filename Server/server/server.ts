@@ -179,6 +179,7 @@ app.get('/exitGroup/:nick/:code', cors(corsOptions), (req, res) => {
   res.send(response)
 })
 
+/*
 app.get('/getState/:nick/:code', cors(corsOptions), (req, res) => {
   const nickname = req.params['nick']
   const code = req.params['code']
@@ -214,6 +215,7 @@ app.get('/getState/:nick/:code', cors(corsOptions), (req, res) => {
   }
   res.send(response)
 })
+*/
 
 app.get('/getCardSets', cors(corsOptions), (req, res) => {
   const response = {
@@ -249,6 +251,7 @@ app.post('/updatePlayers', jsonParser, cors(corsOptions), (req, res) => {
   res.send(response)
 });
 
+/*
 app.get('/sendMove/:nick/:code/:move', cors(corsOptions), (req, res) => {
   const nickname = req.params['nick']
   const code = req.params['code']
@@ -279,6 +282,7 @@ app.get('/sendMove/:nick/:code/:move', cors(corsOptions), (req, res) => {
   }
   res.send(response)
 })
+*/
 
 app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => {
   const nickname = req.params['nick']
@@ -332,18 +336,41 @@ wsServer.on('connection', (socket: any) => {
   });
 
   socket.on('message', (message: any) => {
-    const newSubscriber = JSON.parse(message)
-    let found = false;
-    subscribers.forEach(subscriber => {
-      if (subscriber.code == newSubscriber.code && subscriber.nick == newSubscriber.nick) {
-        found = true
-      }
-    })
-    if (!found) {
-      const uuid = uuidv4()
-      socket.uuid = uuid
-      socket.send(JSON.stringify({type: 'init', uuid: uuid}))
-      subscribers.push({uuid: uuid, code: newSubscriber.code, nick: newSubscriber.nick})
+    const msg = JSON.parse(message)
+    switch (msg.type) {
+      case 'init':
+        let found = false;
+        subscribers.forEach(subscriber => {
+          if (subscriber.code == msg.code && subscriber.nick == msg.nick) {
+            found = true
+          }
+        })
+        if (!found) {
+          const uuid = uuidv4()
+          socket.uuid = uuid
+          socket.send(JSON.stringify({success: true, type: msg.type, uuid: uuid}))
+          subscribers.push({uuid: uuid, code: msg.code, nick: msg.nick})
+        }
+        break
+      case 'move':
+        const subscriber = subscribers.find(x => x.uuid == msg.uuid)
+        const group = groups.find(x => x.code == subscriber.code)
+        if (group) {
+          const player = group.players.find(x => x.name == subscriber.nick)
+          if (player) {
+            if (executeMove(group, player, msg.move)) {
+              socket.send(JSON.stringify({success: true, type: msg.type}))
+            } else {
+              socket.send(JSON.stringify({success: false, type: msg.type}))
+            }
+          } else {
+            socket.send(JSON.stringify({success: false, type: msg.type}))
+          }
+        } else {
+          socket.send(JSON.stringify({success: false, type: msg.type}))
+        }
+      default:
+        socket.send(JSON.stringify({success: false, type: msg.type}))
     }
   });
   setInterval(function() {
@@ -492,15 +519,15 @@ function solveConflicts(group, newPlayers) {
 
 function executeMove(group, player, move) {
   switch (move) {
-    case "0":
+    case 0:
       return startMove(group, player)
-    case "1":
+    case 1:
       return stopMove(group,player)
-    case "2":
+    case 2:
       return showMove(group, player)
-    case "3":
+    case 3:
       return skipMove(group, player)
-    case "4":
+    case 4:
       return swapMove(group, player)
     default:
       return false

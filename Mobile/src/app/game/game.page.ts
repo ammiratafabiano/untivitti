@@ -19,7 +19,6 @@ import { StateUpdateService } from '../services/state-update.service';
 export class GamePage implements OnInit {
 
   loop: any;
-  //canUpdate = true;
 
   currentPlayer: PlayerModel;
   currentGame: GameModel;
@@ -40,6 +39,10 @@ export class GamePage implements OnInit {
     private notificationService: NotificationService,
     public popoverController: PopoverController,
     private updateStateService: StateUpdateService) {
+
+  }
+
+  ngOnInit() {
     this.route.queryParams.subscribe(params => {
       if (params && params.group && params.player) {
         this.state = JSON.parse(params.group);
@@ -50,73 +53,26 @@ export class GamePage implements OnInit {
         this.exitGame();
       }
       this.notificationService.enableNotifications();
-      this.updateStateService.initWebSocket(this.state, this.currentPlayer)
-        .subscribe(response => {
-            if (response) {
-              this.prevState = this.state;
-              this.state = response;
-              this.stateListener.next(this.state);
-              this.currentPlayer = this.state.players.find(x => x.name === this.currentPlayer.name);
-              this.checkNotifications();
-              this.updateTitle();
-            } else {
-              this.exitGame();
-            }
-          }
-      );
+      this.initUpdateService();
     });
   }
 
-  ngOnInit() {
-
-  }
-
-  /*
-  ionViewWillEnter() {
-    if (this.state.code) {
-      // this.startLoop();
-    }
-  }
-
-  ionViewWillLeave() {
-    this.stopLoop();
-  }
-
-  private startLoop() {
-    this.loop = setInterval(_ => {
-      if (this.canUpdate) {
-        this.updateTitle();
-        this.updateState();
-      }
-    }, 1000);
-  }
-
-  private stopLoop() {
-    clearInterval(this.loop);
-  }
-
-  private updateState() {
-    this.canUpdate = false;
-    return this.api.getState(this.currentPlayer.name, this.state.code).pipe(
-      finalize(() => this.canUpdate = true)).subscribe(
-      response => {
-        if (response.success && response.data) {
+  private initUpdateService() {
+    this.updateStateService.initWebSocket(this.state, this.currentPlayer)
+    .subscribe(response => {
+        if (response) {
           this.prevState = this.state;
-          this.state = response.data;
+          this.state = response;
           this.stateListener.next(this.state);
           this.currentPlayer = this.state.players.find(x => x.name === this.currentPlayer.name);
           this.checkNotifications();
+          this.updateTitle();
         } else {
           this.exitGame();
         }
-      },
-      err => {
-        this.exitGame();
       }
     );
   }
-
-  */
 
   private updateTitle() {
     if (this.state) {
@@ -162,7 +118,6 @@ export class GamePage implements OnInit {
   }
 
   private exitGame() {
-    //this.stopLoop();
     if (this.playerModal) {
       this.playerModal.dismiss();
     }
@@ -222,7 +177,7 @@ export class GamePage implements OnInit {
   }
 
   sendMove(move: MoveModel) {
-    this.api.sendMove(this.currentPlayer.name, this.state.code, move.id).subscribe(_ => {});
+    this.updateStateService.sendMove(move.id);
   }
 
 }
