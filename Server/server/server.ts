@@ -1,6 +1,6 @@
 const express = require('express');
 const bodyParser = require('body-parser')
-const crypt = require("crypt")
+const crypt = require("crypto")
 const cors = require('cors')
 const { groupCollapsed } = require('console')
 const ws = require('ws');
@@ -340,3 +340,212 @@ server.on('upgrade', (request: any, socket: any, head: any) => {
     wsServer.emit('connection', socket, request);
   });
 });
+
+function newCode() {
+  const id = crypt.randomBytes(3).toString("hex")
+  return id
+}
+
+function checkGroups() {
+  groups.forEach(group => {
+    group.players.forEach(player => {
+      if (getTime() - player.timestamp > 30) {
+        deletePlayer(group.code, player.name)
+      }
+    });
+    if (group.players.length == 0) {
+      deleteGroup(group.code)
+    }
+  });
+}
+
+function deletePlayer(code, nick) {
+  let group = groups.find(x => x.code == code)
+  if (group) {
+    const game = games.find(x => x.id == group.game)
+    const playerToDelete = group.players.find(x => x.name == nick)
+    const indexToDelete = group.players.indexOf(playerToDelete)
+    if (indexToDelete > -1) {
+      const wasAdmin = playerToDelete.isAdmin ? true : false;
+      group.players.splice(indexToDelete,1)
+      if (wasAdmin && group.players.length > 0) {
+        group.players[0].isAdmin = true
+        group.players[0].moves = game.adminMoves
+      }
+      return true
+    } {
+      return false
+    }
+  } else {
+    return false
+  }
+}
+
+function deleteGroup(code) {
+  let group = groups.find(x => x.code == code)
+  if (group) {
+    const indexToDelete = groups.indexOf(group)
+    if (indexToDelete > -1) {
+      groups.splice(indexToDelete,1)
+      return true
+    } else {
+      return false
+    }
+  } else {
+    return false
+  }
+}
+
+function getTime() {
+  return Math.floor(Date.now() / 1000)
+}
+
+function solveConflicts(group, newPlayers) {
+  const game = games.find(x => x.id == group.game)
+  group.players.forEach(player => {
+    let found = false
+    newPlayers.forEach(newPlayer => {
+      if (player.name == newPlayer.name) found = true
+    })
+    if (!found) newPlayers.push(player)
+  })
+  let admin = newPlayers.find(x => x.isAdmin == true)
+  admin.isAdmin = false
+  admin.moves = []
+  let newAdmin = newPlayers[0]
+  newAdmin.isAdmin = true
+  newAdmin.moves = game.adminMoves
+  return newPlayers
+}
+
+function executeMove(group, player, move) {
+  switch (move) {
+    case "0":
+      return startMove(group, player)
+    case "1":
+      return stopMove(group,player)
+    case "2":
+      return showMove(group, player)
+    case "3":
+      return skipMove(group, player)
+    case "4":
+      return swapMove(group, player)
+    default:
+      return false
+  }
+}
+
+function startMove(group, player) {
+  const game = games.find(x => x.id == group.game)
+  if (player.isAdmin) {
+    /*
+    const newPlayers = [...group.players]
+    const shifted = newPlayers.shift()
+    newPlayers.push(shifted)
+    group.players = solveConflicts(group, newPlayers);
+    */
+    group.status = true
+    group.cards = getShuffledSet(group.cardSet)
+    for (let i = 0; i < group.players.length; i++) {
+      group.players[i].cards = []
+      for (let j = 0; j < game.handCards; j++) {
+        group.players[i].cards.push(group.cards.pop())
+      }
+    }
+    group.round += 1;
+    return turnChange(group, player)
+  } else {
+    return false
+  }
+}
+
+function stopMove(group, player) {
+  const game = games.find(x => x.id == group.game)
+  if (player.isAdmin) {
+    group.status = false
+    group.cards = []
+    for (let i = 0; i < group.players.length; i++) {
+      group.players[i].cards = []
+      group.players[i].canMove = false
+      group.players[i].moves = group.players[i].isAdmin ? game.adminMoves : []
+      group.players[i].visible = false
+      player.visible = false
+    }
+    return true
+  } else {
+    return false
+  }
+}
+
+function showMove(group, player) {
+  player.visible = true
+  if (!player.isAdmin) {
+    return turnChange(group, player)
+  } else {
+    return turnStop(group, player)
+  }
+}
+
+function skipMove(group, player) {
+  if (!player.isAdmin) {
+    return turnChange(group, player)
+  } else {
+    return turnStop(group, player)
+  }
+}
+
+function swapMove(group, player) {
+  const game = games.find(x => x.id == group.game)
+  const index = group.players.findIndex(x => x.name == player.name)
+  const newIndex = (index + game.swapOffset) % group.players.length
+  if (!player.isAdmin) {
+    const tempCards = [...group.players[index].cards]
+    group.players[index].cards = group.players[newIndex].cards
+    group.players[newIndex].cards = tempCards;
+    return turnChange(group, player)
+  } else {
+    group.players[index].cards = []
+    for (let j = 0; j < game.handCards; j++) {
+      group.players[index].cards.push(group.cards.pop())
+    }
+    return turnStop(group, player)
+  }
+}
+
+function turnChange(group, player) {
+  const game = games.find(x => x.id == group.game)
+  const index = group.players.findIndex(x => x.name == player.name)
+  let newIndex = index
+  do {
+    newIndex = (newIndex + 1) % group.players.length
+  } while (group.players[newIndex].ghost)
+  group.players[index].canMove = false;
+  group.players[index].moves = group.players[index].isAdmin ? game.adminMoves : []
+  group.players[newIndex].canMove = true;
+  group.players[newIndex].moves = group.players[newIndex].moves.concat(game.playerMoves)
+  return true
+}
+
+function turnStop(group, player) {
+  const index = group.players.findIndex(x => x.name == player.name)
+  const game = games.find(x => x.id == group.game)
+  group.players[index].canMove = false;
+  group.players[index].moves = group.players[index].isAdmin ? game.adminMoves : []
+  if (game.mustShow) {
+      group.players.forEach(x => x.visible = true)
+  }
+  return true
+}
+
+function getShuffledSet(cardSet) {
+  const size = cardSets.find(x => x.id == cardSet).size
+  for (var array=[],i=0; i < size; ++i) array[i]=i
+  var tmp, current, top = array.length
+  if(top) while(--top) {
+    current = Math.floor(Math.random() * (top + 1))
+    tmp = array[current]
+    array[current] = array[top]
+    array[top] = tmp
+  }
+  return array
+}
