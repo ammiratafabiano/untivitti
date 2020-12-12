@@ -8,7 +8,7 @@ import { GameStateModel, PlayerModel } from '../models/game-state.model';
 })
 export class StateUpdateService {
 
-  endpoint = 'ws://localhost:3000';
+  endpoint = 'ws://2.238.108.96:3000';
 
   websocket: WebSocket;
 
