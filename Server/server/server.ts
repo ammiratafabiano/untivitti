@@ -655,7 +655,7 @@ function turnChange(group, player) {
   group.players[index].moves = group.players[index].isAdmin ? game.adminMoves : []
   group.players[newIndex].canMove = true;
   game.playerMoves.forEach(move => {
-    player.cards.array.forEach(card => {
+    player.cards.forEach(card => {
       if (move.forbiddenCards.includes(card)) {
         move.disabled = true
       }
