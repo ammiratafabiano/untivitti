@@ -36,7 +36,13 @@ export class HomePage {
     private router: Router,
     private api: ApiService,
     private utils: UtilsService,
-    private notificationService: NotificationService) {}
+    private notificationService: NotificationService) {
+      this.route.queryParams.subscribe(params => {
+        if (params && params.code) {
+          this.code = params.code;
+        }
+      });
+    }
 
   ionViewWillEnter() {
     this.loadData();
@@ -91,7 +97,6 @@ export class HomePage {
   }
 
   private async loadData(): Promise<any> {
-    this.code = this.route.snapshot.paramMap.get('code');
     this.utils.getStorage('nickname').then((nickname) => {
       this.nickname = nickname;
     });

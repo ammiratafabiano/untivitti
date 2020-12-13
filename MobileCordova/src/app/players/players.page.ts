@@ -73,7 +73,7 @@ export class PlayersPage implements OnInit {
 
   shareLink() {
     // Mobile App
-    const link = this.api.clientEndpoint + '/join/' + this.code;
+    const link = this.api.clientEndpoint + '?code=' + this.code;
     this.clipboard.copy(link);
     // Web App
     const el = document.createElement('textarea');

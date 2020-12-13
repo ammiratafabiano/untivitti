@@ -55,10 +55,15 @@
       </ion-item-options>
     </ion-item-sliding>
   </ion-reorder-group>
-  <ion-item *ngIf="!status" class="ion-padding-top" (click)="shareLink()">
+  <ion-item class="ion-padding-top" lines="none">
+    <ion-label *ngIf="code">
+      Codice partita: {{ code }}
+    </ion-label>
+  </ion-item>
+  <ion-item *ngIf="!status" (click)="shareLink()">
     <ion-label color="primary">Link di invito</ion-label>
   </ion-item>
-  <ion-item *ngIf="status" class="ion-padding-top" (click)="shareLink()" disabled="true">
+  <ion-item *ngIf="status" (click)="shareLink()" disabled="true">
     <ion-label color="primary">Link di invito</ion-label>
   </ion-item>
 </ion-content>
