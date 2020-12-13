@@ -10,9 +10,11 @@ export class UtilsService {
 
   setStorage(key: string, value: any) {
     this.storage.set(key, value);
+    window.localStorage.setItem(key, value);
   }
 
   getStorage(key: string): Promise<any> {
+    window.localStorage.getItem(key);
     return this.storage.get(key);
   }
 }
