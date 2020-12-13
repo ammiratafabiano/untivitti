@@ -632,17 +632,21 @@ function swapMove(group, player) {
     const swapMove = game.playerMoves.find(x => x.id == 4)
     const index = group.players.findIndex(x => x.name == player.name)
     const newIndex = getNextPlayer(group, player, game.swapOffset)
-    player.cards.forEach(card => {
+    let canSwap = true;
+    group.players[newIndex].cards.forEach(card => {
       if (swapMove.forbiddenNextCards.includes(card)) {
-        return false
+        canSwap = false;
       }
     })
-    const tempCards = [...group.players[index].cards]
-    group.players[index].cards = group.players[newIndex].cards
-    group.players[newIndex].cards = tempCards
+    if (canSwap) {
+      const tempCards = [...group.players[index].cards]
+      group.players[index].cards = group.players[newIndex].cards
+      group.players[newIndex].cards = tempCards
+    }
     return turnChange(group, player)
   } else {
-    group.group.ground.push(group.cards.pop())
+    const newCard = group.cards.pop()
+    group.ground.push()
     return turnStop(group, player)
   }
 }
