@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { WebSocketServer } from '@ionic-native/web-socket-server';
 import { BehaviorSubject } from 'rxjs';
 import { GameStateModel, PlayerModel } from '../models/game-state.model';
 
