@@ -71,7 +71,14 @@ const allowedOrigins = [
   'http://ammireto.cloud',
   'http://ammireto.cloud:8080',
   'http://ammireto.cloud:8100',
-  'http://www.ammireto.cloud'
+  'ionic://www.ammireto.cloud',
+  'http://www.ammireto.cloud',
+  'http://www.ammireto.cloud:8080',
+  'http://www.ammireto.cloud:8100',
+  'ionic://www.untivitti.it',
+  'http://www.untivitti.it',
+  'http://www.untivitti.it:8080',
+  'http://www.untivitti.it:8100'
 ];
 
 // Reflect the origin if it's in the allowed list or not defined (cURL, Postman, etc.)
