@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='utf-8'?>
 <widget id="io.ionic.starter" version="0.0.1" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
-    <name>MyApp</name>
-    <description>An awesome Ionic/Cordova app.</description>
-    <author email="hi@ionicframework.com" href="http://ionicframework.com/">Ionic Framework Team</author>
+    <name>Untivitti</name>
+    <description>Chi ha detto che non si può giocare a carte rispettando la distanza sociale?</description>
+    <author email="ammiratafabiano@gmail.com">Untivitti Creator</author>
     <content src="index.html" />
     <access origin="*" />
     <allow-navigation href="http://localhost:3000/*" />

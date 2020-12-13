@@ -96,10 +96,8 @@ export class HomePage {
     this.utils.setStorage('nickname', this.nickname);
   }
 
-  private async loadData(): Promise<any> {
-    this.utils.getStorage('nickname').then((nickname) => {
-      this.nickname = nickname;
-    });
+  private loadData() {
+    this.nickname = this.utils.getStorage('nickname');
     this.getCardSets();
     this.getGames();
   }
