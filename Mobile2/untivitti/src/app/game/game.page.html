@@ -1,0 +1,63 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-item lines="none">
+      <ion-icon name="arrow-back-circle-outline" color="danger" (click)="confirmExit()"></ion-icon>
+      <ion-title mode="md">{{ title }}</ion-title>
+      <ng-container *ngIf="state && state.players">
+        <ion-icon name="people-outline" (click)="openPlayersModal()"></ion-icon>
+        <ion-badge color="success" slot="end" (click)="openPlayersModal()">
+          {{ state.players.length }}
+        </ion-badge>
+      </ng-container>
+    </ion-item>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true">
+  <div class="cards-area">
+    <div class="other-cards-container">
+      <ion-chip class="my-balance" outline *ngIf="state.money">
+        <ion-icon name="server" color="warning"></ion-icon>
+        <ion-label>{{ currentPlayer.balance }}</ion-label>
+      </ion-chip>
+    </div>
+    <div *ngIf="currentPlayer.cards.length > 0" class="cards-container">
+      <div class="card">
+        <img src="./assets/cardSets/{{state.cardSet}}/{{currentPlayer.cards[0]}}.png" />
+      </div>
+    </div>
+  </div>
+  <ion-fab class="action-button" horizontal="center" slot="fixed">
+    <ion-fab-button color="warning" [disabled]="!((currentPlayer.isAdmin || (!currentPlayer.isAdmin && currentPlayer.canMove)) && state.players.length >= currentGame.minPlayers)">
+      <ion-icon name="caret-up-outline"></ion-icon>
+    </ion-fab-button>
+    <ng-container *ngIf="currentPlayer.isAdmin">
+      <ion-fab-list *ngIf="!state.status" side="top">
+        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[0])">{{ currentPlayer.moves[0].name }}</ion-fab-button>
+      </ion-fab-list>
+      <ion-fab-list *ngIf="state.status" side="top">
+        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[1])">{{ currentPlayer.moves[1].name }}</ion-fab-button>
+      </ion-fab-list>
+      <ion-fab-list *ngIf="currentPlayer.moves.length > 2" side="bottom">
+        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[2])">{{ currentPlayer.moves[2].name }}</ion-fab-button>
+      </ion-fab-list>
+      <ion-fab-list *ngIf="currentPlayer.moves.length > 3" side="start">
+        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[3])">{{ currentPlayer.moves[3].name }}</ion-fab-button>
+      </ion-fab-list>
+      <ion-fab-list *ngIf="currentPlayer.moves.length > 4" side="end">
+        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[4])">{{ currentPlayer.moves[4].name }}</ion-fab-button>
+      </ion-fab-list>
+    </ng-container>
+    <ng-container *ngIf="!currentPlayer.isAdmin">
+      <ion-fab-list *ngIf="currentPlayer.moves.length > 0" side="bottom">
+        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[0])">{{ currentPlayer.moves[0].name }}</ion-fab-button>
+      </ion-fab-list>
+      <ion-fab-list *ngIf="currentPlayer.moves.length > 1" side="start">
+        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[1])">{{ currentPlayer.moves[1].name }}</ion-fab-button>
+      </ion-fab-list>
+      <ion-fab-list *ngIf="currentPlayer.moves.length > 2" side="end">
+        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[2])">{{ currentPlayer.moves[2].name }}</ion-fab-button>
+      </ion-fab-list>
+    </ng-container>
+  </ion-fab>
+</ion-content>

@@ -1,7 +1,7 @@
 <ion-header [translucent]="true">
   <ion-toolbar>
     <ion-title>
-      Blank
+      un<ion-text color="warning">ti</ion-text><ion-text color="danger">vitti</ion-text>
     </ion-title>
   </ion-toolbar>
 </ion-header>
@@ -9,12 +9,53 @@
 <ion-content [fullscreen]="true">
   <ion-header collapse="condense">
     <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
+      <ion-title size="large">
+        un<ion-text color="warning">ti</ion-text><ion-text color="danger">vitti</ion-text>
+      </ion-title>
     </ion-toolbar>
   </ion-header>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+  <div *ngIf="!isOffline" id="container">
+    <ion-item>
+      <ion-label position="floating">Nickname</ion-label>
+      <ion-input type="text" required [(ngModel)]="nickname"></ion-input>
+    </ion-item>
+    <ion-list-header lines="full">
+      <ion-label>
+        Gruppo Esistente
+      </ion-label>
+    </ion-list-header>
+    <ion-item>
+      <ion-label>Codice</ion-label>
+      <ion-input type="text" required [(ngModel)]="code" [ngModelOptions]="{standalone: true}" placeholder="Inserisci il codice"></ion-input>
+    </ion-item>
+    <ion-button color="success" (click)="join()">Partecipa</ion-button>
+    <ion-list-header lines="full">
+      <ion-label>
+        Nuovo gruppo
+      </ion-label>
+    </ion-list-header>
+    <ion-item>
+      <ion-label>Set di carte</ion-label>
+      <ion-select required [(ngModel)]="selectedSet" [ngModelOptions]="{standalone: true}"
+        cancelText="Annulla" okText="Ok">
+        <ion-select-option *ngFor="let set of cardSets" [value]="set.id">{{ set.name }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label>Gioco</ion-label>
+      <ion-select required [(ngModel)]="selectedGame" [ngModelOptions]="{standalone: true}"
+        cancelText="Annulla" okText="Ok">
+        <ion-select-option *ngFor="let game of games" [value]="game.id">{{ game.name }}</ion-select-option>
+      </ion-select>
+    </ion-item>
+    <ion-item>
+      <ion-label>Soldi</ion-label>
+      <ion-toggle slot="end" [(ngModel)]="money" color="warning"></ion-toggle>
+    </ion-item>
+    <ion-button color="warning" (click)="create()">Crea</ion-button>
+  </div>
+  <div *ngIf="isOffline" id="container">
+    <ion-icon name="cloud-offline-outline" style="zoom:4.0;"></ion-icon>
   </div>
 </ion-content>
