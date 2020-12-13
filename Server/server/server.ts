@@ -701,6 +701,6 @@ function getNextPlayer(group, player, offset = 1) {
       newIndex = (newIndex + 1) % group.players.length
     } while (group.players[newIndex].ghost)
     offset -= 1
-  } while (offset == 0)
+  } while (offset |= 0)
   return newIndex
 }
