@@ -13,7 +13,7 @@ import { ResponseModel } from '../models/response.model';
 export class ApiService {
 
   endpoint = 'http://2.238.108.96:3000';
-  clientEndpoint = 'http://ammireto.cloud';
+  clientEndpoint = 'http://www.untivitti.it';
 
   constructor(private http: HttpClient) { }
 
