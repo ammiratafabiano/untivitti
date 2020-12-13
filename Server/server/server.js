@@ -49,15 +49,24 @@ var games = [
         playerMoves: [
             {
                 name: 'Mostra',
-                id: 2
+                id: 2,
+                disabled: false,
+                forbiddenCards: [0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 16, 17, 18, 20, 21, 22, 23, 24, 25, 26, 27, 28, 30, 31, 32, 33, 34, 35, 36, 37, 38],
+                forbiddenNextCards: []
             },
             {
                 name: 'Ti stai',
-                id: 3
+                id: 3,
+                disabled: false,
+                forbiddenCards: [9, 19, 29, 39],
+                forbiddenNextCards: []
             },
             {
                 name: 'Cambia',
-                id: 4
+                id: 4,
+                disabled: false,
+                forbiddenCards: [9, 19, 29, 39],
+                forbiddenNextCards: [9, 19, 29, 39]
             }
         ]
     }
@@ -67,7 +76,20 @@ var allowedOrigins = [
     'ionic://localhost',
     'http://localhost',
     'http://localhost:8080',
-    'http://localhost:8100'
+    'http://localhost:8100',
+    'capacitor://ammireto.cloud',
+    'ionic://ammireto.cloud',
+    'http://ammireto.cloud',
+    'http://ammireto.cloud:8080',
+    'http://ammireto.cloud:8100',
+    'ionic://www.ammireto.cloud',
+    'http://www.ammireto.cloud',
+    'http://www.ammireto.cloud:8080',
+    'http://www.ammireto.cloud:8100',
+    'ionic://www.untivitti.it',
+    'http://www.untivitti.it',
+    'http://www.untivitti.it:8080',
+    'http://www.untivitti.it:8100'
 ];
 // Reflect the origin if it's in the allowed list or not defined (cURL, Postman, etc.)
 var corsOptions = {
@@ -76,6 +98,7 @@ var corsOptions = {
             callback(null, true);
         }
         else {
+            console.log("----->", origin, "<-----");
             callback(new Error('Origin not allowed by CORS'));
         }
     }
@@ -83,7 +106,10 @@ var corsOptions = {
 // Enable preflight requests for all routes
 app.options('*', cors(corsOptions));
 app.get('/', cors(corsOptions), function (req, res) {
-    res.send('Server untivitti.\nStatus: Ok');
+    var nGroups = groups.length;
+    var nUsers = 0;
+    groups.forEach(function (x) { return nUsers += x.players.length; });
+    res.send('Server untivitti.</br>Status: Ok</br></br>Current groups: ' + nGroups + '</br>Current users: ' + nUsers);
 });
 app.post('/createGroup', jsonParser, cors(corsOptions), function (req, res) {
     var code;
@@ -100,6 +126,8 @@ app.post('/createGroup', jsonParser, cors(corsOptions), function (req, res) {
         status: false,
         money: req.body.money,
         round: 0,
+        cards: [],
+        ground: [],
         players: [
             {
                 name: req.body.nickname,
@@ -376,6 +404,7 @@ wsServer.on('connection', function (socket) {
                 if (group.players.length < game_1.minPlayers) {
                     group.status = false;
                     group.cards = [];
+                    group.ground = [];
                     group.players.forEach(function (player) {
                         player.canMove = false;
                         player.cards = [];
@@ -535,10 +564,13 @@ function startMove(group, player) {
         */
         group.status = true;
         group.cards = getShuffledSet(group.cardSet);
+        group.ground = [];
         for (var i = 0; i < group.players.length; i++) {
             group.players[i].cards = [];
-            for (var j = 0; j < game.handCards; j++) {
-                group.players[i].cards.push(group.cards.pop());
+            if (!group.players[i].ghost) {
+                for (var j = 0; j < game.handCards; j++) {
+                    group.players[i].cards.push(group.cards.pop());
+                }
             }
         }
         group.round += 1;
@@ -585,32 +617,39 @@ function skipMove(group, player) {
 }
 function swapMove(group, player) {
     var game = games.find(function (x) { return x.id == group.game; });
-    var index = group.players.findIndex(function (x) { return x.name == player.name; });
-    var newIndex = (index + game.swapOffset) % group.players.length;
     if (!player.isAdmin) {
+        var swapMove_1 = game.playerMoves.find(function (x) { return x.id == 4; });
+        var index = group.players.findIndex(function (x) { return x.name == player.name; });
+        var newIndex = getNextPlayer(group, player, game.swapOffset);
+        player.cards.forEach(function (card) {
+            if (swapMove_1.forbiddenNextCards.includes(card)) {
+                return false;
+            }
+        });
         var tempCards = __spreadArrays(group.players[index].cards);
         group.players[index].cards = group.players[newIndex].cards;
         group.players[newIndex].cards = tempCards;
         return turnChange(group, player);
     }
     else {
-        group.players[index].cards = [];
-        for (var j = 0; j < game.handCards; j++) {
-            group.players[index].cards.push(group.cards.pop());
-        }
+        group.group.ground.push(group.cards.pop());
         return turnStop(group, player);
     }
 }
 function turnChange(group, player) {
     var game = games.find(function (x) { return x.id == group.game; });
     var index = group.players.findIndex(function (x) { return x.name == player.name; });
-    var newIndex = index;
-    do {
-        newIndex = (newIndex + 1) % group.players.length;
-    } while (group.players[newIndex].ghost);
+    var newIndex = getNextPlayer(group, player);
     group.players[index].canMove = false;
     group.players[index].moves = group.players[index].isAdmin ? game.adminMoves : [];
     group.players[newIndex].canMove = true;
+    game.playerMoves.forEach(function (move) {
+        player.cards.array.forEach(function (card) {
+            if (move.forbiddenCards.includes(card)) {
+                move.disabled = true;
+            }
+        });
+    });
     group.players[newIndex].moves = group.players[newIndex].moves.concat(game.playerMoves);
     return true;
 }
@@ -637,4 +676,16 @@ function getShuffledSet(cardSet) {
             array[top] = tmp;
         }
     return array;
+}
+function getNextPlayer(group, player, offset) {
+    if (offset === void 0) { offset = 1; }
+    var index = group.players.findIndex(function (x) { return x.name == player.name; });
+    var newIndex = index;
+    do {
+        do {
+            newIndex = (newIndex + 1) % group.players.length;
+        } while (group.players[newIndex].ghost);
+        offset -= 1;
+    } while (offset == 0);
+    return newIndex;
 }

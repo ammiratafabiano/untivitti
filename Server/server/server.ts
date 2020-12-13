@@ -46,15 +46,24 @@ const games = [
     playerMoves: [
       {
         name: 'Mostra',
-        id: 2
+        id: 2,
+        disabled: false,
+        forbiddenCards: [0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,20,21,22,23,24,25,26,27,28,30,31,32,33,34,35,36,37,38],
+        forbiddenNextCards: []
       },
       {
         name: 'Ti stai',
-        id: 3
+        id: 3,
+        disabled: false,
+        forbiddenCards: [9,19,29,39],
+        forbiddenNextCards: []
       },
       {
         name: 'Cambia',
-        id: 4
+        id: 4,
+        disabled: false,
+        forbiddenCards: [9,19,29,39],
+        forbiddenNextCards: [9,19,29,39]
       }
     ]
   }
@@ -118,6 +127,8 @@ app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
     status: false,
     money: req.body.money,
     round: 0,
+    cards: [],
+    ground: [],
     players: [
       {
         name: req.body.nickname,
@@ -399,6 +410,7 @@ wsServer.on('connection', (socket: any) => {
         if (group.players.length < game.minPlayers) {
           group.status = false
           group.cards = []
+          group.ground = []
           group.players.forEach(player => {
             player.canMove = false
             player.cards = []
@@ -420,8 +432,9 @@ wsServer.on('connection', (socket: any) => {
 });
 
 setInterval(() => {
-  /*
+  
   console.log(groups)
+  /*
   console.log(subscribers)
   let list = []
   wsServer.clients.forEach((ws) => {
@@ -562,10 +575,13 @@ function startMove(group, player) {
     */
     group.status = true
     group.cards = getShuffledSet(group.cardSet)
+    group.ground = []
     for (let i = 0; i < group.players.length; i++) {
       group.players[i].cards = []
-      for (let j = 0; j < game.handCards; j++) {
-        group.players[i].cards.push(group.cards.pop())
+      if (!group.players[i].ghost) {
+        for (let j = 0; j < game.handCards; j++) {
+          group.players[i].cards.push(group.cards.pop())
+        }
       }
     }
     group.round += 1;
@@ -612,18 +628,21 @@ function skipMove(group, player) {
 
 function swapMove(group, player) {
   const game = games.find(x => x.id == group.game)
-  const index = group.players.findIndex(x => x.name == player.name)
-  const newIndex = (index + game.swapOffset) % group.players.length
   if (!player.isAdmin) {
+    const swapMove = game.playerMoves.find(x => x.id == 4)
+    const index = group.players.findIndex(x => x.name == player.name)
+    const newIndex = getNextPlayer(group, player, game.swapOffset)
+    player.cards.forEach(card => {
+      if (swapMove.forbiddenNextCards.includes(card)) {
+        return false
+      }
+    })
     const tempCards = [...group.players[index].cards]
     group.players[index].cards = group.players[newIndex].cards
-    group.players[newIndex].cards = tempCards;
+    group.players[newIndex].cards = tempCards
     return turnChange(group, player)
   } else {
-    group.players[index].cards = []
-    for (let j = 0; j < game.handCards; j++) {
-      group.players[index].cards.push(group.cards.pop())
-    }
+    group.group.ground.push(group.cards.pop())
     return turnStop(group, player)
   }
 }
@@ -631,13 +650,17 @@ function swapMove(group, player) {
 function turnChange(group, player) {
   const game = games.find(x => x.id == group.game)
   const index = group.players.findIndex(x => x.name == player.name)
-  let newIndex = index
-  do {
-    newIndex = (newIndex + 1) % group.players.length
-  } while (group.players[newIndex].ghost)
+  const newIndex = getNextPlayer(group, player)
   group.players[index].canMove = false;
   group.players[index].moves = group.players[index].isAdmin ? game.adminMoves : []
   group.players[newIndex].canMove = true;
+  game.playerMoves.forEach(move => {
+    player.cards.array.forEach(card => {
+      if (move.forbiddenCards.includes(card)) {
+        move.disabled = true
+      }
+    })
+  })
   group.players[newIndex].moves = group.players[newIndex].moves.concat(game.playerMoves)
   return true
 }
@@ -664,4 +687,16 @@ function getShuffledSet(cardSet) {
     array[top] = tmp
   }
   return array
+}
+
+function getNextPlayer(group, player, offset = 1) {
+  const index = group.players.findIndex(x => x.name == player.name)
+  let newIndex = index
+  do {
+    do {
+      newIndex = (newIndex + 1) % group.players.length
+    } while (group.players[newIndex].ghost)
+    offset -= 1
+  } while (offset == 0)
+  return newIndex
 }
