@@ -11,7 +11,7 @@ import { AppRoutingModule } from './app-routing.module';
 
 import { HttpClientModule } from '@angular/common/http';
 import { Clipboard } from '@ionic-native/clipboard/ngx';
-import { NativeStorage } from '@ionic-native/native-storage/ngx';
+import { IonicStorageModule } from '@ionic/storage';
 
 @NgModule({
   declarations: [AppComponent],
@@ -20,14 +20,14 @@ import { NativeStorage } from '@ionic-native/native-storage/ngx';
     BrowserModule,
     IonicModule.forRoot(),
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    IonicStorageModule.forRoot()
   ],
   providers: [
     StatusBar,
     SplashScreen,
     { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    Clipboard,
-    NativeStorage
+    Clipboard
   ],
   bootstrap: [AppComponent]
 })
