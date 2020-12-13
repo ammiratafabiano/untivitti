@@ -100,7 +100,7 @@ app.get('/', cors(corsOptions), (req, res) => {
   const nGroups = groups.length;
   let nUsers = 0
   groups.forEach(x => nUsers += x.players.length)
-  res.send('Server untivitti.\nStatus: Ok\n\nCurrent groups: ' + nGroups + '\nCurrent users: ' + nUsers)
+  res.send('Server untivitti.</br>Status: Ok</br></br>Current groups: ' + nGroups + '</br>Current users: ' + nUsers)
 })
 
 app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
