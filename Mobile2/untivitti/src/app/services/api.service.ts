@@ -12,7 +12,8 @@ import { ResponseModel } from '../models/response.model';
 })
 export class ApiService {
 
-  ip = '2.238.108.96';
+  // ip = '2.238.108.96';
+  ip = 'localhost';
   domain = 'ammireto.cloud';
   endpoint = 'http://' + this.ip + ':3000';
   clientEndpoint = 'http://' +  this.domain + ':8100';
