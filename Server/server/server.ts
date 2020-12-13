@@ -97,7 +97,10 @@ const corsOptions = {
 app.options('*', cors(corsOptions));
 
 app.get('/', cors(corsOptions), (req, res) => {
-  res.send('Server untivitti.\nStatus: Ok')
+  const nGroups = groups.length;
+  let nUsers = 0
+  groups.forEach(x => nUsers += x.players.length)
+  res.send('Server untivitti.\nStatus: Ok\n\nCurrent groups: ' + nGroups + '\nCurrent users: ' + nUsers)
 })
 
 app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
