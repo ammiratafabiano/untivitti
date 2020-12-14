@@ -164,7 +164,7 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
           name: nickname,
           isAdmin: group.players.length > 0 ? false : true,
           canMove: false,
-          moves: group.players.length > 0 ? [] : game.adminMoves,
+          moves: group.players.length > 0 ? [] : getAdminMoves(group),
           timestamp: getTime(),
           cards: [],
           visible: false,
@@ -413,7 +413,7 @@ wsServer.on('connection', (socket: any) => {
           group.players.forEach(player => {
             player.canMove = false
             player.cards = []
-            player.moves = player.isAdmin ? game.adminMoves : []
+            player.moves = player.isAdmin ? getAdminMoves(group) : []
           })
         }
         const player = group.players.find(x => x.name == subscriber.nick)
@@ -530,7 +530,6 @@ function getTime() {
 }
 
 function solveConflicts(group, newPlayers) {
-  const game = games.find(x => x.id == group.game)
   group.players.forEach(player => {
     let found = false
     newPlayers.forEach(newPlayer => {
@@ -543,7 +542,7 @@ function solveConflicts(group, newPlayers) {
   admin.moves = []
   let newAdmin = newPlayers[0]
   newAdmin.isAdmin = true
-  newAdmin.moves = game.adminMoves
+  newAdmin.moves = getAdminMoves(group)
   return newPlayers
 }
 
@@ -632,7 +631,7 @@ function skipMove(group, player) {
 
 function swapMove(group, player) {
   const game = games.find(x => x.id == group.game)
-  const swapMove = game.playerMoves.find(x => x.id == 4)
+  const swapMove = getPlayerMoves(group).find(x => x.id == 4)
   if (!player.isAdmin) {
     const index = group.players.findIndex(x => x.name == player.name)
     const newIndex = getNextPlayer(group, player, game.swapOffset)
@@ -668,13 +667,12 @@ function swapMove(group, player) {
 }
 
 function turnChange(group, player) {
-  const game = games.find(x => x.id == group.game)
   const index = group.players.findIndex(x => x.name == player.name)
   const newIndex = getNextPlayer(group, player)
   group.players[index].canMove = false;
-  group.players[index].moves = group.players[index].isAdmin ? game.adminMoves : []
+  group.players[index].moves = group.players[index].isAdmin ? getAdminMoves(group) : []
   group.players[newIndex].canMove = true;
-  game.playerMoves.forEach(move => {
+  getPlayerMoves(group).forEach(move => {
     group.players[newIndex].cards.forEach(card => {
       if (move.forbiddenCards.includes(card)) {
         group.players[newIndex].moves.push({name: move.name, id: move.id, disabled: true})
@@ -695,8 +693,7 @@ function turnChange(group, player) {
 function turnStop(group, player) {
   const game = games.find(x => x.id == group.game)
   player.canMove = false
-  console.log(game.adminMoves)
-  player.moves = player.isAdmin ? game.adminMoves : []
+  player.moves = player.isAdmin ? getAdminMoves(group) : []
   if (game.mustShow) {
       group.players.forEach(x => x.visible = true)
   }
@@ -729,13 +726,12 @@ function getNextPlayer(group, player, offset = 1) {
 }
 
 function resetGroup(group) {
-  const game = games.find(x => x.id == group.game)
   group.status = false
   group.cards = []
   for (let i = 0; i < group.players.length; i++) {
     group.players[i].cards = []
     group.players[i].canMove = false
-    group.players[i].moves = group.players[i].isAdmin ? game.adminMoves : []
+    group.players[i].moves = group.players[i].isAdmin ? getAdminMoves(group) : []
     group.players[i].visible = false
   }
 }
@@ -750,4 +746,22 @@ function sendNotification(group, text, icon) {
       })
     }
   })
+}
+
+function getPlayerMoves(group) {
+  const game = games.find(x => x.id == group.game)
+  let moveToReturn = []
+  game.playerMoves.forEach(move => {
+    moveToReturn.push({name: move.name, id: move.id, disabled: false})
+  })
+  return moveToReturn
+}
+
+function getAdminMoves(group) {
+  const game = games.find(x => x.id == group.game)
+  let moveToReturn = []
+  game.adminMoves.forEach(move => {
+    moveToReturn.push({name: move.name, id: move.id, disabled: false})
+  })
+  return moveToReturn
 }
