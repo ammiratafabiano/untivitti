@@ -743,7 +743,7 @@ function resetGroup(group) {
 function sendNotification(group, text, icon) {
   subscribers.forEach(subscriber => {
     if (subscriber.code == group.code) {
-      wsServer.clients.clients.forEach((ws) => {
+      wsServer.clients.forEach((ws) => {
         if (ws.uuid == subscriber.uuid && ws.isAlive) {
           ws.send(JSON.stringify({type: 'message', text: text, icon: icon})); 
         }
