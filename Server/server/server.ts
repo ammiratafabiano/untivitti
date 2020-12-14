@@ -173,7 +173,9 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
         }
         group.players.push(player)
       }
-
+      const text = nickname + ' si è disconnesso/a'
+      const icon = 'Login'
+      sendNotification(group, text, icon)
       response = {
         success: true,
         data: group
@@ -489,7 +491,6 @@ function checkGroup(code) {
 function deletePlayer(code, nick) {
   let group = groups.find(x => x.code == code)
   if (group) {
-    const game = games.find(x => x.id == group.game)
     const playerToDelete = group.players.find(x => x.name == nick)
     const indexToDelete = group.players.indexOf(playerToDelete)
     if (indexToDelete > -1) {
@@ -497,10 +498,18 @@ function deletePlayer(code, nick) {
       const wasGhost = playerToDelete.ghost ? true : false;
       group.players.splice(indexToDelete,1)
       if ((!wasGhost || wasAdmin) && group.players.length > 0) {
-        const newIndex = getNextPlayer(group, playerToDelete)
-        group.players[newIndex].isAdmin = true
+        if (wasAdmin) {
+          const newIndex = getNextPlayer(group, 0)
+          group.players[newIndex].isAdmin = true
+          const text = group.players[newIndex].name + ' è il nuovo mazziere'
+          const icon = 'Admin'
+          sendNotification(group, text, icon)
+        }
         resetGroup(group)
       }
+      const text = nick + ' si è disconnesso/a'
+      const icon = 'Logout'
+      sendNotification(group, text, icon)
       return true
     } {
       return false
@@ -541,8 +550,13 @@ function solveConflicts(group, newPlayers) {
   admin.isAdmin = false
   admin.moves = []
   let newAdmin = newPlayers[0]
-  newAdmin.isAdmin = true
-  newAdmin.moves = getAdminMoves(group)
+  if (admin.name != newAdmin.name) {
+    newAdmin.isAdmin = true
+    newAdmin.moves = getAdminMoves(group)
+    const text = newAdmin.name + ' è il nuovo mazziere'
+    const icon = 'Admin'
+    sendNotification(group, text, icon)
+  }
   return newPlayers
 }
 
