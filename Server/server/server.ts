@@ -612,8 +612,6 @@ function showMove(group, player) {
   player.visible = true
   if (!player.isAdmin) {
     return turnChange(group, player)
-  } else {
-    return turnStop(group, player)
   }
 }
 
