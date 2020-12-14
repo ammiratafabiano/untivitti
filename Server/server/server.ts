@@ -693,10 +693,9 @@ function turnChange(group, player) {
 }
 
 function turnStop(group, player) {
-  const index = group.players.findIndex(x => x.name == player.name)
   const game = games.find(x => x.id == group.game)
-  group.players[index].canMove = false;
-  group.players[index].moves = group.players[index].isAdmin ? game.adminMoves : []
+  player.canMove = false;
+  player.moves = player.isAdmin ? game.adminMoves : []
   if (game.mustShow) {
       group.players.forEach(x => x.visible = true)
   }
