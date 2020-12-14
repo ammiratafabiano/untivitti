@@ -495,10 +495,12 @@ function deletePlayer(code, nick) {
     const indexToDelete = group.players.indexOf(playerToDelete)
     if (indexToDelete > -1) {
       const wasAdmin = playerToDelete.isAdmin ? true : false;
+      const wasGhost = playerToDelete.ghost ? true : false;
       group.players.splice(indexToDelete,1)
-      if (wasAdmin && group.players.length > 0) {
-        group.players[0].isAdmin = true
-        group.players[0].moves = game.adminMoves
+      if ((!wasGhost || wasAdmin) && group.players.length > 0) {
+        const newIndex = getNextPlayer(group, playerToDelete)
+        group.players[newIndex].isAdmin = true
+        resetGroup(group)
       }
       return true
     } {
@@ -591,17 +593,9 @@ function startMove(group, player) {
 }
 
 function stopMove(group, player) {
-  const game = games.find(x => x.id == group.game)
   if (player.isAdmin) {
-    group.status = false
-    group.cards = []
-    for (let i = 0; i < group.players.length; i++) {
-      group.players[i].cards = []
-      group.players[i].canMove = false
-      group.players[i].moves = group.players[i].isAdmin ? game.adminMoves : []
-      group.players[i].visible = false
-      player.visible = false
-    }
+    player.visible = false
+    resetGroup(group)
     return true
   } else {
     return false
@@ -711,4 +705,16 @@ function getNextPlayer(group, player, offset = 1) {
     offset -= 1
   } while (offset |= 0)
   return newIndex
+}
+
+function resetGroup(group) {
+  const game = games.find(x => x.id == group.game)
+  group.status = false
+  group.cards = []
+  for (let i = 0; i < group.players.length; i++) {
+    group.players[i].cards = []
+    group.players[i].canMove = false
+    group.players[i].moves = group.players[i].isAdmin ? game.adminMoves : []
+    group.players[i].visible = false
+  }
 }
