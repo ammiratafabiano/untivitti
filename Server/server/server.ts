@@ -654,24 +654,25 @@ function swapMove(group, player) {
 }
 
 function turnChange(group, player) {
-  const game = [...games].find(x => x.id == group.game)
+  const game = games.find(x => x.id == group.game)
   const index = group.players.findIndex(x => x.name == player.name)
   const newIndex = getNextPlayer(group, player)
   group.players[index].canMove = false;
   group.players[index].moves = group.players[index].isAdmin ? game.adminMoves : []
   group.players[newIndex].canMove = true;
-  group.players[newIndex].moves = group.players[newIndex].moves.concat(game.playerMoves)
+  
   console.log(game.playerMoves)
   if (!group.players[newIndex].isAdmin) {
     game.playerMoves.forEach(move => {
       group.players[newIndex].cards.forEach(card => {
         if (move.forbiddenCards.includes(card)) {
           console.log(move.name, card, move.forbiddenCards)
-          group.players[newIndex].moves.find(x => x.id == move.id).disabled = true
+          group.players[newIndex].moves.push({name: move.name, id: move.id, disabled: true})
         }
       })
     })
   } else {
+    group.players[newIndex].moves = group.players[newIndex].moves.concat(game.playerMoves)
     group.players[newIndex].visible = true
   }
   return true
