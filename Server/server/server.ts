@@ -661,14 +661,18 @@ function turnChange(group, player) {
   group.players[index].moves = group.players[index].isAdmin ? game.adminMoves : []
   group.players[newIndex].canMove = true;
   group.players[newIndex].moves = group.players[newIndex].moves.concat(game.playerMoves)
-  game.playerMoves.forEach(move => {
-    group.players[newIndex].cards.forEach(card => {
-      if (move.forbiddenCards.includes(card)) {
-        console.log(move.name, card, move.forbiddenCards)
-        group.players[newIndex].moves.find(x => x.id == move.id).disabled = true
-      }
+  if (!group.players[newIndex].isAdmin) {
+    game.playerMoves.forEach(move => {
+      group.players[newIndex].cards.forEach(card => {
+        if (move.forbiddenCards.includes(card)) {
+          console.log(move.name, card, move.forbiddenCards)
+          group.players[newIndex].moves.find(x => x.id == move.id).disabled = true
+        }
+      })
     })
-  })
+  } else {
+    group.players[newIndex].visible = true
+  }
   return true
 }
 
