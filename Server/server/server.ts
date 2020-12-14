@@ -661,6 +661,7 @@ function turnChange(group, player) {
   group.players[index].moves = group.players[index].isAdmin ? game.adminMoves : []
   group.players[newIndex].canMove = true;
   group.players[newIndex].moves = group.players[newIndex].moves.concat(game.playerMoves)
+  console.log(game.playerMoves)
   if (!group.players[newIndex].isAdmin) {
     game.playerMoves.forEach(move => {
       group.players[newIndex].cards.forEach(card => {
