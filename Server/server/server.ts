@@ -645,10 +645,10 @@ function swapMove(group, player) {
       group.players[index].cards = group.players[newIndex].cards
       group.players[newIndex].cards = tempCards
       const text = group.players[index].name +  ' cambia la carta con ' + group.players[newIndex].name
-      const icon = 'Blocked'
+      const icon = 'Swap'
       sendNotification(group, text, icon)
     } else {
-      const text = player.name +  ' prova a cambiare ma è stato bloccato'
+      const text = player.name +  ' prova a cambiare ma è stato bloccato/a'
       const icon = 'Blocked'
       sendNotification(group, text, icon)
     }
@@ -685,7 +685,7 @@ function turnChange(group, player) {
   } else {
     group.players[newIndex].moves = group.players[newIndex].moves.concat(game.playerMoves)
     group.players[newIndex].visible = true
-    const text = group.players[newIndex].name +  ' ha mostrato la carta'
+    const text = 'La carta del mazziere' + group.players[newIndex].name +  ' è ora visibile'
     const icon = 'Share'
     sendNotification(group, text, icon)
   }
