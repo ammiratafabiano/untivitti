@@ -685,7 +685,7 @@ function turnChange(group, player) {
   })
   if (group.players[newIndex].isAdmin) {
     group.players[newIndex].visible = true
-    const text = 'La carta del mazziere' + group.players[newIndex].name +  ' è ora visibile'
+    const text = 'La carta del mazziere ' + group.players[newIndex].name +  ' è ora visibile'
     const icon = 'Show'
     sendNotification(group, text, icon)
   }
@@ -694,7 +694,8 @@ function turnChange(group, player) {
 
 function turnStop(group, player) {
   const game = games.find(x => x.id == group.game)
-  player.canMove = false;
+  player.canMove = false
+  console.log(game.adminMoves)
   player.moves = player.isAdmin ? game.adminMoves : []
   if (game.mustShow) {
       group.players.forEach(x => x.visible = true)
