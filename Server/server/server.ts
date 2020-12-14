@@ -404,7 +404,6 @@ wsServer.on('connection', (socket: any) => {
   setInterval(function() {
     subscribers.forEach(subscriber => {
       const group = groups.find(x => x.code == subscriber.code)
-      let response
       if (group) {
         const game = games.find(x => x.id == group.game)
         if (group.players.length < game.minPlayers) {
@@ -585,7 +584,10 @@ function startMove(group, player) {
         }
       }
     }
-    group.round += 1;
+    group.round += 1
+    const text = player.name +  ' ha iniziato la partita'
+    const icon = 'Start'
+    sendNotification(group, text, icon)
     return turnChange(group, player)
   } else {
     return false
@@ -596,6 +598,9 @@ function stopMove(group, player) {
   if (player.isAdmin) {
     player.visible = false
     resetGroup(group)
+    const text = player.name +  ' ha messo in pausa la partita'
+    const icon = 'Pause'
+    sendNotification(group, text, icon)
     return true
   } else {
     return false
@@ -604,12 +609,18 @@ function stopMove(group, player) {
 
 function showMove(group, player) {
   player.visible = true
+  const text = player.name +  ' ha il cucù!'
+  const icon = 'Share'
+  sendNotification(group, text, icon)
   if (!player.isAdmin) {
     return turnChange(group, player)
   }
 }
 
 function skipMove(group, player) {
+  const text = player.name +  ' si è stato'
+  const icon = 'Ok'
+  sendNotification(group, text, icon)
   if (!player.isAdmin) {
     return turnChange(group, player)
   } else {
@@ -633,6 +644,13 @@ function swapMove(group, player) {
       const tempCards = [...group.players[index].cards]
       group.players[index].cards = group.players[newIndex].cards
       group.players[newIndex].cards = tempCards
+      const text = group.players[index] +  ' cambia la carta con ' + group.players[newIndex].name
+      const icon = 'Blocked'
+      sendNotification(group, text, icon)
+    } else {
+      const text = player.name +  ' prova a cambiare ma è stato bloccato'
+      const icon = 'Blocked'
+      sendNotification(group, text, icon)
     }
     return turnChange(group, player)
   } else {
@@ -667,6 +685,9 @@ function turnChange(group, player) {
   } else {
     group.players[newIndex].moves = group.players[newIndex].moves.concat(game.playerMoves)
     group.players[newIndex].visible = true
+    const text = player.name +  ' ha mostrato la carta'
+    const icon = 'Share'
+    sendNotification(group, text, icon)
   }
   return true
 }
@@ -703,7 +724,7 @@ function getNextPlayer(group, player, offset = 1) {
       newIndex = (newIndex + 1) % group.players.length
     } while (group.players[newIndex].ghost)
     offset -= 1
-  } while (offset |= 0)
+  } while (offset != 0)
   return newIndex
 }
 
@@ -717,4 +738,13 @@ function resetGroup(group) {
     group.players[i].moves = group.players[i].isAdmin ? game.adminMoves : []
     group.players[i].visible = false
   }
+}
+
+function sendNotification(group, text, icon) {
+  subscribers.forEach(subscriber => {
+    if (subscriber.code == group.code) {
+      wsServer.clients.find((ws) => ws.uuid == subscriber.uuid && ws.isAlive)
+          .send(JSON.stringify({type: 'message', text: text, icon: icon}));
+    }
+  });
 }
