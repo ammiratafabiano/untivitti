@@ -685,7 +685,7 @@ function turnChange(group, player) {
   } else {
     group.players[newIndex].moves = group.players[newIndex].moves.concat(game.playerMoves)
     group.players[newIndex].visible = true
-    const text = player.name +  ' ha mostrato la carta'
+    const text = group.players[newIndex] +  ' ha mostrato la carta'
     const icon = 'Share'
     sendNotification(group, text, icon)
   }
