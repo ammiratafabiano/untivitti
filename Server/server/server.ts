@@ -428,7 +428,7 @@ wsServer.on('connection', (socket: any) => {
         } 
       } 
     })
-  }, 1000*60*60);
+  }, 1000);
 });
 
 setInterval(() => {
@@ -462,7 +462,7 @@ setInterval(() => {
       subscribers.splice(indexToDelete, 1)
     }
   })
-}, 5000);
+}, 60000);
 
 const server = app.listen(port, (err: any) => {
   if (err) console.log(err); 
