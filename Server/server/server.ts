@@ -654,7 +654,7 @@ function swapMove(group, player) {
 }
 
 function turnChange(group, player) {
-  const game = games.find(x => x.id == group.game)
+  const game = [...games].find(x => x.id == group.game)
   const index = group.players.findIndex(x => x.name == player.name)
   const newIndex = getNextPlayer(group, player)
   group.players[index].canMove = false;
