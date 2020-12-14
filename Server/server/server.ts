@@ -96,7 +96,7 @@ const corsOptions = {
     if (allowedOrigins.includes(origin) || !origin) {
       callback(null, true);
     } else {
-      console.log("----->",origin,"<-----");
+      console.log("Unknown origin ----->",origin,"<-----");
       callback(new Error('Origin not allowed by CORS'));
     }
   }
@@ -432,9 +432,8 @@ wsServer.on('connection', (socket: any) => {
 });
 
 setInterval(() => {
-  
-  console.log(groups)
   /*
+  console.log(groups)
   console.log(subscribers)
   let list = []
   wsServer.clients.forEach((ws) => {
@@ -628,8 +627,8 @@ function skipMove(group, player) {
 
 function swapMove(group, player) {
   const game = games.find(x => x.id == group.game)
+  const swapMove = game.playerMoves.find(x => x.id == 4)
   if (!player.isAdmin) {
-    const swapMove = game.playerMoves.find(x => x.id == 4)
     const index = group.players.findIndex(x => x.name == player.name)
     const newIndex = getNextPlayer(group, player, game.swapOffset)
     let canSwap = true;
@@ -646,7 +645,12 @@ function swapMove(group, player) {
     return turnChange(group, player)
   } else {
     const newCard = group.cards.pop()
-    group.ground.push()
+    if (swapMove.forbiddenNextCards.includes(newCard)) {
+      group.ground.push(newCard)
+    } else {
+      player.cards = []
+      player.cards.push(newCard)
+    }
     return turnStop(group, player)
   }
 }
