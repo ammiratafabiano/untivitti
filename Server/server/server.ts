@@ -45,7 +45,7 @@ const games = [
     ],
     playerMoves: [
       {
-        name: 'Mostra',
+        name: 'Cucù!',
         id: 2,
         disabled: false,
         forbiddenCards: [0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,20,21,22,23,24,25,26,27,28,30,31,32,33,34,35,36,37,38],
@@ -610,10 +610,12 @@ function stopMove(group, player) {
 function showMove(group, player) {
   player.visible = true
   const text = player.name +  ' ha il cucù!'
-  const icon = 'Share'
+  const icon = 'Blocked'
   sendNotification(group, text, icon)
   if (!player.isAdmin) {
     return turnChange(group, player)
+  } else {
+    turnStop(group, player)
   }
 }
 
@@ -649,7 +651,7 @@ function swapMove(group, player) {
       sendNotification(group, text, icon)
     } else {
       const text = player.name +  ' prova a cambiare ma è stato bloccato/a'
-      const icon = 'Blocked'
+      const icon = 'Close'
       sendNotification(group, text, icon)
     }
     return turnChange(group, player)
@@ -672,21 +674,19 @@ function turnChange(group, player) {
   group.players[index].canMove = false;
   group.players[index].moves = group.players[index].isAdmin ? game.adminMoves : []
   group.players[newIndex].canMove = true;
-  if (!group.players[newIndex].isAdmin) {
-    game.playerMoves.forEach(move => {
-      group.players[newIndex].cards.forEach(card => {
-        if (move.forbiddenCards.includes(card)) {
-          group.players[newIndex].moves.push({name: move.name, id: move.id, disabled: true})
-        } else {
-          group.players[newIndex].moves.push({name: move.name, id: move.id, disabled: false})
-        }
-      })
+  game.playerMoves.forEach(move => {
+    group.players[newIndex].cards.forEach(card => {
+      if (move.forbiddenCards.includes(card)) {
+        group.players[newIndex].moves.push({name: move.name, id: move.id, disabled: true})
+      } else {
+        group.players[newIndex].moves.push({name: move.name, id: move.id, disabled: false})
+      }
     })
-  } else {
-    group.players[newIndex].moves = group.players[newIndex].moves.concat(game.playerMoves)
+  })
+  if (group.players[newIndex].isAdmin) {
     group.players[newIndex].visible = true
     const text = 'La carta del mazziere' + group.players[newIndex].name +  ' è ora visibile'
-    const icon = 'Share'
+    const icon = 'Show'
     sendNotification(group, text, icon)
   }
   return true
