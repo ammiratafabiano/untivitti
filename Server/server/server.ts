@@ -428,7 +428,7 @@ wsServer.on('connection', (socket: any) => {
         } 
       } 
     })
-  }, 1000);
+  }, 1000*60*60);
 });
 
 setInterval(() => {
@@ -660,14 +660,13 @@ function turnChange(group, player) {
   group.players[index].canMove = false;
   group.players[index].moves = group.players[index].isAdmin ? game.adminMoves : []
   group.players[newIndex].canMove = true;
-  
-  console.log(game.playerMoves)
   if (!group.players[newIndex].isAdmin) {
     game.playerMoves.forEach(move => {
       group.players[newIndex].cards.forEach(card => {
         if (move.forbiddenCards.includes(card)) {
-          console.log(move.name, card, move.forbiddenCards)
           group.players[newIndex].moves.push({name: move.name, id: move.id, disabled: true})
+        } else {
+          group.players[newIndex].moves.push({name: move.name, id: move.id, disabled: false})
         }
       })
     })
