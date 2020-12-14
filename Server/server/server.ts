@@ -664,6 +664,7 @@ function turnChange(group, player) {
   game.playerMoves.forEach(move => {
     group.players[newIndex].cards.forEach(card => {
       if (move.forbiddenCards.includes(card)) {
+        console.log(move.name, card, move.forbiddenCards)
         group.players[newIndex].moves.find(x => x.id == move.id).disabled = true
       }
     })
