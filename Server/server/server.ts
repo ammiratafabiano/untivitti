@@ -550,7 +550,6 @@ function solveConflicts(group, newPlayers) {
     })
     if (!found) newPlayers.push(player)
   })
-  setAdmin(group)
   return newPlayers
 }
 
