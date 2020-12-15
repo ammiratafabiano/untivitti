@@ -765,7 +765,7 @@ function getAdminMoves(group) {
 
 function getPlayersLength(group) {
   let count = 0
-  group.players.array.forEach(player => {
+  group.players.forEach(player => {
     if (!player.ghost) {
       count += 1
     }
