@@ -791,7 +791,7 @@ function getPlayersLength(group) {
 function setAdmin(group) {
   if (getPlayersLength(group) > 0) {
     const adminIndex = group.players.findIndex(x => x.isAdmin == true)
-    const newAdminIndex = getNextPlayer(group, 0)
+    const newAdminIndex = getNextPlayer(group, -1)
     if (adminIndex != -1 && adminIndex != newAdminIndex) {
       group.players[adminIndex].isAdmin = false
       group.players[adminIndex].moves = []
