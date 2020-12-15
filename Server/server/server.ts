@@ -35,32 +35,36 @@ const games = [
     mustShow: true,
     adminMoves: [
       {
-        name: 'Inizia',
+        name: 'Distribuisci',
         id: 0
       },
       {
-        name: 'Termina',
+        name: 'Ritira carte',
         id: 1
+      },
+      {
+        name: 'Passa il mazzo',
+        id: 2
       }
     ],
     playerMoves: [
       {
         name: 'Cucù!',
-        id: 2,
+        id: 3,
         disabled: false,
         forbiddenCards: [0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,20,21,22,23,24,25,26,27,28,30,31,32,33,34,35,36,37,38],
         forbiddenNextCards: []
       },
       {
         name: 'Ti stai',
-        id: 3,
+        id: 4,
         disabled: false,
         forbiddenCards: [9,19,29,39],
         forbiddenNextCards: []
       },
       {
         name: 'Cambia',
-        id: 4,
+        id: 5,
         disabled: false,
         forbiddenCards: [9,19,29,39],
         forbiddenNextCards: [9,19,29,39]
@@ -135,7 +139,6 @@ app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
         isAdmin: true,
         canMove: false,
         moves: game.adminMoves,
-        timestamp: getTime(),
         cards: [],
         visible: false,
         balance: game.defaultBalance,
@@ -165,7 +168,6 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
           isAdmin: getPlayersLength(group) > 0 ? false : true,
           canMove: false,
           moves: getPlayersLength(group) > 0 ? [] : getAdminMoves(group),
-          timestamp: getTime(),
           cards: [],
           visible: false,
           balance: game.defaultBalance,
@@ -228,7 +230,6 @@ app.get('/getState/:nick/:code', cors(corsOptions), (req, res) => {
     }
     const player = group.players.find(x => x.name == nickname)
     if (player) {
-      player.timestamp = getTime()
       response = {
         success: true,
         data: group
@@ -350,12 +351,14 @@ app.get('/setGhost/:nick/:code/:value', cors(corsOptions), (req, res) => {
       const text = nickname + ' è ora spettatore'
       const icon = 'Watcher'
       sendNotification(group, text, icon)
+      if (player.isAdmin) {
+        setAdmin(group)
+      }
     } else {
       const text = nickname + ' è ora giocatore'
       const icon = 'Player'
       sendNotification(group, text, icon)
     }
-    setAdmin(group)
     response = {
       success: true
     }
@@ -413,24 +416,17 @@ wsServer.on('connection', (socket: any) => {
         socket.send(JSON.stringify({success: false, type: msg.type}))
     }
   });
+
   setInterval(function() {
     subscribers.forEach(subscriber => {
       const group = groups.find(x => x.code == subscriber.code)
       if (group) {
         const game = games.find(x => x.id == group.game)
         if (group.status && getPlayersLength(group) < game.minPlayers) {
-          group.status = false
-          group.cards = []
-          group.ground = []
-          group.players.forEach(player => {
-            player.canMove = false
-            player.cards = []
-            player.moves = player.isAdmin ? getAdminMoves(group) : []
-          })
+          resetGroup(group)
         }
         const player = group.players.find(x => x.name == subscriber.nick)
         if (player) {
-          player.timestamp = getTime()
           wsServer.clients.forEach((ws) => {
             if (ws.uuid == subscriber.uuid && ws.isAlive) {
               ws.send(JSON.stringify({type: 'update', state: group}))
@@ -504,16 +500,20 @@ function deletePlayer(code, nick) {
     const playerToDelete = group.players.find(x => x.name == nick)
     const indexToDelete = group.players.indexOf(playerToDelete)
     if (indexToDelete > -1) {
-      const wasGhost = playerToDelete.ghost ? true : false;
-      group.players.splice(indexToDelete,1)
-      if (!wasGhost && getPlayersLength(group) > 0) {
+      if (playerToDelete.isAdmin) {
         setAdmin(group)
-        resetGroup(group)
       }
+      group.players.splice(indexToDelete,1)
       logoutUser(group, nick)
       const text = nick + ' si è disconnesso/a'
       const icon = 'Logout'
       sendNotification(group, text, icon)
+      if (!playerToDelete.ghost && getPlayersLength(group) > 0) {
+        resetGroup(group)
+        const text = 'Partita interrotta'
+        const icon = 'Pause'
+        sendNotification(group, text, icon)
+      }
       return true
     } {
       return false
@@ -561,10 +561,12 @@ function executeMove(group, player, move) {
     case 1:
       return stopMove(group,player)
     case 2:
-      return showMove(group, player)
+      return passMove(group, player)
     case 3:
-      return skipMove(group, player)
+      return showMove(group, player)
     case 4:
+      return skipMove(group, player)
+    case 5:
       return swapMove(group, player)
     default:
       return false
@@ -603,7 +605,6 @@ function startMove(group, player) {
 
 function stopMove(group, player) {
   if (player.isAdmin) {
-    player.visible = false
     resetGroup(group)
     const text = player.name +  ' ha messo in pausa la partita'
     const icon = 'Pause'
@@ -638,60 +639,76 @@ function skipMove(group, player) {
 }
 
 function swapMove(group, player) {
-  const game = games.find(x => x.id == group.game)
-  const swapMove = getPlayerMoves(group).find(x => x.id == 4)
+  const swapMove = getPlayerMoves(group).find(x => x.id == 5)
+  const text = player.name + ' prova a cambiare'
+  const icon = 'Swap'
+  sendNotification(group, text, icon, [player.name])
   if (!player.isAdmin) {
-    const index = group.players.findIndex(x => x.name == player.name)
-    const newIndex = getNextPlayer(group, index, game.swapOffset)
+    const player = group.players.find(x => x.name == player.name)
+    const newPlayer = getNextPlayer(group, player)
     let canSwap = true;
-    group.players[newIndex].cards.forEach(card => {
+    newPlayer.cards.forEach(card => {
       if (swapMove.forbiddenNextCards.includes(card)) {
         canSwap = false;
       }
     })
     if (canSwap) {
-      const tempCards = [...group.players[index].cards]
-      player.cards = group.players[newIndex].cards
-      group.players[newIndex].cards = tempCards
-      const text = group.players[index].name +  ' cambia la carta con ' + group.players[newIndex].name
+      const tempCards = [...player.cards]
+      player.cards = newPlayer.cards
+      newPlayer.cards = tempCards
+      const text = player.name + 'scambia con ' + newPlayer.name
       const icon = 'Swap'
-      sendNotification(group, text, icon, [player.name])
-    } else {
-      const text = player.name +  ' prova a cambiare ma è stato bloccato/a'
-      const icon = 'Close'
-      sendNotification(group, text, icon, [player.name])
+      sendNotification(group, text, icon)
     }
     return turnChange(group, player)
   } else {
     const newCard = group.cards.pop()
     if (swapMove.forbiddenNextCards.includes(newCard)) {
       group.ground.push(newCard)
+      const text = 'Cucù!'
+      const icon = 'Close'
+      sendNotification(group, text, icon)
     } else {
       player.cards = []
       player.cards.push(newCard)
+      const text = player.name + ' scambia la carta con il mazzo'
+      const icon = 'Swap'
+      sendNotification(group, text, icon, [player.name])
     }
     return turnStop(group, player)
   }
 }
 
+function passMove(group, player) {
+  if (player.isAdmin) {
+    resetGroup(group)
+    const text = player.name +  ' passa il mazzo'
+    const icon = 'Admin'
+    sendNotification(group, text, icon, [player.name])
+    setAdmin(group)
+    return true
+  } else {
+    return false
+  }
+}
+
 function turnChange(group, player) {
-  const index = group.players.findIndex(x => x.name == player.name)
-  const newIndex = getNextPlayer(group, index)
-  group.players[index].canMove = false;
-  group.players[index].moves = group.players[index].isAdmin ? getAdminMoves(group) : []
-  group.players[newIndex].canMove = true;
+  const newPlayer = getNextPlayer(group, player)
+  player.canMove = false;
+  player.moves = player.isAdmin ? getAdminMoves(group) : []
+  newPlayer.canMove = true;
   getPlayerMoves(group).forEach(move => {
-    group.players[newIndex].cards.forEach(card => {
+    newPlayer.cards.forEach(card => {
       if (move.forbiddenCards.includes(card)) {
-        group.players[newIndex].moves.push({name: move.name, id: move.id, disabled: true})
+        newPlayer.moves.push({name: move.name, id: move.id, disabled: true})
       } else {
-        group.players[newIndex].moves.push({name: move.name, id: move.id, disabled: false})
+        newPlayer.moves.push({name: move.name, id: move.id, disabled: false})
       }
     })
   })
-  if (group.players[newIndex].isAdmin) {
-    group.players[newIndex].visible = true
-    const text = 'La carta del mazziere ' + group.players[newIndex].name +  ' è ora visibile'
+  if (newPlayer.isAdmin) {
+    newPlayer.visible = true
+    const text = 'La carta del mazziere ' + newPlayer.name +  ' è ora visibile'
     const icon = 'Show'
     sendNotification(group, text, icon)
   }
@@ -721,20 +738,20 @@ function getShuffledSet(cardSet) {
   return array
 }
 
-function getNextPlayer(group, index, offset = 1) {
-  let newIndex = index
+function getNextPlayer(group, player?) {
+  let attempts = 0
+  let newIndex = player ? group.players.findIndex(x => x.name == player.name) : -1
   do {
-    do {
-      newIndex = (newIndex + 1) % group.players.length
-    } while (group.players[newIndex].ghost && index != newIndex)
-    offset -= 1
-  } while (offset != 0)
-  return newIndex
+    attempts += 1
+    newIndex = (newIndex + 1) % group.players.length
+  } while (group.players[newIndex].ghost && attempts > group.players.length)
+  return group.players[newIndex]
 }
 
 function resetGroup(group) {
   group.status = false
   group.cards = []
+  group.ground = []
   for (let i = 0; i < group.players.length; i++) {
     group.players[i].cards = []
     group.players[i].canMove = false
@@ -797,14 +814,13 @@ function getPlayersLength(group) {
   return count
 }
 
-function setAdmin(group) {
+function setAdmin(group, reset = false) {
   if (getPlayersLength(group) > 0) {
-    const adminIndex = group.players.findIndex(x => x.isAdmin == true)
-    const newAdminIndex = getNextPlayer(group, -1)
-    if (adminIndex != -1 && adminIndex != newAdminIndex) {
-      group.players[adminIndex].isAdmin = false
-      group.players[adminIndex].moves = []
-      const newAdmin = group.players[newAdminIndex]
+    const admin = group.players.find(x => x.isAdmin == true)
+    const newAdmin = reset ? getNextPlayer(group) : getNextPlayer(group, admin)
+    if (newAdmin && admin.name != newAdmin.name) {
+      admin.isAdmin = false
+      admin.moves = []
       newAdmin.isAdmin = true
       newAdmin.moves = getAdminMoves(group)
       const text = newAdmin.name + ' è il nuovo mazziere'
@@ -812,9 +828,8 @@ function setAdmin(group) {
       sendNotification(group, text, icon)
     }
   }
-  orderGroup(group)
 }
-
+/*
 function orderGroup(group) {
   const adminIndex = group.players.find(x => x.isAdmin == true)
   if (adminIndex && adminIndex != 0) {
@@ -822,3 +837,4 @@ function orderGroup(group) {
     group.players.concat(shifted)
   }
 }
+*/
