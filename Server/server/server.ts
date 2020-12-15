@@ -747,11 +747,13 @@ function sendNotification(group, text, icon) {
 }
 
 function logoutUser(group, nick) {
-  subscribers.forEach(subscriber => {
+  subscribers.forEach((subscriber, i) => {
     if (subscriber.code == group.code && subscriber.nick == nick) {
-      wsServer.clients.forEach((ws) => {
+      wsServer.clients.forEach((ws, j) => {
         if (ws.uuid == subscriber.uuid && ws.isAlive) {
-          ws.send(JSON.stringify({type: 'logout'})); 
+          ws.send(JSON.stringify({type: 'logout'}))
+          subscribers.splice(i, 0)
+          wsServer.clients.splice(j, 0)
         }
       })
     }
