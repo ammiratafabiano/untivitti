@@ -173,7 +173,7 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
         }
         group.players.push(player)
       }
-      const text = nickname + ' si è disconnesso/a'
+      const text = nickname + ' si è connesso/a'
       const icon = 'Login'
       sendNotification(group, text, icon)
       response = {
@@ -609,7 +609,7 @@ function showMove(group, player) {
   player.visible = true
   const text = player.name +  ' ha il cucù!'
   const icon = 'Blocked'
-  sendNotification(group, text, icon)
+  sendNotification(group, text, icon, [player.name])
   if (!player.isAdmin) {
     return turnChange(group, player)
   } else {
@@ -620,7 +620,7 @@ function showMove(group, player) {
 function skipMove(group, player) {
   const text = player.name +  ' si è stato'
   const icon = 'Ok'
-  sendNotification(group, text, icon)
+  sendNotification(group, text, icon, [player.name])
   if (!player.isAdmin) {
     return turnChange(group, player)
   } else {
@@ -646,11 +646,11 @@ function swapMove(group, player) {
       group.players[newIndex].cards = tempCards
       const text = group.players[index].name +  ' cambia la carta con ' + group.players[newIndex].name
       const icon = 'Swap'
-      sendNotification(group, text, icon)
+      sendNotification(group, text, icon, [player.name])
     } else {
       const text = player.name +  ' prova a cambiare ma è stato bloccato/a'
       const icon = 'Close'
-      sendNotification(group, text, icon)
+      sendNotification(group, text, icon, [player.name])
     }
     return turnChange(group, player)
   } else {
@@ -734,11 +734,11 @@ function resetGroup(group) {
   }
 }
 
-function sendNotification(group, text, icon) {
+function sendNotification(group, text, icon, excludeList = []) {
   subscribers.forEach(subscriber => {
     if (subscriber.code == group.code) {
       wsServer.clients.forEach((ws) => {
-        if (ws.uuid == subscriber.uuid && ws.isAlive) {
+        if (ws.uuid == subscriber.uuid && ws.isAlive && !excludeList.includes(subscriber.nick)) {
           ws.send(JSON.stringify({type: 'message', text: text, icon: icon})); 
         }
       })
