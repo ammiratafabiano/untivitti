@@ -434,7 +434,7 @@ wsServer.on('connection', (socket: any) => {
 });
 
 setInterval(() => {
-  /*
+  
   console.log(groups)
   console.log(subscribers)
   let list = []
@@ -442,7 +442,7 @@ setInterval(() => {
     list.push(ws.uuid)
   })
   console.log(list)
-  */
+  
   wsServer.clients.forEach((ws) => {
     if (!ws.isAlive) {
       return ws.terminate();
@@ -464,7 +464,7 @@ setInterval(() => {
       subscribers.splice(indexToDelete, 1)
     }
   })
-}, 60000);
+}, 10000);
 
 const server = app.listen(port, (err: any) => {
   if (err) console.log(err); 
