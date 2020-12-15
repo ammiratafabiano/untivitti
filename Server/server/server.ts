@@ -346,6 +346,15 @@ app.get('/setGhost/:nick/:code/:value', cors(corsOptions), (req, res) => {
   if (group) {
     const player = group.players.find(x => x.name == nickname)
     player.ghost = value == "true" ? true : false
+    if (player.ghost) {
+      const text = nickname + ' è ora spettatore'
+      const icon = 'Watcher'
+      sendNotification(group, text, icon)
+    } else {
+      const text = nickname + ' è ora giocatore'
+      const icon = 'Player'
+      sendNotification(group, text, icon)
+    }
     setAdmin(group)
     response = {
       success: true
