@@ -501,6 +501,7 @@ function deletePlayer(code, nick) {
         setAdmin(group)
         resetGroup(group)
       }
+      logoutUser(group, nick)
       const text = nick + ' si è disconnesso/a'
       const icon = 'Logout'
       sendNotification(group, text, icon)
@@ -739,6 +740,18 @@ function sendNotification(group, text, icon) {
       wsServer.clients.forEach((ws) => {
         if (ws.uuid == subscriber.uuid && ws.isAlive) {
           ws.send(JSON.stringify({type: 'message', text: text, icon: icon})); 
+        }
+      })
+    }
+  })
+}
+
+function logoutUser(group, nick) {
+  subscribers.forEach(subscriber => {
+    if (subscriber.code == group.code && subscriber.nick == nick) {
+      wsServer.clients.forEach((ws) => {
+        if (ws.uuid == subscriber.uuid && ws.isAlive) {
+          ws.send(JSON.stringify({type: 'logout'})); 
         }
       })
     }
