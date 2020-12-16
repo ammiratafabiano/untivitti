@@ -178,15 +178,12 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
           const text = nickname + ' si è connesso/a'
           const icon = 'Login'
           sendNotification(group, text, icon)
-          response = {
-            success: true,
-            data: group
-          }
         } else {
-          response = {
-            success: false,
-            errorCode: "DUPLICATE_PLAYER"
-          }
+          logoutUser(group.code, nickname)
+        }
+        response = {
+          success: true,
+          data: group
         }
       } else {
         response = {
@@ -511,7 +508,7 @@ function deletePlayer(code, nick) {
         setAdmin(group)
       }
       group.players.splice(indexToDelete,1)
-      logoutUser(group, nick)
+      logoutUser(group.code, nick)
       const text = nick + ' si è disconnesso/a'
       const icon = 'Logout'
       sendNotification(group, text, icon)
@@ -778,9 +775,9 @@ function sendNotification(group, text, icon, excludeList = []) {
   })
 }
 
-function logoutUser(group, nick) {
+function logoutUser(code, nick) {
   subscribers.forEach((subscriber, i) => {
-    if (subscriber.code == group.code && subscriber.nick == nick) {
+    if (subscriber.code == code && subscriber.nick == nick) {
       wsServer.clients.forEach((ws) => {
         if (ws.uuid == subscriber.uuid && ws.isAlive) {
           ws.send(JSON.stringify({type: 'close'}))
