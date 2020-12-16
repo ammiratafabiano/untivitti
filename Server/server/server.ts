@@ -439,7 +439,7 @@ wsServer.on('connection', (socket: any) => {
 });
 
 setInterval(() => {
-  /*
+  
   console.log(groups)
   console.log(subscribers)
   let list = []
@@ -447,7 +447,7 @@ setInterval(() => {
     list.push(ws.uuid)
   })
   console.log(list)
-  */
+  console.log("\n\n-----\n\n")
   wsServer.clients.forEach((ws) => {
     if (!ws.isAlive) {
       return ws.terminate();
