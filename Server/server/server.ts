@@ -159,37 +159,51 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
   const nickname = req.params['nick']
   let group = groups.find(x => x.code == req.params['code'])
   let response
-  if (group && group.status != true) {
-    const game = games.find(x => x.id == group.game)
-    if (getPlayersLength(group) < game.maxPlayers) {
-      if (!group.players.find(x => x.name == nickname)) {
-        const player = {
-          name: nickname,
-          isAdmin: getPlayersLength(group) > 0 ? false : true,
-          canMove: false,
-          moves: getPlayersLength(group) > 0 ? [] : getAdminMoves(group),
-          cards: [],
-          visible: false,
-          balance: game.defaultBalance,
-          ghost: false
+  if (group) {
+    if (group.status != true) {
+      const game = games.find(x => x.id == group.game)
+      if (getPlayersLength(group) < game.maxPlayers) {
+        if (!group.players.find(x => x.name == nickname)) {
+          const player = {
+            name: nickname,
+            isAdmin: getPlayersLength(group) > 0 ? false : true,
+            canMove: false,
+            moves: getPlayersLength(group) > 0 ? [] : getAdminMoves(group),
+            cards: [],
+            visible: false,
+            balance: game.defaultBalance,
+            ghost: false
+          }
+          group.players.push(player)
+          const text = nickname + ' si è connesso/a'
+          const icon = 'Login'
+          sendNotification(group, text, icon)
+          response = {
+            success: true,
+            data: group
+          }
+        } else {
+          response = {
+            success: false,
+            errorCode: "DUPLICATE_PLAYER"
+          }
         }
-        group.players.push(player)
-      }
-      const text = nickname + ' si è connesso/a'
-      const icon = 'Login'
-      sendNotification(group, text, icon)
-      response = {
-        success: true,
-        data: group
+      } else {
+        response = {
+          success: false,
+          errorCode: "MAX_PLAYERS"
+        }
       }
     } else {
       response = {
-        success: false
+        success: false,
+        errorCode: "ALREADY_STARTED"
       }
     }
   } else {
     response = {
-      success: false
+      success: false,
+      errorCode: "GROUP_NOT_EXISTS"
     }
   }
   res.send(response)
