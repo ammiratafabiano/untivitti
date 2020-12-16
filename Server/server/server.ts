@@ -643,7 +643,6 @@ function swapMove(group, player) {
   const icon = 'Swap'
   sendNotification(group, text, icon, [player.name])
   if (!player.isAdmin) {
-    const player = group.players.find(x => x.name == player.name)
     const newPlayer = getNextPlayer(group, player)
     let canSwap = true;
     newPlayer.cards.forEach(card => {
