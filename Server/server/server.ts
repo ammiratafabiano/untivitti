@@ -654,7 +654,7 @@ function swapMove(group, player) {
       const tempCards = [...player.cards]
       player.cards = newPlayer.cards
       newPlayer.cards = tempCards
-      const text = player.name + 'scambia con ' + newPlayer.name
+      const text = player.name + ' scambia con ' + newPlayer.name
       const icon = 'Swap'
       sendNotification(group, text, icon)
     }
@@ -667,6 +667,7 @@ function swapMove(group, player) {
       const icon = 'Close'
       sendNotification(group, text, icon)
     } else {
+      group.ground = [...player.cards]
       player.cards = []
       player.cards.push(newCard)
       const text = player.name + ' scambia la carta con il mazzo'
