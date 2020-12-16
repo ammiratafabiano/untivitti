@@ -382,18 +382,10 @@ wsServer.on('connection', (socket: any) => {
     const msg = JSON.parse(message)
     switch (msg.type) {
       case 'init':
-        let found = false;
-        subscribers.forEach(subscriber => {
-          if (subscriber.code == msg.code && subscriber.nick == msg.nick) {
-            found = true
-          }
-        })
-        if (!found) {
-          const uuid = uuidv4()
-          socket.uuid = uuid
-          socket.send(JSON.stringify({success: true, type: msg.type, uuid: uuid}))
-          subscribers.push({uuid: uuid, code: msg.code, nick: msg.nick})
-        }
+        const uuid = uuidv4()
+        socket.uuid = uuid
+        socket.send(JSON.stringify({success: true, type: msg.type, uuid: uuid}))
+        subscribers.push({uuid: uuid, code: msg.code, nick: msg.nick})
         break
       case 'move':
         const subscriber = subscribers.find(x => x.uuid == msg.uuid)
