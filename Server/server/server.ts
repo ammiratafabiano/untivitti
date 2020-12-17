@@ -346,16 +346,15 @@ wsServer.on('connection', (socket: any) => {
         break
       case 'move':
         groups.forEach(group => {
-          const player = group.players.find(x => x.uuid == uuid)
-          if (player) {
-            if (executeMove(group, player, msg.move)) {
-              socket.send(JSON.stringify({success: true, type: msg.type}))
-            } else {
-              socket.send(JSON.stringify({success: false, type: msg.type}))
+          group.players.forEach(player => {
+            if (player.uuid == uuid) {
+              if (executeMove(group, player, msg.move)) {
+                socket.send(JSON.stringify({success: true, type: msg.type}))
+              } else {
+                socket.send(JSON.stringify({success: false, type: msg.type}))
+              }
             }
-          } else {
-            socket.send(JSON.stringify({success: false, type: msg.type}))
-          }
+          })
         })
         break
       default:
