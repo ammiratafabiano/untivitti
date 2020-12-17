@@ -215,14 +215,9 @@ app.get('/exitGroup/:nick/:code', cors(corsOptions), (req, res) => {
   if (group) {
     const player = group.players.find(x => x.name == nickname)
     if (player) {
-      if (deletePlayer(group, player)) {
-        response = {
-          success: true
-        }
-      } else {
-        response = {
-          success: false
-        }
+      deletePlayerByUuid(player.uuid)
+      response = {
+        success: true
       }
     } else {
       response = {
