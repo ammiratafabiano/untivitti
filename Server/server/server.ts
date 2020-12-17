@@ -215,7 +215,7 @@ app.get('/exitGroup/:nick/:code', cors(corsOptions), (req, res) => {
   if (group) {
     const player = group.players.find(x => x.name == nickname)
     if (player) {
-      deletePlayerByUuid(player.uuid)
+      deletePlayer(player.uuid)
       response = {
         success: true
       }
@@ -383,12 +383,12 @@ wsServer.on('connection', (socket: any) => {
             ws.isAlive = false;
             ws.ping(null, false, true);
             if (Date.now() - ws.timestamp > 1000 * 10) {
-              deletePlayerByUuid(ws.uuid)
+              deletePlayer(ws.uuid)
             }
           }
         });
         if (!found) {
-          deletePlayerByUuid(player.uuid)
+          deletePlayer(player.uuid)
         }
       })
       checkGroup(group.code)
@@ -419,40 +419,29 @@ function checkGroup(code) {
   }
 }
 
-function deletePlayerByUuid(uuid) {
+function deletePlayer(uuid) {
   groups.forEach(group => {
-    group.players.forEach(player => {
+    group.players.forEach((player, i) => {
       if (player.uuid == uuid) {
-        if (deletePlayer(group, player)) {
-          return true
-        } else {
-          return false
+        if (player.isAdmin) {
+          setAdmin(group)
         }
+        group.players.splice(i, 1)
+        const text = player.name + ' si è disconnesso/a'
+        const icon = 'Logout'
+        sendNotification(group, text, icon)
+        if (!player.ghost && getPlayersLength(group) > 0) {
+          resetGroup(group)
+          const text = 'Partita interrotta'
+          const icon = 'Pause'
+          sendNotification(group, text, icon)
+        }
+        return true
+      } else {
+        return false
       }
     })
   })
-}
-
-function deletePlayer(group, player) {
-  const index = group.players.indexOf(player)
-  if (index != -1) {
-    if (player.isAdmin) {
-      setAdmin(group)
-    }
-    group.players.splice(index, 1)
-    const text = player.name + ' si è disconnesso/a'
-    const icon = 'Logout'
-    sendNotification(group, text, icon)
-    if (!player.ghost && getPlayersLength(group) > 0) {
-      resetGroup(group)
-      const text = 'Partita interrotta'
-      const icon = 'Pause'
-      sendNotification(group, text, icon)
-    }
-    return true
-  } else {
-    return false
-  }
 }
 
 function deleteGroup(code) {
