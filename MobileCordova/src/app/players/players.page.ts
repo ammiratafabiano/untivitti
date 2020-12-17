@@ -91,9 +91,7 @@ export class PlayersPage implements OnInit {
   }
 
   remove(player: PlayerModel) {
-    this.api.exitGroup(player.name, this.code).subscribe(_ => {
-      this.notificationService.addNotification(this.currentPlayer.name + ' ha rimosso ' + player.name, NotificationIcons.Logout);
-    });
+    this.api.exitGroup(player.name, this.code).subscribe(_ => {});
   }
 
   async changeBalance(player: PlayerModel) {

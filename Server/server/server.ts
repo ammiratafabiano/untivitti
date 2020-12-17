@@ -373,7 +373,9 @@ wsServer.on('connection', (socket: any) => {
       }
       group.players.forEach(player => {
         let found = false
+        console.log("-----")
         wsServer.clients.forEach(ws => {
+          console.log(ws.uuid)
           if (ws.uuid == player.uuid) {
             found = true
             if (ws.isAlive) {
@@ -394,6 +396,7 @@ wsServer.on('connection', (socket: any) => {
       })
       checkGroup(group.code)
     })
+    
   }, 1000);
 });
 
@@ -440,10 +443,7 @@ function deletePlayer(uuid, logout = false) {
         if (logout) {
           logoutClient(uuid)
         }
-        return true
-      } else {
-        return false
-      }
+      } 
     })
   })
 }
@@ -462,12 +462,7 @@ function deleteGroup(code) {
     const indexToDelete = groups.indexOf(group)
     if (indexToDelete > -1) {
       groups.splice(indexToDelete,1)
-      return true
-    } else {
-      return false
     }
-  } else {
-    return false
   }
 }
 
