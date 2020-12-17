@@ -335,12 +335,12 @@ wsServer.on('connection', (socket: any) => {
       case 'init':
         const uuid = uuidv4()
         socket.uuid = uuid
-        socket.timestamp = Date.now()
         groups.forEach(group => {
           if (group.code == msg.code) {
             group.players.forEach(player => {
               if (player.name == msg.nick) {
                 player.uuid = uuid
+                player.timestamp =  Date.now()
                 socket.send(JSON.stringify({success: true, type: msg.type, uuid: uuid}))
               }
             })
@@ -371,25 +371,20 @@ wsServer.on('connection', (socket: any) => {
       if (group.status && getPlayersLength(group) < game.minPlayers) {
         resetGroup(group)
       }
-      console.log("-----")
       group.players.forEach(player => {
-        console.log("player: " + player.name)
         wsServer.clients.forEach(ws => {
           if (ws.uuid == player.uuid) {
-            console.log(ws.uuid)
             if (ws.isAlive) {
-              ws.timestamp = Date.now()
+              player.timestamp = Date.now()
               ws.send(JSON.stringify({type: 'update', state: group}))
             }
             ws.isAlive = false;
             ws.ping(null, false, true);
-            console.log("time: " + String(Date.now() - ws.timestamp))
-            if (Date.now() - ws.timestamp > 1000 * 10) {
-              deletePlayer(ws.uuid)
-              ws.terminate()
-            }
           }
         });
+        if (Date.now() - player.timestamp > 1000 * 10) {
+          deletePlayer(ws.uuid, true)
+        }
       })
       checkGroup(group.code)
     })

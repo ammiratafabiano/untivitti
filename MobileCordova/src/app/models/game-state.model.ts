@@ -17,6 +17,7 @@ export class PlayerModel {
     balance: number;
     ghost: boolean;
     uuid: string;
+    timestamp: number;
 }
 
 export class GameStateModel {
