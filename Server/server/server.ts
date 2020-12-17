@@ -369,21 +369,24 @@ wsServer.on('connection', (socket: any) => {
         resetGroup(group)
       }
       group.players.forEach(player => {
+        let found = false
         wsServer.clients.forEach((ws) => {
           if (ws.uuid == player.uuid) {
+            found = true
             if (ws.isAlive) {
-              ws.send(JSON.stringify({type: 'update', state: group}))
-            } else {
-              deletePlayerByUuid(ws.uuid)
-              return ws.terminate()
-            }
-            if (Date.now() - ws.timestamp > 1000 * 10) {
               ws.timestamp = Date.now()
-              ws.isAlive = false;
-              ws.ping(null, false, true);
+              ws.send(JSON.stringify({type: 'update', state: group}))
+            }
+            ws.isAlive = false;
+            ws.ping(null, false, true);
+            if (Date.now() - ws.timestamp > 1000 * 10) {
+              deletePlayerByUuid(ws.uuid)
             }
           }
         });
+        if (!found) {
+          deletePlayerByUuid(player.uuid)
+        }
       })
       checkGroup(group.code)
     })
