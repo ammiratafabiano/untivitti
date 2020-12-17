@@ -482,8 +482,8 @@ function checkGroup(code) {
 
 function deletePlayerByUuid(uuid) {
   groups.forEach(group => {
-    group.players.forEach((player, i) => {
-      if (player.uuid == ws.uuid) {
+    group.players.forEach(player => {
+      if (player.uuid == uuid) {
         if (deletePlayer(group, player)) {
           return true
         } else {
