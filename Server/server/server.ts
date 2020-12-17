@@ -11,8 +11,6 @@ const port = 3000
 
 const jsonParser = bodyParser.json()
 
-let subscribers = []
-
 let groups = []
 const cardSets = [
   {
@@ -178,12 +176,15 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
           const text = nickname + ' si è connesso/a'
           const icon = 'Login'
           sendNotification(group, text, icon)
+          response = {
+            success: true,
+            data: group
+          }
         } else {
-          logoutUser(group.code, nickname)
-        }
-        response = {
-          success: true,
-          data: group
+          response = {
+            success: false,
+            errorCode: "DUPLICATE"
+          }
         }
       } else {
         response = {
@@ -396,13 +397,12 @@ wsServer.on('connection', (socket: any) => {
         const uuid = uuidv4()
         socket.uuid = uuid
         socket.send(JSON.stringify({success: true, type: msg.type, uuid: uuid}))
-        subscribers.push({uuid: uuid, code: msg.code, nick: msg.nick})
+        groups.find(x => x.code == msg.code).players.find(x => x.name == msg.nick).uuid = uuid
         break
       case 'move':
-        const subscriber = subscribers.find(x => x.uuid == msg.uuid)
-        const group = groups.find(x => x.code == subscriber.code)
+        const group = groups.find(x => x.players.find(player => player.uuid == uuid))
         if (group) {
-          const player = group.players.find(x => x.name == subscriber.nick)
+          const player = group.players.find(x => x.uuid == uuid)
           if (player) {
             if (executeMove(group, player, msg.move)) {
               socket.send(JSON.stringify({success: true, type: msg.type}))
@@ -421,59 +421,32 @@ wsServer.on('connection', (socket: any) => {
   });
 
   setInterval(function() {
-    subscribers.forEach(subscriber => {
-      const group = groups.find(x => x.code == subscriber.code)
-      if (group) {
-        const game = games.find(x => x.id == group.game)
-        if (group.status && getPlayersLength(group) < game.minPlayers) {
-          resetGroup(group)
-        }
-        const player = group.players.find(x => x.name == subscriber.nick)
-        if (player) {
-          wsServer.clients.forEach((ws) => {
-            if (ws.uuid == subscriber.uuid && ws.isAlive) {
+    groups.forEach(group => {
+      const game = games.find(x => x.id == group.game)
+      if (group.status && getPlayersLength(group) < game.minPlayers) {
+        resetGroup(group)
+      }
+      group.players.forEach(player => {
+        wsServer.clients.forEach((ws) => {
+          if (ws.uuid == player.uuid) {
+            if (ws.isAlive) {
+              ws.timestamp = Date.now()
               ws.send(JSON.stringify({type: 'update', state: group}))
+            } else {
+              deletePlayerByUuid(ws.uuid)
+              return ws.terminate()
             }
-          });
-        } 
-      } 
+            if (Date.now() - ws.timestap > 1000 * 60) {
+              ws.isAlive = false;
+              ws.ping(null, false, true);
+            }
+          }
+        });
+      })
+      checkGroup(group.code)
     })
   }, 1000);
 });
-
-setInterval(() => {
-  
-  wsServer.clients.forEach((ws) => {
-    if (!ws.isAlive) {
-      return ws.terminate();
-    }
-    ws.isAlive = false;
-    ws.ping(null, false, true);
-  });
-  subscribers.forEach(subscriber => {
-    let found = false
-    wsServer.clients.forEach((ws) => {
-      if (subscriber.uuid == ws.uuid) {
-        found = true;
-      }
-    });
-    if (!found) {
-      const indexToDelete = subscribers.indexOf(subscriber)
-      deletePlayer(subscriber.code, subscriber.nick)
-      checkGroup(subscriber.code)
-      subscribers.splice(indexToDelete, 1)
-    }
-  })
-
-  console.log(groups)
-  console.log(subscribers)
-  let list = []
-  wsServer.clients.forEach((ws) => {
-    list.push(ws.uuid)
-  })
-  console.log(list)
-  console.log("\n\n-----\n\n")
-}, 10000);
 
 const server = app.listen(port, (err: any) => {
   if (err) console.log(err); 
@@ -498,30 +471,37 @@ function checkGroup(code) {
   }
 }
 
-function deletePlayer(code, nick) {
-  let group = groups.find(x => x.code == code)
-  if (group) {
-    const playerToDelete = group.players.find(x => x.name == nick)
-    const indexToDelete = group.players.indexOf(playerToDelete)
-    if (indexToDelete > -1) {
-      if (playerToDelete.isAdmin) {
-        setAdmin(group)
+function deletePlayerByUuid(uuid) {
+  groups.forEach(group => {
+    group.players.forEach((player, i) => {
+      if (player.uuid == ws.uuid) {
+        if (deletePlayer(group, player)) {
+          return true
+        } else {
+          return false
+        }
       }
-      group.players.splice(indexToDelete,1)
-      logoutUser(group.code, nick)
-      const text = nick + ' si è disconnesso/a'
-      const icon = 'Logout'
-      sendNotification(group, text, icon)
-      if (!playerToDelete.ghost && getPlayersLength(group) > 0) {
-        resetGroup(group)
-        const text = 'Partita interrotta'
-        const icon = 'Pause'
-        sendNotification(group, text, icon)
-      }
-      return true
-    } {
-      return false
+    })
+  })
+}
+
+function deletePlayer(group, player) {
+  const index = group.players.indexOf(player)
+  if (index != -1) {
+    if (player.isAdmin) {
+      setAdmin(group)
     }
+    group.players.splice(index, 1)
+    const text = player.name + ' si è disconnesso/a'
+    const icon = 'Logout'
+    sendNotification(group, text, icon)
+    if (!player.ghost && getPlayersLength(group) > 0) {
+      resetGroup(group)
+      const text = 'Partita interrotta'
+      const icon = 'Pause'
+      sendNotification(group, text, icon)
+    }
+    return true
   } else {
     return false
   }
@@ -764,28 +744,12 @@ function resetGroup(group) {
 }
 
 function sendNotification(group, text, icon, excludeList = []) {
-  subscribers.forEach(subscriber => {
-    if (subscriber.code == group.code) {
-      wsServer.clients.forEach((ws) => {
-        if (ws.uuid == subscriber.uuid && ws.isAlive && !excludeList.includes(subscriber.nick)) {
-          ws.send(JSON.stringify({type: 'message', text: text, icon: icon})); 
-        }
-      })
-    }
-  })
-}
-
-function logoutUser(code, nick) {
-  subscribers.forEach((subscriber, i) => {
-    if (subscriber.code == code && subscriber.nick == nick) {
-      wsServer.clients.forEach((ws) => {
-        if (ws.uuid == subscriber.uuid && ws.isAlive) {
-          ws.send(JSON.stringify({type: 'close'}))
-          subscribers.splice(i, 1)
-          ws.terminate()
-        }
-      })
-    }
+  group.players.forEach(player => {
+    wsServer.clients.forEach((ws) => {
+      if (ws.uuid == player.uuid && ws.isAlive && !excludeList.includes(player.name)) {
+        ws.send(JSON.stringify({type: 'message', text: text, icon: icon})); 
+      }
+    })
   })
 }
 
