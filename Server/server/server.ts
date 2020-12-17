@@ -346,11 +346,11 @@ wsServer.on('connection', (socket: any) => {
             group.players.forEach(player => {
               if (player.name == msg.name) {
                 player.uuid = uuid
+                socket.send(JSON.stringify({success: true, type: msg.type, uuid: uuid}))
               }
             })
           }
         })
-        socket.send(JSON.stringify({success: true, type: msg.type, uuid: uuid}))
         break
       case 'move':
         groups.forEach(group => {
