@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { AlertController } from '@ionic/angular';
+import { AlertController, ModalController } from '@ionic/angular';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { CardSetModel, CardTypeEnum } from '../models/card-set.model';
 import { ApiService } from '../services/api.service';
@@ -9,6 +9,7 @@ import { NotificationService } from '../services/notification.service';
 import { NotificationIcons } from '../models/notification.model';
 import { GameModel, GameTypeEnum } from '../models/game.model';
 import { JoinErrorEnum } from '../models/response.model';
+import { TutorialPage } from '../tutorial/tutorial.page';
 
 @Component({
   selector: 'app-home',
@@ -37,7 +38,8 @@ export class HomePage {
     private router: Router,
     private api: ApiService,
     private utils: UtilsService,
-    private notificationService: NotificationService) {
+    private notificationService: NotificationService,
+    public modalController: ModalController) {
       this.route.queryParams.subscribe(params => {
         if (params && params.code) {
           this.code = params.code;
@@ -183,6 +185,14 @@ export class HomePage {
   setOnlineStatus() {
     this.isOffline = false;
     this.notificationService.disableNotifications();
+  }
+
+  async openTutorialModal() {
+    const tutorialModal = await this.modalController.create({
+      component: TutorialPage,
+      componentProps: { type: 'HOME' }
+    });
+    tutorialModal.present();
   }
 
 }

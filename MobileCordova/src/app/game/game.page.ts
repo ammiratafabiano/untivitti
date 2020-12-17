@@ -2,14 +2,12 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, ModalController, PopoverController } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
-import { finalize } from 'rxjs/operators';
 import { GameStateModel, MoveModel, PlayerModel } from '../models/game-state.model';
 import { GameModel } from '../models/game.model';
-import { NotificationIcons } from '../models/notification.model';
 import { PlayersPage } from '../players/players.page';
 import { ApiService } from '../services/api.service';
-import { NotificationService } from '../services/notification.service';
 import { StateUpdateService } from '../services/state-update.service';
+import { TutorialPage } from '../tutorial/tutorial.page';
 
 @Component({
   selector: 'app-game',
@@ -23,7 +21,6 @@ export class GamePage implements OnInit {
   currentPlayer: PlayerModel;
   currentGame: GameModel;
   state: GameStateModel;
-  prevState: GameStateModel;
   stateListener: BehaviorSubject<GameStateModel>;
 
   title: string;
@@ -34,12 +31,11 @@ export class GamePage implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private api: ApiService,
     public modalController: ModalController,
     public alertController: AlertController,
-    // private notificationService: NotificationService,
     public popoverController: PopoverController,
-    private updateStateService: StateUpdateService) {
+    private updateStateService: StateUpdateService,
+    private api: ApiService) {
 
   }
 
@@ -56,10 +52,12 @@ export class GamePage implements OnInit {
       this.updateStateService.initConnection(this.state, this.currentPlayer)
       .subscribe(response => {
           if (response) {
-            this.prevState = this.state;
             this.state = response;
             this.stateListener.next(this.state);
-            this.currentPlayer = this.state.players.find(x => x.name === this.currentPlayer.name);
+            const updatedCurrentPlayer = this.state.players.find(x => x.name === this.currentPlayer.name);
+            if (this.detectChange(this.currentPlayer, updatedCurrentPlayer)) {
+              this.currentPlayer = updatedCurrentPlayer;
+            }
             this.updateTitle();
           } else {
             this.exitGame();
@@ -123,8 +121,10 @@ export class GamePage implements OnInit {
     if (this.playerModal) {
       this.playerModal.dismiss();
     }
-    this.updateStateService.closeConnection();
-    this.router.navigate(['/']);
+    this.api.exitGroup(this.currentPlayer.name, this.state.code).subscribe(_ => {
+      this.updateStateService.closeConnection();
+      this.router.navigate(['/']);
+    });
   }
 
   isAdmin(): boolean {
@@ -141,47 +141,21 @@ export class GamePage implements OnInit {
     await this.playerModal.present();
   }
 
-  /*
-  private checkNotifications() {
-
-    const players = this.state.players;
-    const prevPlayers = this.prevState.players;
-    const admin = this.state.players.find(x => x.isAdmin === true).name;
-    const prevAdmin = this.prevState.players.find(x => x.isAdmin === true).name;
-    // check log in
-    players.forEach(player => {
-      let found = false;
-      prevPlayers.forEach(prevPlayer => {
-        if (player.name === prevPlayer.name) {
-          found = true;
-        }
-      });
-      if (!found) {
-        this.notificationService.addNotification(player.name + ' si è connesso/a', NotificationIcons.Login);
-      }
-    });
-    // check log out
-    prevPlayers.forEach(prevPlayer => {
-      let found = false;
-      players.forEach(player => {
-        if (player.name === prevPlayer.name) {
-          found = true;
-        }
-      });
-      if (!found) {
-        this.notificationService.addNotification(prevPlayer.name + ' si è disconnesso/a', NotificationIcons.Logout);
-      }
-    });
-
-    // check admin change
-    if (admin !== prevAdmin) {
-      this.notificationService.addNotification(admin + ' è il nuovo mazziere', NotificationIcons.Logout);
-    }
-  }
-  */
-
   sendMove(move: MoveModel) {
     this.updateStateService.sendMove(move.id);
   }
 
+  detectChange(player1, player2) {
+    player1.timestamp = undefined;
+    player2.timestamp = undefined;
+    return JSON.stringify(player1) !== JSON.stringify(player2);
+  }
+
+  async openTutorialModal() {
+    const tutorialModal = await this.modalController.create({
+      component: TutorialPage,
+      componentProps: { type: 'CUCU' }
+    });
+    tutorialModal.present();
+  }
 }

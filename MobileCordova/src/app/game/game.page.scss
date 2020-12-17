@@ -1,6 +1,9 @@
 .fab {
     width: 15vw !important;
     height: 15vw !important;
+    ion-icon {
+        font-size: 10vw;
+    }
 }
 
 .cards-container {
@@ -29,13 +32,16 @@
 }
 
 .action-button {
-    bottom: 25vw;
+    bottom: 15vh;
 }
 
 .my-balance {
-    position: absolute;
-    top: 16vw;
-    right: 2vw;
+    padding-top: 1vh
+}
+
+.help {
+    top: 1vh;
+    right: 1vw;
 }
 
 .disabled {

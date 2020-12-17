@@ -5,6 +5,9 @@ export class MoveModel {
     name: string;
     id: number;
     disabled?: boolean;
+    icon: string;
+    side: string;
+    status: boolean;
 }
 
 export class PlayerModel {

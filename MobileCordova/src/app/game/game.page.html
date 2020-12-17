@@ -14,12 +14,19 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <ion-fab class="help" horizontal="end" vertical="start" slot="fixed">
+    <ion-fab-button color="light" (click)="openTutorialModal()" size="small">
+      <ion-icon name="help-circle-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+  <ion-fab class="my-balance" horizontal="start" vertical="start">
+    <ion-chip outline *ngIf="state.money">
+      <ion-icon name="server" color="warning"></ion-icon>
+      <ion-label>{{ currentPlayer.balance }}</ion-label>
+    </ion-chip>
+  </ion-fab>
   <div class="cards-area">
     <div class="other-cards-container">
-      <ion-chip class="my-balance" outline *ngIf="state.money">
-        <ion-icon name="server" color="warning"></ion-icon>
-        <ion-label>{{ currentPlayer.balance }}</ion-label>
-      </ion-chip>
     </div>
     <div *ngIf="currentPlayer.cards.length > 0" class="cards-container">
       <div class="card">
@@ -31,35 +38,11 @@
     <ion-fab-button color="warning" [disabled]="!((currentPlayer.isAdmin || (!currentPlayer.isAdmin && currentPlayer.canMove)) && state.players.length >= currentGame.minPlayers)">
       <ion-icon name="caret-up-outline"></ion-icon>
     </ion-fab-button>
-    <ng-container *ngIf="currentPlayer.isAdmin">
-      <ion-fab-list *ngIf="!state.status" side="top">
-        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[0])">{{ currentPlayer.moves[0].name }}</ion-fab-button>
-      </ion-fab-list>
-      <ion-fab-list *ngIf="state.status" side="top">
-        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[1])">{{ currentPlayer.moves[1].name }}</ion-fab-button>
-      </ion-fab-list>
-      <ion-fab-list *ngIf="!state.status" side="bottom">
-        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[2])">{{ currentPlayer.moves[2].name }}</ion-fab-button>
-      </ion-fab-list>
-      <ion-fab-list *ngIf="currentPlayer.moves.length > 3" side="bottom">
-        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[3])" [ngClass]="{'disabled': currentPlayer.moves[3].disabled}" [disabled]="currentPlayer.moves[3].disabled">{{ currentPlayer.moves[3].name }}</ion-fab-button>
-      </ion-fab-list>
-      <ion-fab-list *ngIf="currentPlayer.moves.length > 4" side="start">
-        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[4])" [ngClass]="{'disabled': currentPlayer.moves[4].disabled}" [disabled]="currentPlayer.moves[4].disabled">{{ currentPlayer.moves[4].name }}</ion-fab-button>
-      </ion-fab-list>
-      <ion-fab-list *ngIf="currentPlayer.moves.length > 5" side="end">
-        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[5])" [ngClass]="{'disabled': currentPlayer.moves[5].disabled}" [disabled]="currentPlayer.moves[5].disabled">{{ currentPlayer.moves[5].name }}</ion-fab-button>
-      </ion-fab-list>
-    </ng-container>
-    <ng-container *ngIf="!currentPlayer.isAdmin">
-      <ion-fab-list *ngIf="currentPlayer.moves.length > 0" side="bottom">
-        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[0])" [ngClass]="{'disabled': currentPlayer.moves[0].disabled}" [disabled]="currentPlayer.moves[0].disabled">{{ currentPlayer.moves[0].name }}</ion-fab-button>
-      </ion-fab-list>
-      <ion-fab-list *ngIf="currentPlayer.moves.length > 1" side="start">
-        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[1])" [ngClass]="{'disabled': currentPlayer.moves[1].disabled}" [disabled]="currentPlayer.moves[1].disabled">{{ currentPlayer.moves[1].name }}</ion-fab-button>
-      </ion-fab-list>
-      <ion-fab-list *ngIf="currentPlayer.moves.length > 2" side="end">
-        <ion-fab-button class="fab" (click)="sendMove(currentPlayer.moves[2])" [ngClass]="{'disabled': currentPlayer.moves[2].disabled}" [disabled]="currentPlayer.moves[2].disabled">{{ currentPlayer.moves[2].name }}</ion-fab-button>
+    <ng-container *ngFor="let move of currentPlayer.moves">
+      <ion-fab-list *ngIf="move.status == state.status" [side]="move.side">
+        <ion-fab-button class="fab" (click)="sendMove(move)" [ngClass]="{'disabled': move.disabled}" [disabled]="move.disabled">
+          <ion-icon [name]="move.icon"></ion-icon>
+        </ion-fab-button>
       </ion-fab-list>
     </ng-container>
   </ion-fab>
