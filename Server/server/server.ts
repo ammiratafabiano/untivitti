@@ -386,6 +386,7 @@ setInterval(function() {
       });
       console.log(player.uuid + " time: " + String(Date.now() - player.timestamp))
       if (Date.now() - player.timestamp > 1000 * 10) {
+        console.log("elimino")
         deletePlayer(ws.uuid, true)
       }
     })
