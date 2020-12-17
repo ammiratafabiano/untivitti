@@ -441,12 +441,12 @@ function deletePlayer(uuid) {
   groups.forEach(group => {
     group.players.forEach((player, i) => {
       if (player.uuid == uuid) {
-        if (player.isAdmin) {
-          setAdmin(group)
-        }
         const text = player.name + ' si è disconnesso/a'
         const icon = 'Logout'
         sendNotification(group, text, icon)
+        if (player.isAdmin) {
+          setAdmin(group)
+        }
         group.players.splice(i, 1)
         if (!player.ghost && getPlayersLength(group) > 0) {
           resetGroup(group)
