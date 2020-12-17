@@ -371,12 +371,13 @@ wsServer.on('connection', (socket: any) => {
       if (group.status && getPlayersLength(group) < game.minPlayers) {
         resetGroup(group)
       }
+      console.log("-----")
       group.players.forEach(player => {
         let found = false
-        console.log("-----")
+        console.log("player: " + player.name)
         wsServer.clients.forEach(ws => {
-          console.log(ws.uuid)
           if (ws.uuid == player.uuid) {
+            console.log(ws.uuid)
             found = true
             if (ws.isAlive) {
               ws.timestamp = Date.now()
