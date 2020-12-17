@@ -341,6 +341,7 @@ wsServer.on('connection', (socket: any) => {
         const uuid = uuidv4()
         socket.uuid = uuid
         socket.timestamp = Date.now()
+        console.log(groups)
         groups.forEach(group => {
           if (group.code == msg.code) {
             group.players.forEach(player => {
