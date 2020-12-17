@@ -1,6 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { GameStateModel, PlayerModel } from '../models/game-state.model';
+import { NotificationIcons } from '../models/notification.model';
+import { NotificationService } from './notification.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,9 +17,9 @@ export class StateUpdateService {
 
   stateListener: BehaviorSubject<GameStateModel>;
 
-  constructor() {}
+  constructor(private notificationService: NotificationService) {}
 
-  public initWebSocket(state: GameStateModel, player: PlayerModel): BehaviorSubject<GameStateModel> {
+  public initConnection(state: GameStateModel, player: PlayerModel): BehaviorSubject<GameStateModel> {
     this.websocket = new WebSocket(this.endpoint);
     this.subscribeUpdate(player.name, state.code);
     this.stateListener = new BehaviorSubject<GameStateModel>(state);
@@ -35,6 +37,9 @@ export class StateUpdateService {
             break;
           case 'update':
             this.stateListener.next(msg.state);
+            break;
+          case 'message':
+            this.notificationService.addNotification(msg.text, NotificationIcons[msg.icon]);
             break;
           case 'move':
             break;
@@ -55,7 +60,7 @@ export class StateUpdateService {
     }
   }
 
-  public closeWebSocket() {
+  public closeConnection() {
     if (this.websocket) {
       this.websocket.close();
     }

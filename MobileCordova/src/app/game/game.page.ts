@@ -29,6 +29,7 @@ export class GamePage implements OnInit {
   title: string;
 
   playerModal: any;
+  automaticModal = true;
 
   constructor(
     private route: ActivatedRoute,
@@ -36,7 +37,7 @@ export class GamePage implements OnInit {
     private api: ApiService,
     public modalController: ModalController,
     public alertController: AlertController,
-    private notificationService: NotificationService,
+    // private notificationService: NotificationService,
     public popoverController: PopoverController,
     private updateStateService: StateUpdateService) {
 
@@ -52,26 +53,20 @@ export class GamePage implements OnInit {
       } else {
         this.exitGame();
       }
-      this.notificationService.enableNotifications();
-      this.initUpdateService();
-    });
-  }
-
-  private initUpdateService() {
-    this.updateStateService.initWebSocket(this.state, this.currentPlayer)
-    .subscribe(response => {
-        if (response) {
-          this.prevState = this.state;
-          this.state = response;
-          this.stateListener.next(this.state);
-          this.currentPlayer = this.state.players.find(x => x.name === this.currentPlayer.name);
-          this.checkNotifications();
-          this.updateTitle();
-        } else {
-          this.exitGame();
+      this.updateStateService.initConnection(this.state, this.currentPlayer)
+      .subscribe(response => {
+          if (response) {
+            this.prevState = this.state;
+            this.state = response;
+            this.stateListener.next(this.state);
+            this.currentPlayer = this.state.players.find(x => x.name === this.currentPlayer.name);
+            this.updateTitle();
+          } else {
+            this.exitGame();
+          }
         }
-      }
-    );
+      );
+    });
   }
 
   private updateTitle() {
@@ -79,6 +74,7 @@ export class GamePage implements OnInit {
       if (this.state.status === false) {
         if (this.state.players.length > 1) {
           this.title = 'Partita in pausa';
+          this.automaticModal = true;
         } else {
           this.title = 'In attesa...';
         }
@@ -92,6 +88,12 @@ export class GamePage implements OnInit {
           }
         } else {
           this.title = 'Giro terminato';
+          if (this.automaticModal) {
+            this.automaticModal = false;
+            setTimeout(() => {
+              this.openPlayersModal();
+            }, 1000);
+          }
         }
       }
     }
@@ -121,9 +123,8 @@ export class GamePage implements OnInit {
     if (this.playerModal) {
       this.playerModal.dismiss();
     }
-    this.updateStateService.closeWebSocket();
-    this.api.exitGroup(this.currentPlayer.name, this.state.code).pipe(
-      finalize(() => this.router.navigate(['/']))).subscribe();
+    this.updateStateService.closeConnection();
+    this.router.navigate(['/']);
   }
 
   isAdmin(): boolean {
@@ -140,6 +141,7 @@ export class GamePage implements OnInit {
     await this.playerModal.present();
   }
 
+  /*
   private checkNotifications() {
 
     const players = this.state.players;
@@ -170,11 +172,13 @@ export class GamePage implements OnInit {
         this.notificationService.addNotification(prevPlayer.name + ' si è disconnesso/a', NotificationIcons.Logout);
       }
     });
+
     // check admin change
     if (admin !== prevAdmin) {
       this.notificationService.addNotification(admin + ' è il nuovo mazziere', NotificationIcons.Logout);
     }
   }
+  */
 
   sendMove(move: MoveModel) {
     this.updateStateService.sendMove(move.id);

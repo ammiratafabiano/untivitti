@@ -12,10 +12,11 @@ export class PlayerModel {
     isAdmin: boolean;
     canMove: boolean;
     moves: MoveModel[];
-    timestamp: number;
     cards: number[];
     visible: boolean;
     balance: number;
+    ghost: boolean;
+    uuid: string;
 }
 
 export class GameStateModel {

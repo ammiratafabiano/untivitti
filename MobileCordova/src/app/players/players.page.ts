@@ -5,7 +5,7 @@ import { ApiService } from '../services/api.service';
 import { Clipboard } from '@ionic-native/clipboard/ngx';
 import { finalize } from 'rxjs/operators';
 import { NotificationService } from '../services/notification.service';
-import { NotificationModel } from '../models/notification.model';
+import { NotificationIcons, NotificationModel } from '../models/notification.model';
 import { CardTypeEnum } from '../models/card-set.model';
 
 @Component({
@@ -28,6 +28,8 @@ export class PlayersPage implements OnInit {
 
   moneyMode: boolean;
 
+  ground: number[];
+
   constructor(
     public modalController: ModalController,
     public navParams: NavParams,
@@ -45,6 +47,7 @@ export class PlayersPage implements OnInit {
         this.status = value.status;
         this.cardSet = value.cardSet;
         this.moneyMode = value.money;
+        this.ground = value.ground;
       }
     });
   }
@@ -88,7 +91,9 @@ export class PlayersPage implements OnInit {
   }
 
   remove(player: PlayerModel) {
-    this.api.exitGroup(player.name, this.code).subscribe();
+    this.api.exitGroup(player.name, this.code).subscribe(_ => {
+      this.notificationService.addNotification(this.currentPlayer.name + ' ha rimosso ' + player.name, NotificationIcons.Logout);
+    });
   }
 
   async changeBalance(player: PlayerModel) {

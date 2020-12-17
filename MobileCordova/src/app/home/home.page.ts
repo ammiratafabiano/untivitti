@@ -8,6 +8,7 @@ import { GameStateModel, PlayerModel } from '../models/game-state.model';
 import { NotificationService } from '../services/notification.service';
 import { NotificationIcons } from '../models/notification.model';
 import { GameModel, GameTypeEnum } from '../models/game.model';
+import { JoinErrorEnum } from '../models/response.model';
 
 @Component({
   selector: 'app-home',
@@ -153,7 +154,22 @@ export class HomePage {
         const currentPlayer = response.data.players.find(x => x.name === this.nickname);
         this.goToGame(currentPlayer, group);
       } else {
-        this.presentAlert('Sembra che la partità è già cominciata o che non esiste.');
+        switch (response.errorCode) {
+          case JoinErrorEnum.Duplicate:
+            this.presentAlert('Sembra che ci sia già un giocatore con il tuo nome. Se sei tu e sei appena uscito aspetta qualche minuto prima di riprovare a entrare.');
+            break;
+          case JoinErrorEnum.AlreadyStarted:
+            this.presentAlert('Sembra che la partità è già cominciata.');
+            break;
+          case JoinErrorEnum.GroupNotExists:
+            this.presentAlert('Sembra che la partità non esiste.');
+            break;
+          case JoinErrorEnum.MaxPlayers:
+            this.presentAlert('E\' stato superato il numero massimo di giocatori per questa partita');
+            break;
+          default:
+            this.presentAlert('Errore imprevisto.');
+        }
       }
     });
   }
