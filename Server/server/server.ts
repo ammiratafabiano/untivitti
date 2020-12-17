@@ -12,6 +12,7 @@ const port = 3000
 const jsonParser = bodyParser.json()
 
 let groups = []
+
 const cardSets = [
   {
     id: 0,
@@ -34,15 +35,27 @@ const games = [
     adminMoves: [
       {
         name: 'Distribuisci',
-        id: 0
+        id: 0,
+        disabled: false,
+        icon: 'share-outline',
+        side: 'top',
+        status: false
       },
       {
         name: 'Ritira carte',
-        id: 1
+        id: 1,
+        disabled: false,
+        icon: 'download-outline',
+        side: 'top',
+        status: true
       },
       {
         name: 'Passa il mazzo',
-        id: 2
+        id: 2,
+        disabled: false,
+        icon: 'albums-outline',
+        side: 'bottom',
+        status: false
       }
     ],
     playerMoves: [
@@ -50,6 +63,9 @@ const games = [
         name: 'Cucù!',
         id: 3,
         disabled: false,
+        icon: 'albums-outline',
+        side: 'bottom',
+        status: true,
         forbiddenCards: [0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,20,21,22,23,24,25,26,27,28,30,31,32,33,34,35,36,37,38],
         forbiddenNextCards: []
       },
@@ -57,6 +73,9 @@ const games = [
         name: 'Ti stai',
         id: 4,
         disabled: false,
+        icon: 'thumbs-up-outline',
+        side: 'start',
+        status: true,
         forbiddenCards: [9,19,29,39],
         forbiddenNextCards: []
       },
@@ -64,9 +83,12 @@ const games = [
         name: 'Cambia',
         id: 5,
         disabled: false,
+        icon: 'repeat-outline',
+        side: 'end',
+        status: true,
         forbiddenCards: [9,19,29,39],
         forbiddenNextCards: [9,19,29,39]
-      }
+      },
     ]
   }
 ]
@@ -689,7 +711,16 @@ function getPlayerMoves(group) {
   const game = games.find(x => x.id == group.game)
   let moveToReturn = []
   game.playerMoves.forEach(move => {
-    moveToReturn.push({name: move.name, id: move.id, disabled: false, forbiddenCards: move.forbiddenCards, forbiddenNextCards: move.forbiddenNextCards})
+    moveToReturn.push({
+      name: move.name,
+      id: move.id,
+      disabled: false,
+      icon: move.icon,
+      side: move.side,
+      status: move.status,
+      forbiddenCards: move.forbiddenCards,
+      forbiddenNextCards: move.forbiddenNextCards
+    })
   })
   return moveToReturn
 }
@@ -698,7 +729,14 @@ function getAdminMoves(group) {
   const game = games.find(x => x.id == group.game)
   let moveToReturn = []
   game.adminMoves.forEach(move => {
-    moveToReturn.push({name: move.name, id: move.id, disabled: false})
+    moveToReturn.push({
+      name: move.name,
+      id: move.id,
+      disabled: false,
+      icon: move.icon,
+      side: move.side,
+      status: move.status
+    })
   })
   return moveToReturn
 }
