@@ -341,7 +341,11 @@ wsServer.on('connection', (socket: any) => {
         const uuid = uuidv4()
         socket.uuid = uuid
         socket.timestamp = Date.now()
-        groups.find(x => x.code == msg.code).players.find(x => x.name == msg.nick).uuid = uuid
+        groups.forEach(group => {
+          group.players.forEach(player => {
+            player.uuid = uuid
+          })
+        })
         socket.send(JSON.stringify({success: true, type: msg.type, uuid: uuid}))
         break
       case 'move':
