@@ -342,9 +342,13 @@ wsServer.on('connection', (socket: any) => {
         socket.uuid = uuid
         socket.timestamp = Date.now()
         groups.forEach(group => {
-          group.players.forEach(player => {
-            player.uuid = uuid
-          })
+          if (group.code == msg.code) {
+            group.players.forEach(player => {
+              if (player.name == msg.name) {
+                player.uuid = uuid
+              }
+            })
+          }
         })
         socket.send(JSON.stringify({success: true, type: msg.type, uuid: uuid}))
         break
