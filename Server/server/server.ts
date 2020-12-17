@@ -371,6 +371,7 @@ wsServer.on('connection', (socket: any) => {
       if (group.status && getPlayersLength(group) < game.minPlayers) {
         resetGroup(group)
       }
+      console.log("---")
       group.players.forEach(player => {
         wsServer.clients.forEach(ws => {
           if (ws.uuid == player.uuid) {
@@ -382,6 +383,7 @@ wsServer.on('connection', (socket: any) => {
             ws.ping(null, false, true);
           }
         });
+        console.log(player.uuid + " time: " + String(Date.now() - player.timestamp))
         if (Date.now() - player.timestamp > 1000 * 10) {
           deletePlayer(ws.uuid, true)
         }
