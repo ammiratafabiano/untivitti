@@ -396,6 +396,7 @@ wsServer.on('connection', (socket: any) => {
       case 'init':
         const uuid = uuidv4()
         socket.uuid = uuid
+        socket.timestamp = Date.now()
         socket.send(JSON.stringify({success: true, type: msg.type, uuid: uuid}))
         groups.find(x => x.code == msg.code).players.find(x => x.name == msg.nick).uuid = uuid
         break
@@ -430,13 +431,13 @@ wsServer.on('connection', (socket: any) => {
         wsServer.clients.forEach((ws) => {
           if (ws.uuid == player.uuid) {
             if (ws.isAlive) {
-              ws.timestamp = Date.now()
               ws.send(JSON.stringify({type: 'update', state: group}))
             } else {
               deletePlayerByUuid(ws.uuid)
               return ws.terminate()
             }
-            if (Date.now() - ws.timestap > 1000 * 60) {
+            if (Date.now() - ws.timestamp > 1000 * 60) {
+              ws.timestamp = Date.now()
               ws.isAlive = false;
               ws.ping(null, false, true);
             }
@@ -559,12 +560,6 @@ function executeMove(group, player, move) {
 function startMove(group, player) {
   const game = games.find(x => x.id == group.game)
   if (player.isAdmin) {
-    /*
-    const newPlayers = [...group.players]
-    const shifted = newPlayers.shift()
-    newPlayers.push(shifted)
-    group.players = solveConflicts(group, newPlayers);
-    */
     group.status = true
     group.cards = getShuffledSet(group.cardSet)
     group.ground = []
