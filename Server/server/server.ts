@@ -372,7 +372,6 @@ setInterval(function() {
     if (group.status && getPlayersLength(group) < game.minPlayers) {
       resetGroup(group)
     }
-    console.log("---")
     group.players.forEach(player => {
       wsServer.clients.forEach(ws => {
         if (ws.uuid == player.uuid) {
@@ -384,10 +383,8 @@ setInterval(function() {
           ws.ping(null, false, true);
         }
       });
-      console.log(player.uuid + " time: " + String(Date.now() - player.timestamp))
       if (Date.now() - player.timestamp > 1000 * 10) {
-        console.log("elimino")
-        deletePlayer(ws.uuid, true)
+        deletePlayer(player.uuid, true)
       }
     })
     checkGroup(group.code)
