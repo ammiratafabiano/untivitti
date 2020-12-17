@@ -154,7 +154,7 @@ export class GamePage implements OnInit {
   async openTutorialModal() {
     const tutorialModal = await this.modalController.create({
       component: TutorialPage,
-      componentProps: { type: 'CUCU' }
+      componentProps: { type: 'CUCU_PAGE' }
     });
     tutorialModal.present();
   }

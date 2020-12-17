@@ -190,7 +190,7 @@ export class HomePage {
   async openTutorialModal() {
     const tutorialModal = await this.modalController.create({
       component: TutorialPage,
-      componentProps: { type: 'HOME' }
+      componentProps: { type: 'HOME_PAGE' }
     });
     tutorialModal.present();
   }

@@ -7,6 +7,7 @@ import { finalize } from 'rxjs/operators';
 import { NotificationService } from '../services/notification.service';
 import { NotificationIcons, NotificationModel } from '../models/notification.model';
 import { CardTypeEnum } from '../models/card-set.model';
+import { TutorialPage } from '../tutorial/tutorial.page';
 
 @Component({
   selector: 'app-players',
@@ -127,6 +128,14 @@ export class PlayersPage implements OnInit {
 
   setGhost(player, value) {
     this.api.setGhost(player.name, this.code, value).subscribe(_ => {});
+  }
+
+  async openTutorialModal() {
+    const tutorialModal = await this.modalController.create({
+      component: TutorialPage,
+      componentProps: { type: 'CUCU_PLAYERS_PAGE' }
+    });
+    tutorialModal.present();
   }
 
 }
