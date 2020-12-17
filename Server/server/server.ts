@@ -416,9 +416,6 @@ wsServer.on('connection', (socket: any) => {
         } else {
           socket.send(JSON.stringify({success: false, type: msg.type}))
         }
-      case 'close':
-        deletePlayerByUuid(msg.uuid)
-        break
       default:
         socket.send(JSON.stringify({success: false, type: msg.type}))
     }
