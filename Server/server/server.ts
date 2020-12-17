@@ -215,7 +215,7 @@ app.get('/exitGroup/:nick/:code', cors(corsOptions), (req, res) => {
   if (group) {
     const player = group.players.find(x => x.name == nickname)
     if (player) {
-      deletePlayer(player.uuid)
+      deletePlayer(player.uuid, true)
       response = {
         success: true
       }
@@ -373,7 +373,7 @@ wsServer.on('connection', (socket: any) => {
       }
       group.players.forEach(player => {
         let found = false
-        wsServer.clients.forEach((ws) => {
+        wsServer.clients.forEach(ws => {
           if (ws.uuid == player.uuid) {
             found = true
             if (ws.isAlive) {
@@ -384,6 +384,7 @@ wsServer.on('connection', (socket: any) => {
             ws.ping(null, false, true);
             if (Date.now() - ws.timestamp > 1000 * 10) {
               deletePlayer(ws.uuid)
+              ws.terminate()
             }
           }
         });
@@ -419,7 +420,7 @@ function checkGroup(code) {
   }
 }
 
-function deletePlayer(uuid) {
+function deletePlayer(uuid, logout = false) {
   groups.forEach(group => {
     group.players.forEach((player, i) => {
       if (player.uuid == uuid) {
@@ -436,11 +437,22 @@ function deletePlayer(uuid) {
           const icon = 'Pause'
           sendNotification(group, text, icon)
         }
+        if (logout) {
+          logoutClient(uuid)
+        }
         return true
       } else {
         return false
       }
     })
+  })
+}
+
+function logoutClient(uuid) {
+  wsServer.clients.forEach(ws => {
+    if (ws.uuid == uuid) {
+      ws.terminate()
+    }
   })
 }
 
@@ -733,12 +745,3 @@ function setAdmin(group, reset = false) {
     }
   }
 }
-/*
-function orderGroup(group) {
-  const adminIndex = group.players.find(x => x.isAdmin == true)
-  if (adminIndex && adminIndex != 0) {
-    const shifted = group.players.splice(0, adminIndex)
-    group.players.concat(shifted)
-  }
-}
-*/
