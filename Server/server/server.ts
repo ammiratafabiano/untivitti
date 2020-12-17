@@ -211,9 +211,23 @@ app.get('/exitGroup/:nick/:code', cors(corsOptions), (req, res) => {
   const nickname = req.params['nick']
   const code = req.params['code']
   let response
-  if (deletePlayer(code, nickname)) {
-    response = {
-      success: true
+  const group = groups.find(x => x.code == code)
+  if (group) {
+    const player = group.players.find(x => x.name == nickname)
+    if (player) {
+      if (deletePlayer(group, player)) {
+        response = {
+          success: true
+        }
+      } else {
+        response = {
+          success: false
+        }
+      }
+    } else {
+      response = {
+        success: false
+      }
     }
   } else {
     response = {
