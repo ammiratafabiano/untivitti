@@ -438,7 +438,7 @@ wsServer.on('connection', (socket: any) => {
               deletePlayerByUuid(ws.uuid)
               return ws.terminate()
             }
-            if (Date.now() - ws.timestamp > 1000 * 60) {
+            if (Date.now() - ws.timestamp > 1000 * 10) {
               ws.timestamp = Date.now()
               ws.isAlive = false;
               ws.ping(null, false, true);
