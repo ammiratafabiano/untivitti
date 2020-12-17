@@ -383,7 +383,7 @@ setInterval(function() {
           ws.ping(null, false, true);
         }
       });
-      if (Date.now() - player.timestamp > 1000 * 10) {
+      if (Date.now() - player.timestamp > 1000 * 60) {
         deletePlayer(player.uuid)
       }
     })
@@ -422,10 +422,10 @@ function deletePlayer(uuid) {
         if (player.isAdmin) {
           setAdmin(group)
         }
-        const deleted = group.players.splice(i, 1)
-        const text = deleted.name + ' si è disconnesso/a'
+        const text = player.name + ' si è disconnesso/a'
         const icon = 'Logout'
         sendNotification(group, text, icon)
+        group.players.splice(i, 1)
         if (!player.ghost && getPlayersLength(group) > 0) {
           resetGroup(group)
           const text = 'Partita interrotta'
