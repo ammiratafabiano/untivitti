@@ -347,7 +347,7 @@ wsServer.on('connection', (socket: any) => {
       case 'move':
         groups.forEach(group => {
           group.players.forEach(player => {
-            if (player.uuid == uuid) {
+            if (player.uuid == msg.uuid) {
               if (executeMove(group, player, msg.move)) {
                 socket.send(JSON.stringify({success: true, type: msg.type}))
               } else {
