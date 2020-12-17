@@ -364,35 +364,35 @@ wsServer.on('connection', (socket: any) => {
         socket.send(JSON.stringify({success: false, type: msg.type}))
     }
   });
-
-  setInterval(function() {
-    groups.forEach(group => {
-      const game = games.find(x => x.id == group.game)
-      if (group.status && getPlayersLength(group) < game.minPlayers) {
-        resetGroup(group)
-      }
-      console.log("---")
-      group.players.forEach(player => {
-        wsServer.clients.forEach(ws => {
-          if (ws.uuid == player.uuid) {
-            if (ws.isAlive) {
-              player.timestamp = Date.now()
-              ws.send(JSON.stringify({type: 'update', state: group}))
-            }
-            ws.isAlive = false;
-            ws.ping(null, false, true);
-          }
-        });
-        console.log(player.uuid + " time: " + String(Date.now() - player.timestamp))
-        if (Date.now() - player.timestamp > 1000 * 10) {
-          deletePlayer(ws.uuid, true)
-        }
-      })
-      checkGroup(group.code)
-    })
-    
-  }, 1000);
 });
+
+setInterval(function() {
+  groups.forEach(group => {
+    const game = games.find(x => x.id == group.game)
+    if (group.status && getPlayersLength(group) < game.minPlayers) {
+      resetGroup(group)
+    }
+    console.log("---")
+    group.players.forEach(player => {
+      wsServer.clients.forEach(ws => {
+        if (ws.uuid == player.uuid) {
+          if (ws.isAlive) {
+            player.timestamp = Date.now()
+            ws.send(JSON.stringify({type: 'update', state: group}))
+          }
+          ws.isAlive = false;
+          ws.ping(null, false, true);
+        }
+      });
+      console.log(player.uuid + " time: " + String(Date.now() - player.timestamp))
+      if (Date.now() - player.timestamp > 1000 * 10) {
+        deletePlayer(ws.uuid, true)
+      }
+    })
+    checkGroup(group.code)
+  })
+  
+}, 1000);
 
 const server = app.listen(port, (err: any) => {
   if (err) console.log(err); 
