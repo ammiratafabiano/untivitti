@@ -237,43 +237,6 @@ app.get('/exitGroup/:nick/:code', cors(corsOptions), (req, res) => {
   res.send(response)
 })
 
-/*
-app.get('/getState/:nick/:code', cors(corsOptions), (req, res) => {
-  const nickname = req.params['nick']
-  const code = req.params['code']
-  const group = groups.find(x => x.code == code)
-  let response
-  if (group) {
-    const game = games.find(x => x.id == group.game)
-    if (group.players.length < game.minPlayers) {
-      group.status = false
-      group.cards = []
-      group.players.forEach(player => {
-        player.canMove = false
-        player.cards = []
-        player.moves = player.isAdmin ? game.adminMoves : []
-      })
-    }
-    const player = group.players.find(x => x.name == nickname)
-    if (player) {
-      response = {
-        success: true,
-        data: group
-      }
-    } else {
-      response = {
-        success: false
-      }
-    }
-  } else {
-    response = {
-      success: false
-    }
-  }
-  res.send(response)
-})
-*/
-
 app.get('/getCardSets', cors(corsOptions), (req, res) => {
   const response = {
     success: true,
@@ -307,39 +270,6 @@ app.post('/updatePlayers', jsonParser, cors(corsOptions), (req, res) => {
   }
   res.send(response)
 });
-
-/*
-app.get('/sendMove/:nick/:code/:move', cors(corsOptions), (req, res) => {
-  const nickname = req.params['nick']
-  const code = req.params['code']
-  const move = req.params['move']
-  const group = groups.find(x => x.code == code)
-  let response
-  if (group) {
-    const player = group.players.find(x => x.name == nickname)
-    if (player) {
-      if (executeMove(group, player, move)) {
-        response = {
-          success: true
-        }
-      } else {
-        response = {
-          success: false
-        }
-      }
-    } else {
-      response = {
-        success: false
-      }
-    }
-  } else {
-    response = {
-      success: false
-    }
-  }
-  res.send(response)
-})
-*/
 
 app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => {
   const nickname = req.params['nick']
@@ -415,8 +345,7 @@ wsServer.on('connection', (socket: any) => {
         groups.find(x => x.code == msg.code).players.find(x => x.name == msg.nick).uuid = uuid
         break
       case 'move':
-        const group = groups.find(x => x.players.find(player => player.uuid == uuid))
-        if (group) {
+        groups.forEach(group => {
           const player = group.players.find(x => x.uuid == uuid)
           if (player) {
             if (executeMove(group, player, msg.move)) {
@@ -427,9 +356,8 @@ wsServer.on('connection', (socket: any) => {
           } else {
             socket.send(JSON.stringify({success: false, type: msg.type}))
           }
-        } else {
-          socket.send(JSON.stringify({success: false, type: msg.type}))
-        }
+        })
+        break
       default:
         socket.send(JSON.stringify({success: false, type: msg.type}))
     }
