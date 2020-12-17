@@ -341,11 +341,10 @@ wsServer.on('connection', (socket: any) => {
         const uuid = uuidv4()
         socket.uuid = uuid
         socket.timestamp = Date.now()
-        console.log(groups)
         groups.forEach(group => {
           if (group.code == msg.code) {
             group.players.forEach(player => {
-              if (player.name == msg.name) {
+              if (player.name == msg.nick) {
                 player.uuid = uuid
                 socket.send(JSON.stringify({success: true, type: msg.type, uuid: uuid}))
               }
