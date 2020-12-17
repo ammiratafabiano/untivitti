@@ -384,7 +384,9 @@ wsServer.on('connection', (socket: any) => {
             }
             ws.isAlive = false;
             ws.ping(null, false, true);
+            console.log("time: " + String(Date.now() - ws.timestamp))
             if (Date.now() - ws.timestamp > 1000 * 10) {
+              console.log("elimino " + ws.uuid)
               deletePlayer(ws.uuid)
               ws.terminate()
             }
