@@ -215,7 +215,7 @@ app.get('/exitGroup/:nick/:code', cors(corsOptions), (req, res) => {
   if (group) {
     const player = group.players.find(x => x.name == nickname)
     if (player) {
-      deletePlayer(player.uuid, true)
+      deletePlayer(player.uuid)
       response = {
         success: true
       }
@@ -384,7 +384,7 @@ setInterval(function() {
         }
       });
       if (Date.now() - player.timestamp > 1000 * 10) {
-        deletePlayer(player.uuid, true)
+        deletePlayer(player.uuid)
       }
     })
     checkGroup(group.code)
@@ -415,15 +415,15 @@ function checkGroup(code) {
   }
 }
 
-function deletePlayer(uuid, logout = false) {
+function deletePlayer(uuid) {
   groups.forEach(group => {
     group.players.forEach((player, i) => {
       if (player.uuid == uuid) {
         if (player.isAdmin) {
           setAdmin(group)
         }
-        group.players.splice(i, 1)
-        const text = player.name + ' si è disconnesso/a'
+        const deleted = group.players.splice(i, 1)
+        const text = deleted.name + ' si è disconnesso/a'
         const icon = 'Logout'
         sendNotification(group, text, icon)
         if (!player.ghost && getPlayersLength(group) > 0) {
@@ -432,9 +432,7 @@ function deletePlayer(uuid, logout = false) {
           const icon = 'Pause'
           sendNotification(group, text, icon)
         }
-        if (logout) {
-          logoutClient(uuid)
-        }
+        logoutClient(uuid)
       } 
     })
   })
