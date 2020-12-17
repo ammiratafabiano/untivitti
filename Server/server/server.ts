@@ -476,20 +476,18 @@ function getTime() {
 }
 
 function solveConflicts(group, newPlayers) {
-  let solvedPlayers = []
   group.players.forEach(player => {
     let found = false
     newPlayers.forEach(newPlayer => {
       if (player.name == newPlayer.name) {
         found = true
-        solvedPlayers.push(player)
       }
     })
     if (!found) {
-      solvedPlayers.push(player)
+      newPlayers.push(player)
     }
   })
-  return solvedPlayers
+  return newPlayers
 }
 
 function executeMove(group, player, move) {
