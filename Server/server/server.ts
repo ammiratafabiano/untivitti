@@ -637,9 +637,9 @@ function turnChange(group, player) {
   getPlayerMoves(group).forEach(move => {
     newPlayer.cards.forEach(card => {
       if (move.forbiddenCards.includes(card)) {
-        newPlayer.moves.push({name: move.name, id: move.id, disabled: true})
+        newPlayer.moves.push(copyMove(move, true))
       } else {
-        newPlayer.moves.push({name: move.name, id: move.id, disabled: false})
+        newPlayer.moves.push(copyMove(move))
       }
     })
   })
@@ -739,6 +739,19 @@ function getAdminMoves(group) {
     })
   })
   return moveToReturn
+}
+
+function copyMove(move, disabled = false) {
+  return {
+    name: move.name,
+    id: move.id,
+    disabled: disabled,
+    icon: move.icon,
+    side: move.side,
+    status: move.status,
+    forbiddenCards: move.forbiddenCards,
+    forbiddenNextCards: move.forbiddenNextCards
+  }
 }
 
 function getPlayersLength(group) {
