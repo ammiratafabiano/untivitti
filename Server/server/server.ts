@@ -373,12 +373,10 @@ wsServer.on('connection', (socket: any) => {
       }
       console.log("-----")
       group.players.forEach(player => {
-        let found = false
         console.log("player: " + player.name)
         wsServer.clients.forEach(ws => {
           if (ws.uuid == player.uuid) {
             console.log(ws.uuid)
-            found = true
             if (ws.isAlive) {
               ws.timestamp = Date.now()
               ws.send(JSON.stringify({type: 'update', state: group}))
@@ -387,15 +385,11 @@ wsServer.on('connection', (socket: any) => {
             ws.ping(null, false, true);
             console.log("time: " + String(Date.now() - ws.timestamp))
             if (Date.now() - ws.timestamp > 1000 * 10) {
-              console.log("elimino " + ws.uuid)
               deletePlayer(ws.uuid)
               ws.terminate()
             }
           }
         });
-        if (!found) {
-          deletePlayer(player.uuid)
-        }
       })
       checkGroup(group.code)
     })
