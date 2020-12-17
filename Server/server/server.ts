@@ -428,8 +428,10 @@ wsServer.on('connection', (socket: any) => {
         resetGroup(group)
       }
       group.players.forEach(player => {
+        let found = false
         wsServer.clients.forEach((ws) => {
           if (ws.uuid == player.uuid) {
+            found = true
             if (ws.isAlive) {
               ws.send(JSON.stringify({type: 'update', state: group}))
             } else {
@@ -443,6 +445,9 @@ wsServer.on('connection', (socket: any) => {
             }
           }
         });
+        if (!found) {
+          deletePlayerByUuid(player.uuid)
+        }
       })
       checkGroup(group.code)
     })
