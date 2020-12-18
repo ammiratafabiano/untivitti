@@ -448,7 +448,7 @@ function deletePlayer(uuid) {
           setAdmin(group)
         }
         group.players.splice(i, 1)
-        if (!player.ghost && getPlayersLength(group) > 0) {
+        if (group.status && !player.ghost && getPlayersLength(group) > 0) {
           resetGroup(group)
           const text = 'Partita interrotta'
           const icon = 'Pause'
