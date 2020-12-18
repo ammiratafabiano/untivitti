@@ -531,7 +531,7 @@ function startMove(group, player) {
       }
     }
     group.round += 1
-    const text = player.name +  ' ha iniziato la partita'
+    const text = player.name +  ' ha distribuito le carte'
     const icon = 'Start'
     sendNotification(group, text, icon)
     return turnChange(group, player)
@@ -543,7 +543,7 @@ function startMove(group, player) {
 function stopMove(group, player) {
   if (player.isAdmin) {
     resetGroup(group)
-    const text = player.name +  ' ha messo in pausa la partita'
+    const text = player.name +  ' ha ritirato le carte'
     const icon = 'Pause'
     sendNotification(group, text, icon)
     return true
