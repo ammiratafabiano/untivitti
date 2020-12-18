@@ -330,14 +330,12 @@ app.get('/setGhost/:nick/:code/:value', cors(corsOptions), (req, res) => {
       const text = nickname + ' è ora spettatore'
       const icon = 'Watcher'
       sendNotification(group, text, icon)
-      if (player.isAdmin) {
-        setAdmin(group)
-      }
     } else {
       const text = nickname + ' è ora giocatore'
       const icon = 'Player'
       sendNotification(group, text, icon)
     }
+    setAdmin(group)
     response = {
       success: true
     }
@@ -691,7 +689,7 @@ function resetGroup(group) {
   for (let i = 0; i < group.players.length; i++) {
     group.players[i].cards = []
     group.players[i].canMove = false
-    group.players[i].moves = group.players[i].isAdmin ? getAdminMoves(group) : []
+    group.players[i].moves = group.players[i].isAdmin ? getAdminMoves(group, true) : []
     group.players[i].visible = false
   }
 }
@@ -725,14 +723,14 @@ function getPlayerMoves(group) {
   return moveToReturn
 }
 
-function getAdminMoves(group) {
+function getAdminMoves(group, disableMoves = false) {
   const game = games.find(x => x.id == group.game)
   let moveToReturn = []
   game.adminMoves.forEach(move => {
     moveToReturn.push({
       name: move.name,
       id: move.id,
-      disabled: false,
+      disabled: disableMoves ? true : false,
       icon: move.icon,
       rotateIcon: move.rotateIcon,
       side: move.side,
