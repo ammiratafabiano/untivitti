@@ -395,7 +395,7 @@ wsServer.on('connection', (socket: any) => {
 setInterval(function() {
   groups.forEach(group => {
     const game = games.find(x => x.id == group.game)
-    if (group.status && getPlayersLength(group) < game.minPlayers) {
+    if (getPlayersLength(group) < game.minPlayers) {
       resetGroup(group)
     }
     group.players.forEach(player => {
