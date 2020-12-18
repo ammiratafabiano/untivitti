@@ -591,7 +591,7 @@ function swapMove(group, player) {
         canSwap = false;
       }
     })
-    const text = player.name + ' prova a cambiare' + newPlayer.name
+    const text = player.name + ' prova a cambiare con ' + newPlayer.name
     const icon = 'Swap'
     sendNotification(group, text, icon, [player.name])
     if (canSwap) {
