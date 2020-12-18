@@ -10,12 +10,12 @@
 </ion-header>
 
 <ion-content class="content">
+  <ion-fab class="help" horizontal="end" vertical="start" slot="fixed">
+    <ion-fab-button color="light" (click)="openTutorialModal()" size="small">
+      <ion-icon name="help-circle-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
   <ng-container *ngIf="!(currentPlayer.isAdmin && players.length > 1 && !status)" >
-    <ion-fab class="help" horizontal="end" vertical="start" slot="fixed">
-      <ion-fab-button color="light" (click)="openTutorialModal()" size="small">
-        <ion-icon name="help-circle-outline"></ion-icon>
-      </ion-fab-button>
-    </ion-fab>
     <ion-item-sliding *ngFor="let player of players" [ngClass]="{'canMove': player.canMove}">
       <ion-item class="player-container" [disabled]="player.ghost">
         <ion-label [ngClass]="{'myself': player.name == currentPlayer.name}">{{ player.name }}</ion-label>

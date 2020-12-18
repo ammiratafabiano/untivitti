@@ -121,8 +121,8 @@ export class GamePage implements OnInit {
     if (this.playerModal) {
       this.playerModal.dismiss();
     }
+    this.updateStateService.closeConnection();
     this.api.exitGroup(this.currentPlayer.name, this.state.code).subscribe(_ => {
-      this.updateStateService.closeConnection();
       this.router.navigate(['/']);
     });
   }
@@ -154,7 +154,7 @@ export class GamePage implements OnInit {
   async openTutorialModal() {
     const tutorialModal = await this.modalController.create({
       component: TutorialPage,
-      componentProps: { type: 'CUCU_PAGE' }
+      componentProps: { type: 'GAME_PAGE' }
     });
     tutorialModal.present();
   }

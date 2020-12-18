@@ -23,7 +23,7 @@ export class HomePage {
 
   selectedSet: CardTypeEnum;
   selectedGame: GameTypeEnum;
-  money = false;
+  money = true;
 
   currentPlayer: PlayerModel;
 

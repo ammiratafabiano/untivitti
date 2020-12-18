@@ -9,30 +9,36 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
-  <ion-list>
-    <ion-list-header>
-      Recent Conversations
-    </ion-list-header>
-    <ion-item>
-      <ion-avatar slot="start">
-        <img src="./avatar-finn.png">
-      </ion-avatar>
-      <ion-label>
-        <h2>Finn</h2>
-        <h3>I'm a big deal</h3>
-        <p>Listen, I've had a pretty messed up day...</p>
-      </ion-label>
-    </ion-item>
-    <ion-card>
-      <img src="./madison.jpg" />
-      <ion-card-header>
-        <ion-card-subtitle>Destination</ion-card-subtitle>
-        <ion-card-title>Madison, WI</ion-card-title>
-      </ion-card-header>
-      <ion-card-content>
-        Founded in 1829 on an isthmus between Lake Monona and Lake Mendota, Madison was named the capital of the Wisconsin Territory in 1836.
-      </ion-card-content>
-    </ion-card>
+<ion-content class="ion-padding-vertical">
+  <div *ngIf="data" class="ion-padding-horizontal">
+    <h1>{{ data.title }}</h1>
+    <p class="tutorial-subtitle">{{ data.subtitle }}</p>
+  </div>
+  <div *ngIf="!data" class="ion-padding-horizontal">
+    <h1>Tutorial non trovato</h1>
+  </div>
+  <ion-list *ngIf="data">
+    <ng-container *ngFor="let section of data.sections">
+      <ion-list-header>
+        {{ section.title }}
+      </ion-list-header>
+      <ng-container *ngFor="let item of section.items">
+        <ion-item *ngIf="item.icon && !item.img">
+          <ion-avatar slot="start">
+            <ion-icon class="item-icon" [name]="item.icon"></ion-icon>
+          </ion-avatar>
+          <ion-label>
+            <h2>{{ item.title }}</h2>
+            <p style="white-space: normal">{{ item.subtitle }}</p>
+          </ion-label>
+        </ion-item>
+        <ion-card *ngIf="!item.icon && item.img">
+          <img [src]= "item.img" />
+          <ion-card-content>
+            {{ item.title }}
+          </ion-card-content>
+        </ion-card>
+      </ng-container>
+    </ng-container>
   </ion-list>
 </ion-content>

@@ -133,7 +133,7 @@ export class PlayersPage implements OnInit {
   async openTutorialModal() {
     const tutorialModal = await this.modalController.create({
       component: TutorialPage,
-      componentProps: { type: 'CUCU_PLAYERS_PAGE' }
+      componentProps: { type: 'PLAYERS_PAGE' }
     });
     tutorialModal.present();
   }
