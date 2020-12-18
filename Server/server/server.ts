@@ -577,9 +577,6 @@ function skipMove(group, player) {
 
 function swapMove(group, player) {
   const swapMove = getPlayerMoves(group).find(x => x.id == 5)
-  const text = player.name + ' prova a cambiare'
-  const icon = 'Swap'
-  sendNotification(group, text, icon, [player.name])
   if (!player.isAdmin) {
     const newPlayer = getNextPlayer(group, player)
     let canSwap = true;
@@ -588,30 +585,26 @@ function swapMove(group, player) {
         canSwap = false;
       }
     })
+    const text = player.name + ' prova a cambiare' + newPlayer.name
+    const icon = 'Swap'
+    sendNotification(group, text, icon, [player.name])
     if (canSwap) {
       const tempCards = [...player.cards]
       player.cards = newPlayer.cards
       newPlayer.cards = tempCards
-      const text = player.name + ' scambia con ' + newPlayer.name
-      const icon = 'Swap'
-      sendNotification(group, text, icon)
     }
     return turnChange(group, player)
   } else {
+    const text = player.name + ' prova a pescare dal mazzo'
+    const icon = 'Swap'
+    sendNotification(group, text, icon, [player.name])
     const newCard = group.cards.pop()
+    group.ground.push(newCard)
     if (swapMove.forbiddenNextCards.includes(newCard)) {
-      group.ground.push(newCard)
       const text = 'Cucù!'
       const icon = 'Close'
       sendNotification(group, text, icon)
-    } else {
-      group.ground = [...player.cards]
-      player.cards = []
-      player.cards.push(newCard)
-      const text = player.name + ' scambia la carta con il mazzo'
-      const icon = 'Swap'
-      sendNotification(group, text, icon, [player.name])
-    }
+    } 
     return turnStop(group, player)
   }
 }
