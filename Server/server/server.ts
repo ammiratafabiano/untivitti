@@ -763,15 +763,19 @@ function getPlayersLength(group) {
   return count
 }
 
-function setAdmin(group, reset = false) {
+function setAdmin(group) {
+  const admin = group.players.find(x => x.isAdmin == true)
+  if (admin) {
+    admin.isAdmin = false
+    admin.moves = []
+  }
   if (getPlayersLength(group) > 0) {
-    const admin = group.players.find(x => x.isAdmin == true)
-    const newAdmin = reset ? getNextPlayer(group) : getNextPlayer(group, admin)
-    if (newAdmin && admin.name != newAdmin.name) {
-      admin.isAdmin = false
-      admin.moves = []
+    const newAdmin = getNextPlayer(group, admin)
+    if (newAdmin) {
       newAdmin.isAdmin = true
       newAdmin.moves = getAdminMoves(group)
+    }
+    if (!admin || admin.name != newAdmin.name) {
       const text = newAdmin.name + ' è il nuovo mazziere'
       const icon = 'Admin'
       sendNotification(group, text, icon)
