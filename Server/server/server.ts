@@ -678,7 +678,7 @@ function getNextPlayer(group, player?) {
   do {
     attempts += 1
     newIndex = (newIndex + 1) % group.players.length
-  } while (group.players[newIndex].ghost && attempts > group.players.length)
+  } while (group.players[newIndex].ghost && attempts < group.players.length)
   return group.players[newIndex]
 }
 
