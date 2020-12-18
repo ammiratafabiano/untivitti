@@ -776,5 +776,7 @@ function setAdmin(group, reset = false) {
       const icon = 'Admin'
       sendNotification(group, text, icon)
     }
+  } {
+    group.players.find(x => x.isAdmin == true).isAdmin = false
   }
 }
