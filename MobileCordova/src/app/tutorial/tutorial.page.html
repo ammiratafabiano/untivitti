@@ -26,7 +26,7 @@
         <ng-container *ngFor="let item of section.items">
           <ion-item *ngIf="item.icon && !item.img">
             <ion-avatar slot="start">
-              <ion-icon class="item-icon" [name]="item.icon"></ion-icon>
+              <ion-icon class="item-icon" [name]="item.icon" [ngClass]="{'rotate-right': item.rotateIcon}"></ion-icon>
             </ion-avatar>
             <ion-label>
               <h2>{{ item.title }}</h2>

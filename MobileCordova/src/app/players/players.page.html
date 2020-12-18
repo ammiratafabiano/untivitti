@@ -29,7 +29,7 @@
             <img src="./assets/cardSets/{{cardSet}}/{{ground[0]}}.png" />
           </div>
         </div>
-        <ion-icon *ngIf="player.isAdmin" name="albums-outline" class="rotate90"></ion-icon>
+        <ion-icon *ngIf="player.isAdmin" name="albums-outline" class="rotate-right"></ion-icon>
         <ion-chip outline *ngIf="moneyMode" (click)="currentPlayer.isAdmin && changeBalance(player)">
           <ion-icon name="server" color="warning"></ion-icon>
           <ion-label>{{ player.balance }}</ion-label>
@@ -51,7 +51,7 @@
             <img src="./assets/cardSets/{{cardSet}}/{{player.cards[0]}}.png" />
           </div>
         </div>
-        <ion-icon *ngIf="player.isAdmin" name="albums-outline" class="rotate90"></ion-icon>
+        <ion-icon *ngIf="player.isAdmin" name="albums-outline" class="rotate-right"></ion-icon>
         <ion-chip outline *ngIf="moneyMode" (click)="currentPlayer.isAdmin && !status && changeBalance(player)">
           <ion-icon name="server" color="warning"></ion-icon>
           <ion-label>{{ player.balance }}</ion-label>

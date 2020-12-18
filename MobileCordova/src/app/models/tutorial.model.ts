@@ -8,6 +8,7 @@ export class TutorialItemModel {
   title: string;
   subtitle?: string;
   icon?: string;
+  rotateIcon?: boolean;
   img?: string;
 }
 
