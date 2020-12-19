@@ -201,6 +201,7 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
             ghost: false
           }
           group.players.push(player)
+          console.log("join")
           setAdmin(group)
           const text = nickname + ' si è connesso/a'
           const icon = 'Login'
@@ -625,6 +626,7 @@ function passMove(group, player) {
     const text = player.name +  ' passa il mazzo'
     const icon = 'Admin'
     sendNotification(group, text, icon, [player.name])
+    console.log("pass")
     setAdmin(group)
     return true
   } else {
