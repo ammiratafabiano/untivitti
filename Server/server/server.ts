@@ -619,7 +619,7 @@ function swapMove(group, player) {
     group.ground.push(newCard)
     if (swapMove.forbiddenNextCards.includes(newCard)) {
       const text = 'Cucù!'
-      const icon = 'Close'
+      const icon = 'Blocked'
       sendNotification(group, text, icon)
     } 
     return turnStop(group, player)
@@ -812,6 +812,7 @@ function computeLosers(group) {
     } else {
       player.cards[0]
     }
+    console.log(card, card % game.maxValue, min)
     if (card % game.maxValue == min) { 
       player.haveToPay = true
       losers.push(player.name)
