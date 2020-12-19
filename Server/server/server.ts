@@ -680,11 +680,11 @@ function getShuffledSet(cardSet) {
 
 function getNextPlayer(group, player?) {
   let attempts = 0
-  let newIndex = player ? group.players.findIndex(x => x.name == player.name) : 0
-  while (group.players[newIndex].ghost && attempts < group.players.length) {
+  let newIndex = player ? group.players.findIndex(x => x.name == player.name) : -1
+  do {
     attempts += 1
     newIndex = (newIndex + 1) % group.players.length
-  }
+  } while (group.players[newIndex].ghost && attempts < group.players.length)
   return group.players[newIndex]
 }
 
