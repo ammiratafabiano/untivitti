@@ -646,6 +646,7 @@ function turnChange(group, player) {
       }
     })
   })
+  console.log(newPlayer.moves)
   if (newPlayer.isAdmin) {
     newPlayer.visible = true
     const text = 'La carta del mazziere ' + newPlayer.name +  ' è ora visibile'
@@ -680,11 +681,11 @@ function getShuffledSet(cardSet) {
 
 function getNextPlayer(group, player?) {
   let attempts = 0
-  let newIndex = player ? group.players.findIndex(x => x.name == player.name) : -1
-  do {
+  let newIndex = player ? group.players.findIndex(x => x.name == player.name) : 0
+  while (group.players[newIndex].ghost && attempts < group.players.length) {
     attempts += 1
     newIndex = (newIndex + 1) % group.players.length
-  } while (group.players[newIndex].ghost && attempts < group.players.length)
+  }
   return group.players[newIndex]
 }
 
