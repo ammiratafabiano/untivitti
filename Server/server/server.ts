@@ -307,6 +307,7 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
     const player = group.players.find(x => x.name == nickname)
     if (player) {
       player.balance = newBalance
+      player.haveToPay = false
       if (newBalance == 0) {
         player.ghost = true
       }
