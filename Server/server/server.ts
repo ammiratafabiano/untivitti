@@ -621,7 +621,7 @@ function passMove(group, player) {
     const text = player.name +  ' passa il mazzo'
     const icon = 'Admin'
     sendNotification(group, text, icon, [player.name])
-    setAdmin(group)
+    setAdmin(group, true)
     return true
   } else {
     return false
@@ -759,14 +759,14 @@ function getPlayersLength(group) {
   return count
 }
 
-function setAdmin(group) {
+function setAdmin(group, next = false) {
   const admin = group.players.find(x => x.isAdmin == true)
   if (admin) {
     admin.isAdmin = false
     admin.moves = []
   }
   if (getPlayersLength(group) > 0) {
-    const newAdmin = getNextPlayer(group, admin, false)
+    const newAdmin = getNextPlayer(group, admin, next)
     if (newAdmin) {
       newAdmin.isAdmin = true
       newAdmin.moves = getAdminMoves(group)
