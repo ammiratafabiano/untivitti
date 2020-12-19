@@ -796,28 +796,32 @@ function computeLosers(group) {
   let results = []
   for (let i = 0; i < group.players.length; i++) {
     const player = group.players[i]
-    if (player.isAdmin && group.ground.length != 0 && !game.playerMoves.find(x => x.id == 5).forbiddenCards.includes(group.ground[0])) {
-      results.push(group.ground[0] % game.maxValue)
-    } else {
-      results.push(player.cards[0] % game.maxValue)
+    if (!player.ghost) {
+      if (player.isAdmin && group.ground.length != 0 && !game.playerMoves.find(x => x.id == 5).forbiddenCards.includes(group.ground[0])) {
+        results.push(group.ground[0] % game.maxValue)
+      } else {
+        results.push(player.cards[0] % game.maxValue)
+      }
     }
   }
   const min = Math.min(...results)
 
   let losers = []
   group.players.forEach(player => {
-    let card
-    if (player.isAdmin && group.ground.length != 0 && !game.playerMoves.find(x => x.id == 5).forbiddenCards.includes(group.ground[0])) {
-      card = group.ground[0]
-    } else {
-      card = player.cards[0]
-    }
-    if ((card % game.maxValue) == min) { 
-      player.haveToPay = true
-      losers.push(player.name)
+    if (!player.ghost) {
+      let card
+      if (player.isAdmin && group.ground.length != 0 && !game.playerMoves.find(x => x.id == 5).forbiddenCards.includes(group.ground[0])) {
+        card = group.ground[0]
+      } else {
+        card = player.cards[0]
+      }
+      if ((card % game.maxValue) == min) { 
+        player.haveToPay = true
+        losers.push(player.name)
+      }
     }
   });
-  
+
   if (losers.length > 1) {
     const last = losers.pop()
     const people = losers.join(', ') + 'e ' + last
