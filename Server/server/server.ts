@@ -32,6 +32,7 @@ const games = [
     swapOffset: 1,
     defaultBalance: 3,
     mustShow: true,
+    maxValue: 10,
     adminMoves: [
       {
         name: 'Distribuisci',
@@ -790,24 +791,35 @@ function setAdmin(group, next = false) {
   }
 }
 
-function setAdminMoves(group, enable) {
-  for (let i = 0; i < group.players.length; i++) {
-    if (group.players[i].isAdmin) {
-      group.players[i].moves.forEach(move => move = copyMove(move, !enable))
-    }
-  }
-}
-
 function computeLosers(group) {
+  const game = games.find(x => x.id == group.game)
   let results = []
   for (let i = 0; i < group.players.length; i++) {
     const player = group.players[i]
-    const sum = player.cards.reduce((a, b) => a + b, 0)
-    results.push(sum)
+    if (player.isAdmin && group.ground && !game.playerMoves.find(x => x.id == 5).forbiddenCards.includes(group.ground[0])) {
+      results.push(group.ground[0] % game.maxValue)
+    } else {
+      results.push(player.card[0] % game.maxValue)
+    }
   }
   const min = Math.min(...results)
+  let losers = []
   group.players.forEach(player => {
-    const sum = player.cards.reduce((a, b) => a + b, 0)
-    if (sum == min) player.haveToPay = true
+    const card = player.cards[0]
+    if (card % game.maxValue == min) { 
+      player.haveToPay = true
+      losers.push(player.name)
+    }
   });
+  if (losers.length > 1) {
+    const last = losers.pop()
+    const people = losers.join(', ') + 'e ' + last
+    const text = people + ' devono pagare'
+    const icon = 'Money'
+    sendNotification(group, text, icon)
+  } else {
+    const text = losers[0] + ' deve pagare'
+    const icon = 'Money'
+    sendNotification(group, text, icon)
+  }
 }
