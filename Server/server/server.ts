@@ -159,6 +159,7 @@ app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
     round: 0,
     cards: [],
     ground: [],
+    activePlayers: 0,
     players: [
       {
         name: req.body.nickname,
