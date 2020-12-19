@@ -646,7 +646,6 @@ function turnChange(group, player) {
       }
     })
   })
-  console.log(newPlayer.moves)
   if (newPlayer.isAdmin) {
     newPlayer.visible = true
     const text = 'La carta del mazziere ' + newPlayer.name +  ' è ora visibile'
@@ -768,6 +767,7 @@ function setAdmin(group) {
   const admin = group.players.find(x => x.isAdmin == true)
   if (admin) {
     admin.isAdmin = false
+    console.log("test")
     admin.moves = []
   }
   if (getPlayersLength(group) > 0) {
