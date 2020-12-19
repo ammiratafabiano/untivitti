@@ -813,7 +813,7 @@ function computeLosers(group) {
       card = player.cards[0]
     }
     console.log(card, card % game.maxValue, min)
-    if (card % game.maxValue == min) { 
+    if ((card % game.maxValue) == min) { 
       player.haveToPay = true
       losers.push(player.name)
     }
