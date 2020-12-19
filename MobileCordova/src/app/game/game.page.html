@@ -35,7 +35,7 @@
     </div>
   </div>
   <ion-fab class="action-button" horizontal="center" slot="fixed">
-    <ion-fab-button color="warning" [disabled]="!((currentPlayer.isAdmin || (!currentPlayer.isAdmin && currentPlayer.canMove)) && state.activePlayers >= currentGame.minPlayers)">
+    <ion-fab-button color="warning" [disabled]="!((currentPlayer.isAdmin || (!currentPlayer.isAdmin && currentPlayer.canMove)) && state.activePlayers >= currentGame.minPlayers && allPaid)">
       <ion-icon name="caret-up-outline"></ion-icon>
     </ion-fab-button>
     <ng-container *ngFor="let move of currentPlayer.moves">

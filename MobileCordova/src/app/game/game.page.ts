@@ -28,6 +28,8 @@ export class GamePage implements OnInit {
   playerModal: any;
   automaticModal = true;
 
+  allPaid = true;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -59,6 +61,9 @@ export class GamePage implements OnInit {
               this.currentPlayer = updatedCurrentPlayer;
             }
             this.updateTitle();
+            if (this.state.money) {
+              this.checkPayments();
+            }
           } else {
             this.exitGame();
           }
@@ -122,9 +127,8 @@ export class GamePage implements OnInit {
       this.playerModal.dismiss();
     }
     this.updateStateService.closeConnection();
-    this.api.exitGroup(this.currentPlayer.name, this.state.code).subscribe(_ => {
-      this.router.navigate(['/']);
-    });
+    this.api.exitGroup(this.currentPlayer.name, this.state.code).subscribe(_ => {});
+    this.router.navigate(['/']);
   }
 
   isAdmin(): boolean {
@@ -157,5 +161,13 @@ export class GamePage implements OnInit {
       componentProps: { type: 'GAME_PAGE' }
     });
     tutorialModal.present();
+  }
+
+  checkPayments() {
+    if (this.state.players.findIndex(x => x.haveToPay === true) !== -1) {
+      this.allPaid = false;
+    } else {
+      this.allPaid = true;
+    }
   }
 }

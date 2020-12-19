@@ -136,6 +136,20 @@ export class TutorialPage implements OnInit {
             ]
           },
           {
+            title: 'Bottone di azione',
+            items: [
+              {
+                title: 'Consente di effettuare le mosse. Queste cambieranno se il giocatore è il mazziere.',
+                img: './assets/tutorial/notifications.png'
+              },
+              {
+                title: 'Attenzione',
+                subtitle: 'Non sarà possibile eseguire azioni quando non ci sono abbastanza giocatori attivi o se, nel caso di partita con monete, deve essere ancora effettuato un pagamento.',
+                icon: 'alert-circle-outline'
+              }
+            ]
+          },
+          {
             title: 'Notifiche',
             items: [
               {

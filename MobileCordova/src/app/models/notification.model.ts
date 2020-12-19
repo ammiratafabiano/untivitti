@@ -11,7 +11,8 @@ export enum NotificationIcons {
     Watcher = 'eye-outline',
     Player = 'person-outline',
     Show = 'share-outline',
-    Admin = 'albums-outline'
+    Admin = 'albums-outline',
+    Money = 'server-outline'
 }
 
 export class NotificationModel {

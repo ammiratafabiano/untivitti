@@ -15,7 +15,7 @@
       <ion-icon name="help-circle-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-  <ng-container *ngIf="!(currentPlayer.isAdmin && players.length > 1 && !status)" >
+  <ion-reorder-group (ionItemReorder)="reorderPlayers($event)" [disabled]="!(currentPlayer.isAdmin && players.length > 1 && !status)">
     <ion-item-sliding *ngFor="let player of players" [ngClass]="{'canMove': player.canMove}">
       <ion-item class="player-container" [disabled]="player.ghost">
         <ion-label [ngClass]="{'myself': player.name == currentPlayer.name}">{{ player.name }}</ion-label>
@@ -30,31 +30,12 @@
           </div>
         </div>
         <ion-icon *ngIf="player.isAdmin" name="albums-outline" class="rotate-right"></ion-icon>
-        <ion-chip outline *ngIf="moneyMode" (click)="currentPlayer.isAdmin && changeBalance(player)">
+        <ion-chip outline *ngIf="!(moneyMode && player.haveToPay)" (click)="currentPlayer.isAdmin && !status && changeBalance(player)">
           <ion-icon name="server" color="warning"></ion-icon>
           <ion-label>{{ player.balance }}</ion-label>
         </ion-chip>
-      </ion-item>
-      <ion-item-options side="end">
-        <ion-item-option *ngIf="currentPlayer.isAdmin && currentPlayer.name != player.name && !status" (click)="remove(player)">Rimuovi</ion-item-option>
-        <ion-item-option *ngIf="(currentPlayer.isAdmin || player.name == currentPlayer.name) && !player.ghost && !status"  (click)="setGhost(player, true)">Spettatore</ion-item-option>
-        <ion-item-option *ngIf="(currentPlayer.isAdmin || player.name == currentPlayer.name) && player.ghost && !status"  (click)="setGhost(player, false)">Giocatore</ion-item-option>
-      </ion-item-options>
-    </ion-item-sliding>
-  </ng-container>
-  <ion-reorder-group *ngIf="currentPlayer.isAdmin && players.length > 1 && !status" (ionItemReorder)="reorderPlayers($event)" disabled="false">
-    <ion-item-sliding *ngFor="let player of players" [ngClass]="{'canMove': player.canMove}">
-      <ion-item class="player-container" [disabled]="player.ghost">
-        <ion-label [ngClass]="{'myself': player.name == currentPlayer.name}">{{ player.name }}</ion-label>
-        <div *ngIf="player.cards.length > 0 && player.visible || (status && player.cards.length > 0 && player.name == currentPlayer.name)" class="cards-container">
-          <div class="card">
-            <img src="./assets/cardSets/{{cardSet}}/{{player.cards[0]}}.png" />
-          </div>
-        </div>
-        <ion-icon *ngIf="player.isAdmin" name="albums-outline" class="rotate-right"></ion-icon>
-        <ion-chip outline *ngIf="moneyMode" (click)="currentPlayer.isAdmin && !status && changeBalance(player)">
-          <ion-icon name="server" color="warning"></ion-icon>
-          <ion-label>{{ player.balance }}</ion-label>
+        <ion-chip [outline]="player.name != currentPlayer.name" color="danger" *ngIf="moneyMode && player.haveToPay" (click)="player.name == currentPlayer.name && onClickPay()">
+          <ion-label>Paga</ion-label>
         </ion-chip>
         <ion-reorder slot="end"></ion-reorder>
       </ion-item>

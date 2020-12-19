@@ -18,6 +18,7 @@ export class PlayerModel {
     cards: number[];
     visible: boolean;
     balance: number;
+    haveToPay: boolean;
     ghost: boolean;
     uuid: string;
     timestamp: number;

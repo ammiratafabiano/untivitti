@@ -3,7 +3,7 @@ import { AlertController, ModalController, NavParams } from '@ionic/angular';
 import { GameStateModel, PlayerModel } from '../models/game-state.model';
 import { ApiService } from '../services/api.service';
 import { Clipboard } from '@ionic-native/clipboard/ngx';
-import { finalize } from 'rxjs/operators';
+import { finalize, timeout } from 'rxjs/operators';
 import { NotificationService } from '../services/notification.service';
 import { NotificationIcons, NotificationModel } from '../models/notification.model';
 import { CardTypeEnum } from '../models/card-set.model';
@@ -127,11 +127,7 @@ export class PlayersPage implements OnInit {
         }, {
           text: 'Conferma',
           handler: (out) => {
-            this.loaderService.show().then(_ => {
-              this.api.updateBalance(player.name, this.code, out.value)
-              .pipe(finalize(() => this.loaderService.hide() ))
-                .subscribe();
-            });
+            this.setBalance(player, out.value);
           }
         }
       ]
@@ -154,6 +150,30 @@ export class PlayersPage implements OnInit {
       componentProps: { type: 'PLAYERS_PAGE' }
     });
     tutorialModal.present();
+  }
+
+  setBalance(player, value) {
+    this.loaderService.show().then(_ => {
+      this.api.updateBalance(player.name, this.code, value)
+      .pipe(finalize(() => this.loaderService.hide() ))
+        .subscribe();
+    });
+  }
+
+  onClickPay() {
+    const value = this.currentPlayer.balance -= 1;
+    this.loaderService.show().then(_ => {
+      this.api.updateBalance(this.currentPlayer.name, this.code, value).subscribe(() => {
+        let attempt = 0;
+        const payment = setInterval(() => {
+          attempt += 1;
+          if (this.currentPlayer.haveToPay === false || attempt === 4) {
+            clearInterval(payment);
+            this.loaderService.hide();
+          }
+        }, 500);
+      });
+    });
   }
 
 }
