@@ -803,6 +803,7 @@ function computeLosers(group) {
     }
   }
   const min = Math.min(...results)
+  console.log(results, min)
   let losers = []
   group.players.forEach(player => {
     const card = player.cards[0]
@@ -811,6 +812,7 @@ function computeLosers(group) {
       losers.push(player.name)
     }
   });
+  console.log(losers)
   if (losers.length > 1) {
     const last = losers.pop()
     const people = losers.join(', ') + 'e ' + last
