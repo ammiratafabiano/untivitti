@@ -733,25 +733,18 @@ function getAdminMoves(group, enableMoves?) {
   const game = games.find(x => x.id == group.game)
   let moveToReturn = []
   game.adminMoves.forEach(move => {
-    moveToReturn.push({
-      name: move.name,
-      id: move.id,
-      disabled: enableMoves ? move.disabled : true,
-      icon: move.icon,
-      rotateIcon: move.rotateIcon,
-      side: move.side,
-      status: move.status
-    })
+    moveToReturn.push(copyMove(move, !enableMoves))
   })
   return moveToReturn
 }
 
-function copyMove(move, disabled = false) {
+function copyMove(move, disabled?) {
   return {
     name: move.name,
     id: move.id,
-    disabled: disabled,
+    disabled: disabled ? disabled : move.disabled,
     icon: move.icon,
+    rotateIcon: move.rotateIcon,
     side: move.side,
     status: move.status,
     forbiddenCards: move.forbiddenCards,
