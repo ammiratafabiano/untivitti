@@ -192,9 +192,9 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
         if (!group.players.find(x => x.name == nickname)) {
           const player = {
             name: nickname,
-            isAdmin: getPlayersLength(group) > 0 ? false : true,
+            isAdmin: false,
             canMove: false,
-            moves: getPlayersLength(group) > 0 ? [] : getAdminMoves(group),
+            moves: [],
             cards: [],
             visible: false,
             balance: game.defaultBalance,
@@ -396,14 +396,10 @@ wsServer.on('connection', (socket: any) => {
 setInterval(function() {
   groups.forEach(group => {
     const game = games.find(x => x.id == group.game)
-    if (getPlayersLength(group) < game.minPlayers) {
-      if (group.status) {
+    if (getPlayersLength(group) < game.minPlayers && group.status) {
         resetGroup(group)
-      }
-      //setAdminMoves(group, false)
-    } else {
-      //setAdminMoves(group, true)
     }
+    group.activePlayers = getPlayersLength(group)
     group.players.forEach(player => {
       wsServer.clients.forEach(ws => {
         if (ws.uuid == player.uuid) {
