@@ -201,8 +201,7 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
             ghost: false
           }
           group.players.push(player)
-          console.log("join")
-          setAdmin(group)
+          //setAdmin(group)
           const text = nickname + ' si è connesso/a'
           const icon = 'Login'
           sendNotification(group, text, icon)
@@ -626,7 +625,6 @@ function passMove(group, player) {
     const text = player.name +  ' passa il mazzo'
     const icon = 'Admin'
     sendNotification(group, text, icon, [player.name])
-    console.log("pass")
     setAdmin(group)
     return true
   } else {
@@ -648,6 +646,7 @@ function turnChange(group, player) {
       }
     })
   })
+  console.log(newPlayer.moves)
   if (newPlayer.isAdmin) {
     newPlayer.visible = true
     const text = 'La carta del mazziere ' + newPlayer.name +  ' è ora visibile'
@@ -769,7 +768,6 @@ function setAdmin(group) {
   const admin = group.players.find(x => x.isAdmin == true)
   if (admin) {
     admin.isAdmin = false
-    console.log("test")
     admin.moves = []
   }
   if (getPlayersLength(group) > 0) {
