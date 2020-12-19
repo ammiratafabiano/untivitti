@@ -201,6 +201,7 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
             ghost: false
           }
           group.players.push(player)
+          setAdmin(group)
           const text = nickname + ' si è connesso/a'
           const icon = 'Login'
           sendNotification(group, text, icon)
@@ -728,14 +729,14 @@ function getPlayerMoves(group) {
   return moveToReturn
 }
 
-function getAdminMoves(group, disableMoves?) {
+function getAdminMoves(group, enableMoves?) {
   const game = games.find(x => x.id == group.game)
   let moveToReturn = []
   game.adminMoves.forEach(move => {
     moveToReturn.push({
       name: move.name,
       id: move.id,
-      disabled: disableMoves ? disableMoves : move.disabled,
+      disabled: enableMoves ? move.disabled : true,
       icon: move.icon,
       rotateIcon: move.rotateIcon,
       side: move.side,
