@@ -679,9 +679,10 @@ function getShuffledSet(cardSet) {
   return array
 }
 
-function getNextPlayer(group, player?) {
+function getNextPlayer(group, player, next = true) {
   let attempts = 0
   let newIndex = player ? group.players.findIndex(x => x.name == player.name) : 0
+  newIndex = next ? newIndex += 1 : newIndex
   while (group.players[newIndex].ghost && attempts < group.players.length) {
     attempts += 1
     newIndex = (newIndex + 1) % group.players.length
@@ -770,7 +771,7 @@ function setAdmin(group) {
     admin.moves = []
   }
   if (getPlayersLength(group) > 0) {
-    const newAdmin = getNextPlayer(group, admin)
+    const newAdmin = getNextPlayer(group, admin, false)
     if (newAdmin) {
       newAdmin.isAdmin = true
       newAdmin.moves = getAdminMoves(group)
