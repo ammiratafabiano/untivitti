@@ -786,7 +786,7 @@ function setAdmin(group) {
 function setAdminMoves(group, enable) {
   for (let i = 0; i < group.players.length; i++) {
     if (group.players[i].isAdmin) {
-      group.players[i].moves = getAdminMoves(group, enable)
+      group.players[i].moves.forEach(move => move = copyMove(move, !enable))
     }
   }
 }
