@@ -8,6 +8,7 @@ import { NotificationService } from '../services/notification.service';
 import { NotificationIcons, NotificationModel } from '../models/notification.model';
 import { CardTypeEnum } from '../models/card-set.model';
 import { TutorialPage } from '../tutorial/tutorial.page';
+import { LoaderService } from '../services/loader.service';
 
 @Component({
   selector: 'app-players',
@@ -37,7 +38,8 @@ export class PlayersPage implements OnInit {
     private api: ApiService,
     private clipboard: Clipboard,
     private notificationService: NotificationService,
-    public alertController: AlertController) {
+    public alertController: AlertController,
+    private loaderService: LoaderService) {
     const stateListener = this.navParams.get('state');
     const nickname = this.navParams.get('nickname');
     stateListener.subscribe(value => {
@@ -61,12 +63,18 @@ export class PlayersPage implements OnInit {
   }
 
   reorderPlayers(ev: any) {
-    this.reordering = true;
-    const itemMove = this.players.splice(ev.detail.from, 1)[0];
-    this.players.splice(ev.detail.to, 0, itemMove);
-    ev.detail.complete();
-    this.api.updatePlayers(this.players, this.code).pipe(
-      finalize(() => this.reordering = false)).subscribe();
+    this.loaderService.show().then(_ => {
+      this.reordering = true;
+      const itemMove = this.players.splice(ev.detail.from, 1)[0];
+      this.players.splice(ev.detail.to, 0, itemMove);
+      ev.detail.complete();
+      this.api.updatePlayers(this.players, this.code)
+      .pipe(finalize(() => {
+        this.reordering = false;
+        this.loaderService.hide();
+       }
+      )).subscribe();
+    });
   }
 
   detectChange(list1, list2) {
@@ -92,7 +100,11 @@ export class PlayersPage implements OnInit {
   }
 
   remove(player: PlayerModel) {
-    this.api.exitGroup(player.name, this.code).subscribe(_ => {});
+    this.loaderService.show().then(_ => {
+      this.api.exitGroup(player.name, this.code)
+      .pipe(finalize(() => this.loaderService.hide() ))
+        .subscribe();
+    });
   }
 
   async changeBalance(player: PlayerModel) {
@@ -115,8 +127,10 @@ export class PlayersPage implements OnInit {
         }, {
           text: 'Conferma',
           handler: (out) => {
-            this.api.updateBalance(player.name, this.code, out.value).subscribe(_ => {
-
+            this.loaderService.show().then(_ => {
+              this.api.updateBalance(player.name, this.code, out.value)
+              .pipe(finalize(() => this.loaderService.hide() ))
+                .subscribe();
             });
           }
         }
@@ -127,7 +141,11 @@ export class PlayersPage implements OnInit {
   }
 
   setGhost(player, value) {
-    this.api.setGhost(player.name, this.code, value).subscribe(_ => {});
+    this.loaderService.show().then(_ => {
+      this.api.setGhost(player.name, this.code, value)
+      .pipe(finalize(() => this.loaderService.hide() ))
+        .subscribe();
+    });
   }
 
   async openTutorialModal() {

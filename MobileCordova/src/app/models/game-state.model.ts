@@ -33,4 +33,5 @@ export class GameStateModel {
     round: number;
     cards: number[];
     ground: number[];
+    activePlayers: number;
 }

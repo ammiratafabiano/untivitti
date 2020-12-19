@@ -6,7 +6,7 @@
       <ng-container *ngIf="state && state.players">
         <ion-icon name="people-outline" (click)="openPlayersModal()"></ion-icon>
         <ion-badge color="success" slot="end" (click)="openPlayersModal()">
-          {{ state.players.length }}
+          {{ state.activePlayers }}
         </ion-badge>
       </ng-container>
     </ion-item>
@@ -35,7 +35,7 @@
     </div>
   </div>
   <ion-fab class="action-button" horizontal="center" slot="fixed">
-    <ion-fab-button color="warning" [disabled]="!((currentPlayer.isAdmin || (!currentPlayer.isAdmin && currentPlayer.canMove)) && state.players.length >= currentGame.minPlayers)">
+    <ion-fab-button color="warning" [disabled]="!((currentPlayer.isAdmin || (!currentPlayer.isAdmin && currentPlayer.canMove)) && state.activePlayers >= currentGame.minPlayers)">
       <ion-icon name="caret-up-outline"></ion-icon>
     </ion-fab-button>
     <ng-container *ngFor="let move of currentPlayer.moves">
