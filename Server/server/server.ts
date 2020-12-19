@@ -199,6 +199,7 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
             cards: [],
             visible: false,
             balance: game.defaultBalance,
+            haveToPay: false,
             ghost: false
           }
           group.players.push(player)
@@ -304,12 +305,18 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
   let response
   if (group) {
     const player = group.players.find(x => x.name == nickname)
-    player.balance = newBalance
-    response = {
-      success: true
-    }
-    if (newBalance == 0) {
-      player.ghost = true
+    if (player) {
+      player.balance = newBalance
+      if (newBalance == 0) {
+        player.ghost = true
+      }
+      response = {
+        success: true
+      }
+    } else {
+      response = {
+        success: false
+      }
     }
   } else {
     response = {
@@ -659,6 +666,7 @@ function turnStop(group, player) {
   if (game.mustShow) {
       group.players.forEach(x => x.visible = true)
   }
+  computeLosers(group)
   return true
 }
 
@@ -788,3 +796,16 @@ function setAdminMoves(group, enable) {
   }
 }
 
+function computeLosers(group) {
+  let results = []
+  for (let i = 0; i < group.players.length; i++) {
+    const player = group.players[i]
+    const sum = player.cards.reduce((a, b) => a + b, 0)
+    results.push(sum)
+  }
+  const min = Math.min(...results)
+  group.players.forEach(player => {
+    const sum = player.cards.reduce((a, b) => a + b, 0)
+    if (sum == min) player.haveToPay = true
+  });
+}
