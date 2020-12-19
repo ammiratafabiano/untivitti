@@ -796,7 +796,7 @@ function computeLosers(group) {
   let results = []
   for (let i = 0; i < group.players.length; i++) {
     const player = group.players[i]
-    if (player.isAdmin && group.ground && !game.playerMoves.find(x => x.id == 5).forbiddenCards.includes(group.ground[0])) {
+    if (player.isAdmin && group.ground.length != 0 && !game.playerMoves.find(x => x.id == 5).forbiddenCards.includes(group.ground[0])) {
       console.log("mazzo")
       results.push(group.ground[0] % game.maxValue)
     } else {
