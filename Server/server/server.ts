@@ -169,6 +169,7 @@ app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
         cards: [],
         visible: false,
         balance: game.defaultBalance,
+        haveToPay: false,
         ghost: false
       }
     ]
