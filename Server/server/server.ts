@@ -400,9 +400,9 @@ setInterval(function() {
       if (group.status) {
         resetGroup(group)
       }
-      setAdminMoves(group, false)
+      //setAdminMoves(group, false)
     } else {
-      setAdminMoves(group, true)
+      //setAdminMoves(group, true)
     }
     group.players.forEach(player => {
       wsServer.clients.forEach(ws => {
