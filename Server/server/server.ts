@@ -396,7 +396,12 @@ setInterval(function() {
   groups.forEach(group => {
     const game = games.find(x => x.id == group.game)
     if (getPlayersLength(group) < game.minPlayers) {
-      resetGroup(group)
+      if (group.status) {
+        resetGroup(group)
+      }
+      setAdminMoves(group, false)
+    } else {
+      setAdminMoves(group, true)
     }
     group.players.forEach(player => {
       wsServer.clients.forEach(ws => {
@@ -689,7 +694,7 @@ function resetGroup(group) {
   for (let i = 0; i < group.players.length; i++) {
     group.players[i].cards = []
     group.players[i].canMove = false
-    group.players[i].moves = group.players[i].isAdmin ? getAdminMoves(group, true) : []
+    group.players[i].moves = group.players[i].isAdmin ? getAdminMoves(group) : []
     group.players[i].visible = false
   }
 }
@@ -723,14 +728,14 @@ function getPlayerMoves(group) {
   return moveToReturn
 }
 
-function getAdminMoves(group, disableMoves = false) {
+function getAdminMoves(group, disableMoves?) {
   const game = games.find(x => x.id == group.game)
   let moveToReturn = []
   game.adminMoves.forEach(move => {
     moveToReturn.push({
       name: move.name,
       id: move.id,
-      disabled: disableMoves ? true : false,
+      disabled: disableMoves ? disableMoves : move.disabled,
       icon: move.icon,
       rotateIcon: move.rotateIcon,
       side: move.side,
@@ -782,3 +787,10 @@ function setAdmin(group) {
     }
   }
 }
+
+function setAdminMoves(group, enable) {
+  for (let i = 0; i < group.players.length; i++) {
+    group.players[i].moves = group.players[i].isAdmin ? getAdminMoves(group, enable) : []
+  }
+}
+
