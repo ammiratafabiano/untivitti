@@ -799,7 +799,7 @@ function computeLosers(group) {
     if (player.isAdmin && group.ground && !game.playerMoves.find(x => x.id == 5).forbiddenCards.includes(group.ground[0])) {
       results.push(group.ground[0] % game.maxValue)
     } else {
-      results.push(player.card[0] % game.maxValue)
+      results.push(player.cards[0] % game.maxValue)
     }
   }
   const min = Math.min(...results)
