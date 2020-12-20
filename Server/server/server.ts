@@ -858,6 +858,9 @@ function checkWinner(group) {
     if (winner && group.round > 0) {
       resetGroup(group, true)
       winner.isWinner = true
+      const text = winner.name +  ' è il vincitore della partita!'
+      const icon = 'Winner'
+      sendNotification(group, text, icon)
     }
   }
 }
