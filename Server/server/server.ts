@@ -552,6 +552,7 @@ function startMove(group, player) {
     group.ground = []
     for (let i = 0; i < group.players.length; i++) {
       group.players[i].cards = []
+      group.players[i].isWinner = false
       if (!group.players[i].ghost) {
         for (let j = 0; j < game.handCards; j++) {
           group.players[i].cards.push(group.cards.pop())
@@ -709,6 +710,7 @@ function getNextPlayer(group, player, next = true) {
 }
 
 function resetGroup(group, hard?) {
+  const game = games.find(x => x.id == group.game)
   group.status = false
   group.cards = []
   group.ground = []
@@ -717,7 +719,10 @@ function resetGroup(group, hard?) {
     group.players[i].canMove = false
     group.players[i].moves = group.players[i].isAdmin ? getAdminMoves(group) : []
     group.players[i].visible = false
-    if (hard) group.players[i].ghost = false
+    if (hard) { 
+      group.players[i].balance = game.defaultBalance
+      group.players[i].ghost = false
+    }
   }
 }
 
