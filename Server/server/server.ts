@@ -857,7 +857,6 @@ function computeLosers(group) {
     }
     if (tie) {
       resetGroup(group, true, true)
-      group.round = -1
       const text = 'Pareggio! Tutti i giocatori rientrano in partita!'
       const icon = 'People'
       sendNotification(group, text, icon)
