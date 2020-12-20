@@ -300,11 +300,11 @@ app.post('/updatePlayers', jsonParser, cors(corsOptions), (req, res) => {
 });
 
 app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => {
-  const game = games.find(x => x.id == group.game)
   const nickname = req.params['nick']
   const code = req.params['code']
   const newBalance = parseInt(req.params['balance'], 10)
   const group = groups.find(x => x.code == code)
+  const game = games.find(x => x.id == group.game)
   let response
   if (newBalance > 0 && newBalance <= game.defaultBalance) {
     if (group) {
