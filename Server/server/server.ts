@@ -320,7 +320,9 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
         if (newBalance == 0) {
           setGhost(group, player, true)
         }
-        checkWinner(group)
+        if (group.money) {
+          checkWinner(group)
+        }
         response = {
           success: true
         }
@@ -675,7 +677,9 @@ function turnStop(group, player) {
   if (game.mustShow) {
       group.players.forEach(x => x.visible = true)
   }
-  computeLosers(group)
+  if (group.money) {
+    computeLosers(group)
+  }
   return true
 }
 
