@@ -721,6 +721,7 @@ function resetGroup(group, hard?, tie?) {
     group.players[i].visible = false
     if (hard) {
       group.players[i].ghost = false
+      group.players[i].haveToPay = false
       if (tie) {
         group.players[i].balance = 1
       } else {
@@ -858,7 +859,7 @@ function computeLosers(group) {
     if (tie) {
       resetGroup(group, true, true)
       const text = 'Pareggio! Tutti i giocatori rientrano in partita!'
-      const icon = 'People'
+      const icon = 'Players'
       sendNotification(group, text, icon)
     } else {
       const last = losers.pop()
