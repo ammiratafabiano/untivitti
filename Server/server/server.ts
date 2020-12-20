@@ -853,7 +853,7 @@ function computeLosers(group) {
       })
     }
     if (tie) {
-      group.player.forEach(player => {
+      group.players.forEach(player => {
         player.haveToPay = false
         player.ghost = false
         player.balance = 1
