@@ -1,6 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { AlertController, ModalController, PopoverController } from '@ionic/angular';
+import { AlertController, AnimationController, ModalController, PopoverController } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
 import { GameStateModel, MoveModel, PlayerModel } from '../models/game-state.model';
 import { GameModel } from '../models/game.model';
@@ -16,6 +16,9 @@ import { TutorialPage } from '../tutorial/tutorial.page';
 })
 export class GamePage implements OnInit {
 
+  @ViewChild('card') card: ElementRef;
+  @ViewChild('ground') ground: ElementRef;
+
   loop: any;
 
   currentPlayer: PlayerModel;
@@ -30,6 +33,11 @@ export class GamePage implements OnInit {
 
   allPaid = true;
 
+  tempCard: number;
+  tempGround: number;
+
+  moving: boolean;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -37,7 +45,8 @@ export class GamePage implements OnInit {
     public alertController: AlertController,
     public popoverController: PopoverController,
     private updateStateService: StateUpdateService,
-    private api: ApiService) {
+    private api: ApiService,
+    private animationCtrl: AnimationController) {
 
   }
 
@@ -64,6 +73,7 @@ export class GamePage implements OnInit {
             if (this.state.money) {
               this.checkPayments();
             }
+            this.checkSwapBack();
           } else {
             this.exitGame();
           }
@@ -75,6 +85,8 @@ export class GamePage implements OnInit {
   private updateTitle() {
     if (this.state) {
       if (this.state.status === false) {
+        this.tempCard = undefined;
+        this.tempGround = undefined;
         const winner = this.state.players.find(x => x.isWinner === true);
         if (winner) {
           this.title = `${ winner.name } ha vinto!`;
@@ -99,7 +111,7 @@ export class GamePage implements OnInit {
             this.automaticModal = false;
             setTimeout(() => {
               this.openPlayersModal();
-            }, 1000);
+            }, this.currentPlayer.isAdmin ? 2000 : 1000);
           }
         }
       }
@@ -152,10 +164,6 @@ export class GamePage implements OnInit {
     }
   }
 
-  sendMove(move: MoveModel) {
-    this.updateStateService.sendMove(move.id);
-  }
-
   detectChange(player1, player2) {
     player1.timestamp = undefined;
     player2.timestamp = undefined;
@@ -175,6 +183,89 @@ export class GamePage implements OnInit {
       this.allPaid = false;
     } else {
       this.allPaid = true;
+    }
+  }
+
+  sendMove(move: MoveModel) {
+    if (move.id === 5) {
+      this.moving = true;
+      this.swapAnimationStart().onFinish(() => {
+        this.updateStateService.sendMove(5);
+      }).play();
+    } else {
+      this.updateStateService.sendMove(move.id);
+    }
+  }
+
+  swapAnimationStart() {
+    if (this.currentPlayer.isAdmin) {
+      return this.animationCtrl.create()
+      .addElement(this.card.nativeElement)
+      .duration(200)
+      .fromTo('transform', 'translateX(0)', 'translateX(-20%)');
+    } else {
+      return this.animationCtrl.create()
+      .addElement(this.card.nativeElement)
+      .duration(400)
+      .fromTo('transform', 'translateX(0) translateY(0) rotate(0)', 'translateX(100%) translateY(-50%) rotate(30deg)');
+    }
+  }
+
+  swapAnimationEnd() {
+    if (this.currentPlayer.isAdmin) {
+      return this.animationCtrl.create()
+      .addElement(this.ground.nativeElement)
+      .duration(400)
+      .fromTo('transform', 'translateX(100%) translateY(-100%) rotateY(180deg)', 'translateX(20%) translateY(-100%) rotateY(0)');
+    } else {
+      return this.animationCtrl.create()
+      .addElement(this.card.nativeElement)
+      .duration(400)
+      .fromTo('transform', 'translateX(100%) translateY(-50%) rotate(30deg)', 'translateX(0) translateY(0) rotate(0)');
+    }
+  }
+
+  startAnimation() {
+    return this.animationCtrl.create()
+    .addElement(this.card.nativeElement)
+    .duration(400)
+    .fromTo('transform', 'translateX(-100%) translateY(-50%) rotate(-30deg)', 'translateX(0) translateY(0) rotate(0)');
+  }
+
+  stopAnimation() {
+    return this.animationCtrl.create()
+    .addElement(this.card.nativeElement)
+    .duration(400)
+    .fromTo('transform', 'translateX(0) translateY(0) rotate(0)', 'translateX(-100%) translateY(-50%) rotate(-30deg)');
+  }
+
+  checkSwapBack() {
+    if (!this.tempCard && this.currentPlayer.cards.length > 0) {
+      this.tempCard = this.currentPlayer.cards[0];
+      this.startAnimation().play();
+    } else if (this.tempCard && this.currentPlayer.cards.length > 0 && this.tempCard !== this.currentPlayer.cards[0]) {
+      if (!this.moving) {
+        this.stopAnimation().onFinish(() => {
+          this.tempCard = this.currentPlayer.cards[0];
+          setTimeout(() => {
+            this.startAnimation().play();
+          }, 500);
+        }).play();
+      } else {
+        this.tempCard = this.currentPlayer.cards[0];
+        this.swapAnimationEnd().onFinish(() => {
+          this.moving = false;
+        }).play();
+      }
+    } else if (this.currentPlayer.isAdmin && this.state.ground.length > 0 && this.moving) {
+      this.tempGround = this.state.ground[0];
+      this.swapAnimationEnd().onFinish(() => {
+        this.moving = false;
+      }).play();
+    } else if (!this.currentPlayer.isAdmin && this.currentPlayer.cards.length > 0
+      && this.tempCard === this.currentPlayer.cards[0] && this.moving) {
+      this.moving = false;
+      this.swapAnimationEnd().play();
     }
   }
 }

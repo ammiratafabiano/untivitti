@@ -27,6 +27,18 @@
     }
 }
 
+.ground {
+    height: 100%;
+    img {
+        height: 100%;
+        border: 0.05px solid lightgrey;
+        border-radius: 5vw;
+        box-shadow: 0 5px 20px 0 lightgrey;
+        filter: contrast(1.2);
+    }
+    transform: translateX(100%) translateY(-100%) rotateY(180deg);
+}
+
 .cards-area {
     height: 60%;
 }

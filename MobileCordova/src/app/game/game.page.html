@@ -28,9 +28,12 @@
   <div class="cards-area">
     <div class="other-cards-container">
     </div>
-    <div *ngIf="currentPlayer.cards.length > 0" class="cards-container">
-      <div class="card">
-        <img src="./assets/cardSets/{{state.cardSet}}/{{currentPlayer.cards[0]}}.png" />
+    <div class="cards-container">
+      <div class="card" #card>
+        <img *ngIf="tempCard" src="./assets/cardSets/{{state.cardSet}}/{{tempCard}}.png" />
+      </div>
+      <div class="ground" #ground>
+        <img *ngIf="tempGround" src="./assets/cardSets/{{state.cardSet}}/{{tempGround}}.png" />
       </div>
     </div>
   </div>
