@@ -709,7 +709,7 @@ function getNextPlayer(group, player, next = true) {
   return group.players[newIndex]
 }
 
-function resetGroup(group, hard?, tie?) {
+function resetGroup(group, hard?) {
   const game = games.find(x => x.id == group.game)
   group.status = false
   group.cards = []
@@ -722,11 +722,7 @@ function resetGroup(group, hard?, tie?) {
     if (hard) {
       group.players[i].ghost = false
       group.players[i].haveToPay = false
-      if (tie) {
-        group.players[i].balance = 1
-      } else {
-        group.players[i].balance = game.defaultBalance
-      }
+      group.players[i].balance = game.defaultBalance
     }
   }
 }
@@ -857,7 +853,11 @@ function computeLosers(group) {
       })
     }
     if (tie) {
-      resetGroup(group, true, true)
+      group.player.forEach(player => {
+        player.haveToPay = false
+        player.ghost = false
+        player.balance = 1
+      })
       const text = 'Pareggio! Tutti i giocatori rientrano in partita!'
       const icon = 'Players'
       sendNotification(group, text, icon)
