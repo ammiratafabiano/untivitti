@@ -300,25 +300,34 @@ app.post('/updatePlayers', jsonParser, cors(corsOptions), (req, res) => {
 });
 
 app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => {
+  const game = games.find(x => x.id == group.game)
   const nickname = req.params['nick']
   const code = req.params['code']
-  const newBalance = req.params['balance']
+  const newBalance = parseInt(req.params['balance'], 10)
   const group = groups.find(x => x.code == code)
   let response
-  if (group) {
-    const player = group.players.find(x => x.name == nickname)
-    if (player) {
-      player.balance = newBalance
-      player.haveToPay = false
-      if (newBalance == 0) {
-        player.ghost = true
-      }
-      response = {
-        success: true
+  if (newBalance > 0 && newBalance <= game.defaultBalance) {
+    if (group) {
+      const player = group.players.find(x => x.name == nickname)
+      if (player) {
+        player.balance = newBalance
+        player.haveToPay = false
+        if (newBalance == 0) {
+          player.ghost = true
+        }
+        checkWinner(group)
+        response = {
+          success: true
+        }
+      } else {
+        response = {
+          success: false
+        }
       }
     } else {
       response = {
-        success: false
+        success: false,
+        errorCode: "Valore non valido"
       }
     }
   } else {
@@ -832,5 +841,11 @@ function computeLosers(group) {
     const text = losers[0] + ' deve pagare'
     const icon = 'Money'
     sendNotification(group, text, icon)
+  }
+}
+
+function checkWinner(group) {
+  if (getPlayersLength(group) <= 1) {
+    const winner = group.players.find(x => x.balance > 0)
   }
 }
