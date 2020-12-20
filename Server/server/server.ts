@@ -326,13 +326,13 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
       }
     } else {
       response = {
-        success: false,
-        errorCode: "Valore non valido"
+        success: false
       }
     }
   } else {
     response = {
-      success: false
+      success: false,
+      errorCode: "Valore non valido"
     }
   }
   res.send(response)
