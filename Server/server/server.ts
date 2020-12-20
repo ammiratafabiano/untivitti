@@ -594,7 +594,7 @@ function showMove(group, player) {
 }
 
 function skipMove(group, player) {
-  const text = player.name +  ' si è stato'
+  const text = player.name +  ' si è stato/a'
   const icon = 'Ok'
   sendNotification(group, text, icon, [player.name])
   if (!player.isAdmin) {
