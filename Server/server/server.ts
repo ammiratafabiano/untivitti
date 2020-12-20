@@ -171,7 +171,8 @@ app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
         visible: false,
         balance: game.defaultBalance,
         haveToPay: false,
-        ghost: false
+        ghost: false,
+        isWinner: false
       }
     ]
   }
@@ -202,7 +203,8 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
             visible: false,
             balance: game.defaultBalance,
             haveToPay: false,
-            ghost: false
+            ghost: false,
+            isWinner: false
           }
           group.players.push(player)
           setAdmin(group)
@@ -706,7 +708,7 @@ function getNextPlayer(group, player, next = true) {
   return group.players[newIndex]
 }
 
-function resetGroup(group) {
+function resetGroup(group, hard?) {
   group.status = false
   group.cards = []
   group.ground = []
@@ -715,6 +717,7 @@ function resetGroup(group) {
     group.players[i].canMove = false
     group.players[i].moves = group.players[i].isAdmin ? getAdminMoves(group) : []
     group.players[i].visible = false
+    if (hard) group.players[i].ghost = false
   }
 }
 
@@ -847,5 +850,9 @@ function computeLosers(group) {
 function checkWinner(group) {
   if (getPlayersLength(group) <= 1) {
     const winner = group.players.find(x => x.balance > 0)
+    if (winner && group.round > 0) {
+      resetGroup(group, true)
+      winner.isWinner = true
+    }
   }
 }
