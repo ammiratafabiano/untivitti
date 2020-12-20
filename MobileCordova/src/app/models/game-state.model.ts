@@ -22,6 +22,7 @@ export class PlayerModel {
     ghost: boolean;
     uuid: string;
     timestamp: number;
+    isWinner: boolean;
 }
 
 export class GameStateModel {

@@ -10,9 +10,11 @@ export enum NotificationIcons {
     Blocked = 'hand-left-outline',
     Watcher = 'eye-outline',
     Player = 'person-outline',
+    Players = 'people-outline',
     Show = 'share-outline',
     Admin = 'albums-outline',
-    Money = 'server-outline'
+    Money = 'server-outline',
+    Winner = 'trophy-outline'
 }
 
 export class NotificationModel {

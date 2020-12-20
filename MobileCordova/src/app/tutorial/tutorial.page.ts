@@ -291,10 +291,6 @@ export class TutorialPage implements OnInit {
               {
                 title: 'Fuori dal gioco è possibile cambiare il proprio stato (spettatore/giocatore).',
                 img: './assets/tutorial/players-actions.png'
-              },
-              {
-                title: 'E\' anche possibile cambiare la quantità delle proprie monete disponibili.',
-                img: './assets/tutorial/players-balance-update.png'
               }
             ]
           },
@@ -306,8 +302,12 @@ export class TutorialPage implements OnInit {
                 img: './assets/tutorial/players-admin-actions.png'
               },
               {
-                title: 'E\' anche possibile cambiare la quantità delle proprie monete disponibili ma anche quella degli altri giocatori.',
+                title: 'E\' possibile cambiare la quantità delle proprie monete disponibili ma anche quella degli altri giocatori.',
                 img: './assets/tutorial/players-balance-update.png'
+              },
+              {
+                title: 'E\' possibile cambiare l\'ordine dei giocatori nella lista.',
+                img: './assets/tutorial/players-update.png'
               }
             ]
           }

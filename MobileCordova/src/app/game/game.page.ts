@@ -75,7 +75,11 @@ export class GamePage implements OnInit {
   private updateTitle() {
     if (this.state) {
       if (this.state.status === false) {
-        if (this.state.players.length > 1) {
+        const winner = this.state.players.find(x => x.isWinner === true);
+        if (winner) {
+          this.title = `${ winner.name } ha vinto!`;
+          this.automaticModal = true;
+        } else if (this.state.players.length > 1) {
           this.title = 'Partita in pausa';
           this.automaticModal = true;
         } else {
@@ -138,11 +142,14 @@ export class GamePage implements OnInit {
   }
 
   async openPlayersModal() {
-    this.playerModal = await this.modalController.create({
-      component: PlayersPage,
-      componentProps: { state: this.stateListener, nickname: this.currentPlayer.name }
-    });
-    await this.playerModal.present();
+    if (!this.playerModal) {
+      this.playerModal = await this.modalController.create({
+        component: PlayersPage,
+        componentProps: { state: this.stateListener, nickname: this.currentPlayer.name }
+      });
+      this.playerModal.onDidDismiss().then(() => { this.playerModal = undefined; });
+      await this.playerModal.present();
+    }
   }
 
   sendMove(move: MoveModel) {

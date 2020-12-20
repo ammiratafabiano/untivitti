@@ -107,9 +107,10 @@ export class PlayersPage implements OnInit {
     });
   }
 
-  async changeBalance(player: PlayerModel) {
+  async changeBalance(player: PlayerModel, error) {
     const alert = await this.alertController.create({
       header: 'Cambio bilancio',
+      subHeader: error ? error : undefined,
       inputs: [
         {
           name: 'value',
@@ -156,7 +157,11 @@ export class PlayersPage implements OnInit {
     this.loaderService.show().then(_ => {
       this.api.updateBalance(player.name, this.code, value)
       .pipe(finalize(() => this.loaderService.hide() ))
-        .subscribe();
+        .subscribe(response => {
+          if (!response.success) {
+            this.changeBalance(player, response.errorCode);
+          }
+        });
     });
   }
 
