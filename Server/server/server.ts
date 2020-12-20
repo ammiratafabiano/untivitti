@@ -312,10 +312,13 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
     if (group) {
       const player = group.players.find(x => x.name == nickname)
       if (player) {
-        player.balance = newBalance
         player.haveToPay = false
+        const text = player.name + ' ha pagato'
+        const icon = 'Money'
+        sendNotification(group, text, icon)
+        player.balance = newBalance
         if (newBalance == 0) {
-          player.ghost = true
+          setGhost(group, player, true)
         }
         checkWinner(group)
         response = {
@@ -348,16 +351,7 @@ app.get('/setGhost/:nick/:code/:value', cors(corsOptions), (req, res) => {
   let response
   if (group) {
     const player = group.players.find(x => x.name == nickname)
-    player.ghost = value == "true" ? true : false
-    if (player.ghost) {
-      const text = nickname + ' è ora spettatore'
-      const icon = 'Watcher'
-      sendNotification(group, text, icon)
-    } else {
-      const text = nickname + ' è ora giocatore'
-      const icon = 'Player'
-      sendNotification(group, text, icon)
-    }
+    setGhost(group, player, value)
     setAdmin(group)
     response = {
       success: true
@@ -806,6 +800,19 @@ function setAdmin(group, next = false) {
       const icon = 'Admin'
       sendNotification(group, text, icon)
     }
+  }
+}
+
+function setGhost(group, player, value) {
+  player.ghost = value == "true" ? true : false
+  if (player.ghost) {
+    const text = player.name + ' è ora spettatore'
+    const icon = 'Watcher'
+    sendNotification(group, text, icon)
+  } else {
+    const text = player.name + ' è ora giocatore'
+    const icon = 'Player'
+    sendNotification(group, text, icon)
   }
 }
 
