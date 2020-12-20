@@ -709,7 +709,7 @@ function getNextPlayer(group, player, next = true) {
   return group.players[newIndex]
 }
 
-function resetGroup(group, hard?) {
+function resetGroup(group, hard?, tie?) {
   const game = games.find(x => x.id == group.game)
   group.status = false
   group.cards = []
@@ -719,9 +719,13 @@ function resetGroup(group, hard?) {
     group.players[i].canMove = false
     group.players[i].moves = group.players[i].isAdmin ? getAdminMoves(group) : []
     group.players[i].visible = false
-    if (hard) { 
-      group.players[i].balance = game.defaultBalance
+    if (hard) {
       group.players[i].ghost = false
+      if (tie) {
+        group.players[i].balance = 1
+      } else {
+        group.players[i].balance = game.defaultBalance
+      }
     }
   }
 }
@@ -840,11 +844,30 @@ function computeLosers(group) {
   });
 
   if (losers.length > 1) {
-    const last = losers.pop()
-    const people = losers.join(', ') + 'e ' + last
-    const text = people + ' devono pagare'
-    const icon = 'Money'
-    sendNotification(group, text, icon)
+    let tie = false
+    if (losers.length == getPlayersLength(group)) {
+      losers.forEach(loser => {
+        const player = group.players.find(x => x.name == loser)
+        if (player.balance == 1) {
+          tie = true
+        } else {
+          tie = false
+        }
+      })
+    }
+    if (tie) {
+      resetGroup(group, true, true)
+      group.round = -1
+      const text = 'Pareggio! Tutti i giocatori rientrano in partita!'
+      const icon = 'People'
+      sendNotification(group, text, icon)
+    } else {
+      const last = losers.pop()
+      const people = losers.join(', ') + 'e ' + last
+      const text = people + ' devono pagare'
+      const icon = 'Money'
+      sendNotification(group, text, icon)
+    }
   } else {
     const text = losers[0] + ' deve pagare'
     const icon = 'Money'
