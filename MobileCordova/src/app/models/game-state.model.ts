@@ -23,6 +23,7 @@ export class PlayerModel {
     uuid: string;
     timestamp: number;
     isWinner: boolean;
+    lastMove: number;
 }
 
 export class GameStateModel {

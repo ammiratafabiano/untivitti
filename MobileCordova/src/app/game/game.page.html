@@ -27,13 +27,25 @@
   </ion-fab>
   <div class="cards-area">
     <div class="other-cards-container">
+      <ion-grid class="board-container">
+        <ion-row class="players-container">
+          <ion-col class="player-status" *ngFor="let player of playersBoard; let i = index">
+            <ion-chip *ngIf="player" [ngSwitch]="player.lastMove" [disabled]="i == 2">
+              <ion-icon *ngSwitchCase="3" name="hand-left-outline" color="danger"></ion-icon>
+              <ion-icon *ngSwitchCase="4" name="thumbs-up-outline" color="success"></ion-icon>
+              <ion-icon *ngSwitchCase="5" name="repeat-outline" color="warning"></ion-icon>
+              <ion-label>{{ player.name }}</ion-label>
+            </ion-chip>
+          </ion-col>
+        </ion-row>
+      </ion-grid>
     </div>
     <div class="cards-container">
       <div class="card" #card>
-        <img *ngIf="tempCard" src="./assets/cardSets/{{state.cardSet}}/{{tempCard}}.png" />
+        <img *ngIf="tempCard != undefined" src="./assets/cardSets/{{state.cardSet}}/{{tempCard}}.png" />
       </div>
       <div class="ground" #ground>
-        <img *ngIf="tempGround" src="./assets/cardSets/{{state.cardSet}}/{{tempGround}}.png" />
+        <img *ngIf="tempGround != undefined" src="./assets/cardSets/{{state.cardSet}}/{{tempGround}}.png" />
       </div>
     </div>
   </div>

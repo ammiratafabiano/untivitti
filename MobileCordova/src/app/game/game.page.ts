@@ -38,7 +38,7 @@ export class GamePage implements OnInit {
 
   moving: boolean;
 
-  round: number;
+  playersBoard: PlayerModel[];
 
   constructor(
     private route: ActivatedRoute,
@@ -76,6 +76,7 @@ export class GamePage implements OnInit {
               this.checkPayments();
             }
             this.checkSwapBack();
+            this.setBoardPlayers();
           } else {
             this.exitGame();
           }
@@ -242,10 +243,10 @@ export class GamePage implements OnInit {
   }
 
   checkSwapBack() {
-    if (!this.tempCard && this.currentPlayer.cards.length > 0) {
+    if (this.tempCard === undefined && this.currentPlayer.cards.length > 0) {
       this.tempCard = this.currentPlayer.cards[0];
       this.startAnimation().play();
-    } else if (this.tempCard && this.currentPlayer.cards.length > 0 && this.tempCard !== this.currentPlayer.cards[0]) {
+    } else if (this.tempCard !== undefined && this.currentPlayer.cards.length > 0 && this.tempCard !== this.currentPlayer.cards[0]) {
       if (!this.moving) {
         this.stopAnimation().onFinish(() => {
           this.tempCard = this.currentPlayer.cards[0];
@@ -265,9 +266,36 @@ export class GamePage implements OnInit {
         this.moving = false;
       }).play();
     } else if (!this.currentPlayer.isAdmin && this.currentPlayer.cards.length > 0
-      && this.tempCard === this.currentPlayer.cards[0] && this.moving) {
+      && this.currentPlayer.lastMove === 5 && this.tempCard === this.currentPlayer.cards[0] && this.moving) {
       this.moving = false;
       this.swapAnimationEnd().play();
+    }
+  }
+
+  setBoardPlayers() {
+    const list: PlayerModel[] = [];
+    const activePlayers = this.state.players.filter(x => !x.ghost);
+    const index = activePlayers.findIndex(x => x.canMove === true);
+    if (index !== -1) {
+      const prev = activePlayers[(index - 1 + activePlayers.length) % activePlayers.length];
+      prev.isAdmin ? list.push(undefined) : list.push(prev);
+      const current = activePlayers[index % activePlayers.length];
+      list.push(current);
+      const next = activePlayers[(index + 1 + activePlayers.length) % activePlayers.length];
+      current.isAdmin ? list.push(undefined) : list.push(next);
+      this.playersBoard = list;
+    } else if (activePlayers && this.playersBoard) {
+      if (this.state.status) {
+        activePlayers.forEach(x => {
+          this.playersBoard.forEach(y => {
+            if (x && y && x.name === y.name && x.lastMove !== y.lastMove) {
+              y.lastMove = x.lastMove;
+            }
+          });
+        });
+      } else {
+        this.playersBoard = [];
+      }
     }
   }
 }
