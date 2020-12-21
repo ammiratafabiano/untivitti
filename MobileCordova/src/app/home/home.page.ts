@@ -28,6 +28,7 @@ export class HomePage {
   currentPlayer: PlayerModel;
 
   cardSets: CardSetModel[];
+  extraSet: string;
   games: GameModel[];
 
   isOffline = false;
@@ -43,6 +44,10 @@ export class HomePage {
       this.route.queryParams.subscribe(params => {
         if (params && params.code) {
           this.code = params.code;
+        }
+        if (params && params.extraSet) {
+          this.notificationService.addNotification('Set di carte nascosto sbloccato!', NotificationIcons.Info, 4000);
+          this.extraSet = params.extraSet;
         }
       });
     }
@@ -106,11 +111,11 @@ export class HomePage {
   }
 
   private getCardSets() {
-    this.api.getCardSets().subscribe(
+    this.api.getCardSets(this.extraSet).subscribe(
       response => {
         if (response.success && response.data) {
           this.cardSets = response.data;
-          this.selectedSet = this.cardSets[0].id;
+          this.selectedSet = this.cardSets.filter(x => x.code === this.extraSet)[0].id;
         } else {
           this.setOfflineStatus();
         }

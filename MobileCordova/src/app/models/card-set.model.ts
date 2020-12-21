@@ -6,4 +6,5 @@ export class CardSetModel {
   id: CardTypeEnum;
   name: string;
   size: number;
+  code: string;
 }

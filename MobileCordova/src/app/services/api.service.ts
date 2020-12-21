@@ -13,8 +13,8 @@ import { ResponseModel } from '../models/response.model';
 export class ApiService {
 
   endpoint = 'http://2.238.108.96:3000';
-  // clientEndpoint = 'http://www.untivitti.it';
-  clientEndpoint = 'http://localhost:8100';
+  clientEndpoint = 'http://www.untivitti.it';
+  // clientEndpoint = 'http://localhost:8100';
 
   constructor(private http: HttpClient) { }
 
@@ -35,9 +35,10 @@ export class ApiService {
       'Something bad happened; please try again later.');
   }
 
-  getCardSets(): Observable<ResponseModel<CardSetModel[]>>{
+  getCardSets(extraSet?): Observable<ResponseModel<CardSetModel[]>>{
+    extraSet = extraSet ? extraSet : 'NONE';
     return this.http
-      .get<ResponseModel<CardSetModel[]>>(this.endpoint + '/getCardSets')
+      .get<ResponseModel<CardSetModel[]>>(this.endpoint + '/getCardSets/' + extraSet)
       .pipe(
         retry(2),
         catchError(this.handleError)
@@ -106,5 +107,5 @@ export class ApiService {
         catchError(this.handleError)
       );
   }
-  
+
 }
