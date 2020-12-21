@@ -381,13 +381,14 @@ app.get('/retrieveSession/:uuid', cors(corsOptions), (req, res) => {
   const uuid = req.params['uuid']
   let response
   if (uuid) {
-    let group, player;
-    [group, player] = retrievePlayer(uuid)
+    let group, player, game;
+    [group, player, game] = retrievePlayer(uuid)
     response = {
       success: true,
       data: {
         group: group,
-        player: player
+        player: player,
+        game: game
       }
     }
   } else {
@@ -527,7 +528,8 @@ function retrievePlayer(uuid) {
       } 
     })
   })
-  return [retrievedGroup, retrievedPlayer]
+  const game = games.find(x => x.id == retrievedGroup.game)
+  return [retrievedGroup, retrievedPlayer, game]
 }
 
 function logoutClient(uuid) {
