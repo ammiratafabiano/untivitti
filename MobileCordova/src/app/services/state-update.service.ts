@@ -3,6 +3,7 @@ import { BehaviorSubject } from 'rxjs';
 import { GameStateModel, PlayerModel } from '../models/game-state.model';
 import { NotificationIcons } from '../models/notification.model';
 import { NotificationService } from './notification.service';
+import { UtilsService } from './utils.service';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,9 @@ export class StateUpdateService {
 
   stateListener: BehaviorSubject<GameStateModel>;
 
-  constructor(private notificationService: NotificationService) {}
+  constructor(
+    private notificationService: NotificationService,
+    private utils: UtilsService) {}
 
   public initConnection(state: GameStateModel, player: PlayerModel): BehaviorSubject<GameStateModel> {
     this.websocket = new WebSocket(this.endpoint);
@@ -34,6 +37,7 @@ export class StateUpdateService {
         switch (msg.type) {
           case 'init':
             this.uuid = msg.uuid;
+            this.utils.setStorage('uuid', this.uuid);
             break;
           case 'update':
             this.stateListener.next(msg.state);

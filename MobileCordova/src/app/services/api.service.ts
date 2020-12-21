@@ -108,4 +108,13 @@ export class ApiService {
       );
   }
 
+  retrieveSession(uuid: string): Observable<ResponseModel<any>>{
+    return this.http
+      .get<ResponseModel<GameStateModel>>(this.endpoint + '/retrieveSession/' + uuid)
+      .pipe(
+        retry(2),
+        catchError(this.handleError)
+      );
+  }
+
 }

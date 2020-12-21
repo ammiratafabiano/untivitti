@@ -7,6 +7,7 @@ import { GameModel } from '../models/game.model';
 import { PlayersPage } from '../players/players.page';
 import { ApiService } from '../services/api.service';
 import { StateUpdateService } from '../services/state-update.service';
+import { UtilsService } from '../services/utils.service';
 import { TutorialPage } from '../tutorial/tutorial.page';
 
 @Component({
@@ -48,7 +49,8 @@ export class GamePage implements OnInit {
     public popoverController: PopoverController,
     private updateStateService: StateUpdateService,
     private api: ApiService,
-    private animationCtrl: AnimationController) {
+    private animationCtrl: AnimationController,
+    private utils: UtilsService) {
 
   }
 
@@ -146,6 +148,7 @@ export class GamePage implements OnInit {
       this.playerModal.dismiss();
     }
     this.updateStateService.closeConnection();
+    this.utils.setStorage('uuid', undefined);
     this.api.exitGroup(this.currentPlayer.name, this.state.code).subscribe(_ => {});
     this.router.navigate(['/']);
   }

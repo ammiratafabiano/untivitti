@@ -41,6 +41,7 @@ export class HomePage {
     private utils: UtilsService,
     private notificationService: NotificationService,
     public modalController: ModalController) {
+      this.existingSession();
       this.route.queryParams.subscribe(params => {
         if (params && params.code) {
           this.code = params.code;
@@ -198,6 +199,25 @@ export class HomePage {
       componentProps: { type: 'HOME_PAGE' }
     });
     tutorialModal.present();
+  }
+
+  existingSession() {
+    const uuid = this.utils.getStorage('uuid');
+    if (uuid) {
+      this.api.retrieveSession(uuid).subscribe(response => {
+        if (response.success && response.data && response.data.group && response.data.player) {
+          const navigationExtras: NavigationExtras = {
+            queryParams: {
+                group: JSON.stringify(response.data.group),
+                player: JSON.stringify(response.data.player),
+                game: JSON.stringify(response.data.game)
+            },
+            skipLocationChange: true
+          };
+          this.router.navigate(['/game'], navigationExtras);
+        }
+      });
+    }
   }
 
 }
