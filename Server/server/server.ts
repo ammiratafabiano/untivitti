@@ -469,7 +469,7 @@ function deletePlayer(uuid) {
         const icon = 'Logout'
         sendNotification(group, text, icon)
         if (player.isAdmin) {
-          setAdmin(group)
+          setAdmin(group, true)
         }
         group.players.splice(i, 1)
         if (group.status && !player.ghost && getPlayersLength(group) > 0) {
@@ -797,7 +797,6 @@ function setAdmin(group, next = false) {
   }
   if (getPlayersLength(group) > 0) {
     const newAdmin = getNextPlayer(group, admin, next)
-    console.log(newAdmin)
     if (newAdmin) {
       newAdmin.isAdmin = true
       newAdmin.moves = getAdminMoves(group)
