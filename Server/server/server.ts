@@ -522,6 +522,7 @@ function solveConflicts(group, newPlayers) {
 }
 
 function executeMove(group, player, move) {
+  player.lastMove = move
   switch (move) {
     case 0:
       return startMove(group, player)
@@ -717,6 +718,7 @@ function resetGroup(group, hard?) {
     group.players[i].canMove = false
     group.players[i].moves = group.players[i].isAdmin ? getAdminMoves(group) : []
     group.players[i].visible = false
+    group.players[i].lastMove = undefined
     if (hard) {
       group.players[i].ghost = false
       group.players[i].haveToPay = false
