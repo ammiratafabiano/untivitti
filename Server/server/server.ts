@@ -21,6 +21,19 @@ const cardSets = [
   }
 ]
 
+const extraCardSets = [
+  {
+    code: 'FRIENDS',
+    cardSets: [
+      {
+        id: 1,
+        name: 'Siciliane (Friends Edition)',
+        size: 40
+      }
+    ]
+  }
+]
+
 const games = [
   {
     id: 0,
@@ -267,10 +280,12 @@ app.get('/exitGroup/:nick/:code', cors(corsOptions), (req, res) => {
   res.send(response)
 })
 
-app.get('/getCardSets', cors(corsOptions), (req, res) => {
+app.get('/getCardSets/:extraSet', cors(corsOptions), (req, res) => {
+  const extraSetCode = req.params['extraSet']
+  const extraSetList = extraCardSets.filter(x => x.code == extraSetCode)[0].cardSets
   const response = {
     success: true,
-    data: cardSets
+    data: cardSets.concat(extraSetList)
   }
   res.send(response)
 })
