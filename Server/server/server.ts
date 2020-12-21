@@ -377,6 +377,25 @@ app.get('/setGhost/:nick/:code/:value', cors(corsOptions), (req, res) => {
   res.send(response)
 })
 
+app.get('/retrieveSession/:uuid', cors(corsOptions), (req, res) => {
+  const uuid = req.params['uuid']
+  let response
+  if (uuid) {
+    let group, player;
+    [group, player] = retrievePlayer(uuid)
+    response = {
+      success: true,
+      group: group,
+      player: player
+    }
+  } else {
+    response = {
+      success: false
+    }
+  }
+  res.send(response)
+})
+
 const wsServer = new ws.Server({ noServer: true });
 wsServer.on('connection', (socket: any) => {
   socket.isAlive = true;
@@ -493,6 +512,20 @@ function deletePlayer(uuid) {
       } 
     })
   })
+}
+
+function retrievePlayer(uuid) {
+  let retrievedGroup
+  let retrievedPlayer
+  groups.forEach(group => {
+    group.players.forEach(player => {
+      if (player.uuid == uuid) {
+        retrievedGroup = group
+        retrievedPlayer = player
+      } 
+    })
+  })
+  return [retrievedGroup, retrievedPlayer]
 }
 
 function logoutClient(uuid) {
