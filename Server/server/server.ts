@@ -282,7 +282,11 @@ app.get('/exitGroup/:nick/:code', cors(corsOptions), (req, res) => {
 
 app.get('/getCardSets/:extraSet', cors(corsOptions), (req, res) => {
   const extraSetCode = req.params['extraSet']
-  const extraSetList = extraCardSets.filter(x => x.code == extraSetCode)[0].cardSets
+  const extraSet = extraCardSets.filter(x => x.code == extraSetCode)[0];
+  let extraSetList = [];
+  if (extraSet) {
+    extraSetList = extraSet.cardSets
+  }
   const response = {
     success: true,
     data: cardSets.concat(extraSetList)
