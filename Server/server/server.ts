@@ -696,7 +696,7 @@ function turnStop(group, player) {
 }
 
 function getShuffledSet(cardSet) {
-  const size = cardSets.find(x => x.id == cardSet).size
+  const size = cardSets.concat(extraCardSets).find(x => x.id == cardSet).size
   for (var array=[],i=0; i < size; ++i) array[i]=i
   var tmp, current, top = array.length
   if(top) while(--top) {
