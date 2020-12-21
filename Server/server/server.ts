@@ -518,18 +518,17 @@ function deletePlayer(uuid) {
 }
 
 function retrievePlayer(uuid) {
-  let retrievedGroup
-  let retrievedPlayer
+  let retrievedGroup, retrievedPlayer, retrievedGame
   groups.forEach(group => {
     group.players.forEach(player => {
       if (player.uuid == uuid) {
         retrievedGroup = group
         retrievedPlayer = player
+        retrievedGame = games.find(x => x.id == retrievedGroup.game)
       } 
     })
   })
-  const game = games.find(x => x.id == retrievedGroup.game)
-  return [retrievedGroup, retrievedPlayer, game]
+  return [retrievedGroup, retrievedPlayer, retrievedGame]
 }
 
 function logoutClient(uuid) {
