@@ -385,8 +385,10 @@ app.get('/retrieveSession/:uuid', cors(corsOptions), (req, res) => {
     [group, player] = retrievePlayer(uuid)
     response = {
       success: true,
-      group: group,
-      player: player
+      data: {
+        group: group,
+        player: player
+      }
     }
   } else {
     response = {
