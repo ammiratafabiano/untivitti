@@ -38,6 +38,8 @@ export class GamePage implements OnInit {
 
   moving: boolean;
 
+  round: number;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,

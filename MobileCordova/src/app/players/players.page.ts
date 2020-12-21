@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { AlertController, ModalController, NavParams } from '@ionic/angular';
 import { GameStateModel, PlayerModel } from '../models/game-state.model';
 import { ApiService } from '../services/api.service';
-import { Clipboard } from '@ionic-native/clipboard/ngx';
 import { finalize, timeout } from 'rxjs/operators';
 import { NotificationService } from '../services/notification.service';
 import { NotificationIcons, NotificationModel } from '../models/notification.model';
@@ -36,7 +35,6 @@ export class PlayersPage implements OnInit {
     public modalController: ModalController,
     public navParams: NavParams,
     private api: ApiService,
-    private clipboard: Clipboard,
     private notificationService: NotificationService,
     public alertController: AlertController,
     private loaderService: LoaderService) {
@@ -84,10 +82,7 @@ export class PlayersPage implements OnInit {
   }
 
   shareLink() {
-    // Mobile App
     const link = this.api.clientEndpoint + '?code=' + this.code;
-    this.clipboard.copy(link);
-    // Web App
     const el = document.createElement('textarea');
     el.value = link;
     document.body.appendChild(el);
@@ -107,7 +102,7 @@ export class PlayersPage implements OnInit {
     });
   }
 
-  async changeBalance(player: PlayerModel, error) {
+  async changeBalance(player: PlayerModel, error?) {
     const alert = await this.alertController.create({
       header: 'Cambio bilancio',
       subHeader: error ? error : undefined,
