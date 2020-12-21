@@ -359,7 +359,7 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
 app.get('/setGhost/:nick/:code/:value', cors(corsOptions), (req, res) => {
   const nickname = req.params['nick']
   const code = req.params['code']
-  const value = req.params['value']
+  const value = req.params['value'] == "true"
   const group = groups.find(x => x.code == code)
   let response
   if (group) {
@@ -857,7 +857,7 @@ function setAdmin(group, next = false) {
 }
 
 function setGhost(group, player, value) {
-  player.ghost = value == "true" ? true : false
+  player.ghost = value ? true : false
   if (player.ghost) {
     const text = player.name + ' è ora spettatore'
     const icon = 'Watcher'
