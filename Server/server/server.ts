@@ -383,7 +383,6 @@ app.get('/retrieveSession/:uuid', cors(corsOptions), (req, res) => {
   if (uuid) {
     let group, player;
     [group, player] = retrievePlayer(uuid)
-    console.log(group, player)
     response = {
       success: true,
       group: group,
