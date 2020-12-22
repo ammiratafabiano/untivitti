@@ -1,5 +1,5 @@
 .player-container {
-    --min-height: 20vw !important;
+    --min-height: 9vh !important;
 }
 
 .canMove {
@@ -30,7 +30,7 @@
 
 .cards-container {
     width: 100%;
-    height: 18vw;
+    height: 8vh;
     position: absolute;
     right: 2vw;
     bottom: 0;
@@ -40,7 +40,7 @@
 
 .ground-container {
     width: 100%;
-    height: 18vw;
+    height: 8vh;
     position: absolute;
     bottom: 0;
     left: 10vw;
@@ -49,11 +49,11 @@
 }
 
 .card {
-    height: 25vw;
+    height: 12vh;
     img {
         height: 100%;
         border: 0.5px solid lightgrey;
-        border-radius: 1vw;
+        border-radius: 5px;
         filter: contrast(1.2);
     }
 }

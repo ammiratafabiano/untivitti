@@ -1,19 +1,19 @@
 .fab {
-    width: 15vw !important;
-    height: 15vw !important;
+    width: 55px !important;
+    height: 55px !important;
     ion-icon {
-        font-size: 10vw;
+      zoom:2.5;
     }
 }
 
 .cards-container {
     width: 100%;
-    height: 60%;
+    height: 64%;
     text-align: center;
 }
 
 .other-cards-container {
-    height: 40%;
+    height: 36%;
 }
 
 .card {
@@ -21,8 +21,8 @@
     img {
         height: 100%;
         border: 0.05px solid lightgrey;
-        border-radius: 5vw;
-        box-shadow: 0 5px 20px 0 lightgrey;
+        border-radius: 15px;
+        box-shadow: 0 3px 15px 0 #dddddd;
         filter: contrast(1.2);
     }
 }
@@ -32,7 +32,7 @@
     img {
         height: 100%;
         border: 0.05px solid lightgrey;
-        border-radius: 5vw;
+        border-radius: 15px;
         box-shadow: 0 5px 20px 0 lightgrey;
         filter: contrast(1.2);
     }
@@ -40,11 +40,11 @@
 }
 
 .cards-area {
-    height: 60%;
+    height: 65%;
 }
 
 .action-button {
-    bottom: 15vh;
+    bottom: 100px;
 }
 
 .my-balance {
