@@ -299,7 +299,8 @@ export class GamePage implements OnInit {
       list.push(current);
       const next = activePlayers[(index + 1 + activePlayers.length) % activePlayers.length];
       current.isAdmin ? list.push(undefined) : list.push(next);
-      if (this.playersBoard && (current.name !== this.playersBoard[1].name || current.lastMove !== this.playersBoard[1].lastMove)) {
+      if (!this.playersBoard || (this.playersBoard
+        && (current.name !== this.playersBoard[1].name || current.lastMove !== this.playersBoard[1].lastMove))) {
         this.playersBoard = list;
       }
     } else if (activePlayers && this.playersBoard) {
