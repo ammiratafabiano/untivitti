@@ -196,7 +196,8 @@ export class TutorialPage implements OnInit {
               {
                 title: 'Bottone "Passa il mazzo"',
                 subtitle: 'Consente di passare il mazzo al giocatore successivo.',
-                icon: 'albums-outline'
+                icon: 'albums-outline',
+                rotateIcon: true
               }
             ]
           },

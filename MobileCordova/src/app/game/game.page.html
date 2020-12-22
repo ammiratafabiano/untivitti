@@ -14,6 +14,10 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
+  <div *ngIf="fireworks" class="pyro">
+    <div class="before"></div>
+    <div class="after"></div>
+  </div>
   <ion-fab class="help" horizontal="end" vertical="start" slot="fixed">
     <ion-fab-button color="light" (click)="openTutorialModal()" size="small">
       <ion-icon name="help-circle-outline"></ion-icon>

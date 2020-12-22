@@ -33,6 +33,7 @@ export class GameStateModel {
     status: boolean;
     players: PlayerModel[];
     money: boolean;
+    balance: number;
     round: number;
     cards: number[];
     ground: number[];

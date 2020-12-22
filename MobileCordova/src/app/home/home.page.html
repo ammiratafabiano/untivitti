@@ -41,22 +41,23 @@
         Nuovo gruppo
       </ion-label>
     </ion-list-header>
-    <ion-item>
+    <ion-item *ngIf="selectedSet">
       <ion-label>Set di carte</ion-label>
-      <ion-select required [(ngModel)]="selectedSet" [ngModelOptions]="{standalone: true}"
+      <ion-select required [(ngModel)]="selectedSet.id" [ngModelOptions]="{standalone: true}"
         cancelText="Annulla" okText="Ok">
         <ion-select-option *ngFor="let set of cardSets" [value]="set.id">{{ set.name }}</ion-select-option>
       </ion-select>
     </ion-item>
-    <ion-item>
+    <ion-item *ngIf="selectedGame">
       <ion-label>Gioco</ion-label>
-      <ion-select required [(ngModel)]="selectedGame" [ngModelOptions]="{standalone: true}"
+      <ion-select required [(ngModel)]="selectedGame.id" [ngModelOptions]="{standalone: true}"
         cancelText="Annulla" okText="Ok">
         <ion-select-option *ngFor="let game of games" [value]="game.id">{{ game.name }}</ion-select-option>
       </ion-select>
     </ion-item>
-    <ion-item>
-      <ion-label>Monete</ion-label>
+    <ion-item *ngIf="selectedGame">
+      <ion-label>Monete:</ion-label>
+      <ion-input type="number" [(ngModel)]="balance" [disabled]="!money"></ion-input>
       <ion-toggle slot="end" [(ngModel)]="money" color="warning"></ion-toggle>
     </ion-item>
     <ion-button color="warning" (click)="create()">Crea</ion-button>

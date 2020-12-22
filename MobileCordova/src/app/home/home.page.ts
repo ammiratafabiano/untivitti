@@ -21,9 +21,10 @@ export class HomePage {
   code: string;
   nickname: string;
 
-  selectedSet: CardTypeEnum;
-  selectedGame: GameTypeEnum;
+  selectedSet: CardSetModel;
+  selectedGame: GameModel;
   money = true;
+  balance: number;
 
   currentPlayer: PlayerModel;
 
@@ -116,7 +117,7 @@ export class HomePage {
       response => {
         if (response.success && response.data) {
           this.cardSets = response.data;
-          this.selectedSet = this.cardSets.filter(x => x.code === this.extraSet)[0].id;
+          this.selectedSet = this.cardSets.filter(x => x.code === this.extraSet)[0];
         } else {
           this.setOfflineStatus();
         }
@@ -132,7 +133,8 @@ export class HomePage {
       response => {
         if (response.success && response.data) {
           this.games = response.data;
-          this.selectedGame = this.games[0].id;
+          this.selectedGame = this.games[0];
+          this.balance = this.selectedGame.defaultBalance;
         } else {
           this.setOfflineStatus();
         }
@@ -144,7 +146,7 @@ export class HomePage {
   }
 
   private getCode() {
-    this.api.createGroup(this.nickname, this.selectedSet, this.selectedGame, this.money).subscribe((response) => {
+    this.api.createGroup(this.nickname, this.selectedSet.id, this.selectedGame.id, this.money, this.balance).subscribe((response) => {
       if (response.success && response.data) {
         const group = response.data;
         const currentPlayer = response.data.players.find(x => x.name === this.nickname);

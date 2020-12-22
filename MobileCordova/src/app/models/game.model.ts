@@ -9,4 +9,5 @@ export class GameModel {
     minPlayers: number;
     maxPlayers: number;
     clockwise: boolean;
+    defaultBalance: number;
 }

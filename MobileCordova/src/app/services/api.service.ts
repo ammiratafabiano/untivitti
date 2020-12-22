@@ -54,9 +54,10 @@ export class ApiService {
       );
   }
 
-  createGroup(nickname: string, cardSet: CardTypeEnum, game: GameTypeEnum, money: boolean): Observable<ResponseModel<GameStateModel>>{
+  createGroup(nickname: string, cardSet: CardTypeEnum, game: GameTypeEnum,
+              money: boolean, balance: number): Observable<ResponseModel<GameStateModel>>{
     return this.http
-      .post<ResponseModel<any>>(this.endpoint + '/createGroup', { nickname, cardSet, game, money })
+      .post<ResponseModel<any>>(this.endpoint + '/createGroup', { nickname, cardSet, game, money, balance })
       .pipe(
         retry(2),
         catchError(this.handleError)

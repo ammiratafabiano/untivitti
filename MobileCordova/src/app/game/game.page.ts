@@ -41,6 +41,8 @@ export class GamePage implements OnInit {
 
   playersBoard: PlayerModel[];
 
+  fireworks = false;
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
@@ -77,7 +79,9 @@ export class GamePage implements OnInit {
             if (this.state.money) {
               this.checkPayments();
             }
-            this.checkSwapBack();
+            if (this.card && this.ground) {
+              this.checkSwapBack();
+            }
             this.setBoardPlayers();
           } else {
             this.exitGame();
@@ -96,6 +100,10 @@ export class GamePage implements OnInit {
         if (winner) {
           this.title = `${ winner.name } ha vinto!`;
           this.automaticModal = true;
+          if (!this.fireworks) {
+            this.closePlayersModal();
+          }
+          this.fireworks = true;
         } else if (this.state.players.length > 1) {
           this.title = 'Partita in pausa';
           this.automaticModal = true;
@@ -103,6 +111,7 @@ export class GamePage implements OnInit {
           this.title = 'In attesa...';
         }
       } else {
+        this.fireworks = false;
         const player = this.state.players.find(x => x.canMove === true);
         if (player) {
           if (this.currentPlayer.canMove) {
@@ -144,9 +153,7 @@ export class GamePage implements OnInit {
   }
 
   private exitGame() {
-    if (this.playerModal) {
-      this.playerModal.dismiss();
-    }
+    this.closePlayersModal();
     this.updateStateService.closeConnection();
     this.utils.setStorage('uuid', undefined);
     this.api.exitGroup(this.currentPlayer.name, this.state.code).subscribe(_ => {});
@@ -167,6 +174,12 @@ export class GamePage implements OnInit {
       });
       this.playerModal.onDidDismiss().then(() => { this.playerModal = undefined; });
       await this.playerModal.present();
+    }
+  }
+
+  closePlayersModal() {
+    if (this.playerModal) {
+      this.playerModal.dismiss();
     }
   }
 
@@ -286,7 +299,9 @@ export class GamePage implements OnInit {
       list.push(current);
       const next = activePlayers[(index + 1 + activePlayers.length) % activePlayers.length];
       current.isAdmin ? list.push(undefined) : list.push(next);
-      this.playersBoard = list;
+      if (this.playersBoard && (current.name !== this.playersBoard[1].name || current.lastMove !== this.playersBoard[1].lastMove)) {
+        this.playersBoard = list;
+      }
     } else if (activePlayers && this.playersBoard) {
       if (this.state.status) {
         activePlayers.forEach(x => {
