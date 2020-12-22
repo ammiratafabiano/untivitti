@@ -321,7 +321,7 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
   const game = games.find(x => x.id == group.game)
   let response
   if (group) {
-    if (newBalance >= 0 && newBalance <= group.balance) {
+    if (newBalance >= 0 && newBalance <= game.defaultBalance) {
       const player = group.players.find(x => x.name == nickname)
       if (player) {
         player.haveToPay = false
