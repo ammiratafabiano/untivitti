@@ -42,7 +42,7 @@ export class TutorialPage implements OnInit {
             items: [
               {
                 title: 'Questa sezione permette di accedere ad una partita esistente.',
-                img: './assets/tutorial/partecipa.png'
+                img: './assets/tutorial/join.png'
               },
               {
                 title: 'Input "Codice"',
@@ -61,7 +61,7 @@ export class TutorialPage implements OnInit {
             items: [
               {
                 title: 'Questa sezione permette di creare una nuova partita.',
-                img: './assets/tutorial/crea.png'
+                img: './assets/tutorial/create.png'
               },
               {
                 title: 'Input "Set di carte"',
@@ -74,8 +74,8 @@ export class TutorialPage implements OnInit {
                 icon: 'dice-outline'
               },
               {
-                title: 'Input "Soldi"',
-                subtitle: 'Qui si sceglie se voler giocare tenendo il conto dei soldi.',
+                title: 'Input "Monete"',
+                subtitle: 'Qui si sceglie se voler giocare tenendo il conto delle monete e quante usarne.',
                 icon: 'server-outline'
               },
               {
@@ -123,6 +123,15 @@ export class TutorialPage implements OnInit {
                 title: 'Indicatore monete',
                 subtitle: 'Indica la quantità di monete disponibili.',
                 icon: 'server-outline'
+              }
+            ]
+          },
+          {
+            title: 'Riepilogo mosse',
+            items: [
+              {
+                title: 'In questa sezione viene visualizzata un panoramica delle ultime due mosse avvenute.',
+                img: './assets/tutorial/players-board.png'
               }
             ]
           },
@@ -311,7 +320,16 @@ export class TutorialPage implements OnInit {
                 img: './assets/tutorial/players-update.png'
               }
             ]
-          }
+          },
+          {
+            title: 'Pagamento',
+            items: [
+              {
+                title: 'Nel caso di scelta di partita con uso di monete è importante che vengano effettuati i pagamenti virtuali prima di cominciare un nuovo turno. Per pagare basta cliccare sul tasto "Paga" nella pagina di riepilogo giocatori.',
+                img: './assets/tutorial/payment.png'
+              }
+            ]
+          },
         ]
       }
     ];
