@@ -166,6 +166,7 @@ app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
     game: req.body.game,
     status: false,
     money: req.body.money,
+    balance: req.body.balance,
     round: 0,
     cards: [],
     ground: [],
@@ -178,7 +179,7 @@ app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
         moves: game.adminMoves,
         cards: [],
         visible: false,
-        balance: game.defaultBalance,
+        balance: req.body.balance,
         haveToPay: false,
         ghost: false,
         isWinner: false
@@ -210,7 +211,7 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
             moves: [],
             cards: [],
             visible: false,
-            balance: game.defaultBalance,
+            balance: group.balance,
             haveToPay: false,
             ghost: false,
             isWinner: false
@@ -319,8 +320,8 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
   const group = groups.find(x => x.code == code)
   const game = games.find(x => x.id == group.game)
   let response
-  if (newBalance >= 0 && newBalance <= game.defaultBalance) {
-    if (group) {
+  if (group) {
+    if (newBalance >= 0 && newBalance <= group.balance) {
       const player = group.players.find(x => x.name == nickname)
       if (player) {
         player.haveToPay = false
@@ -344,13 +345,13 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
       }
     } else {
       response = {
-        success: false
+        success: false,
+        errorCode: "Valore non valido"
       }
     }
   } else {
     response = {
-      success: false,
-      errorCode: "Valore non valido"
+      success: false
     }
   }
   res.send(response)
@@ -769,7 +770,7 @@ function resetGroup(group, hard?) {
     if (hard) {
       group.players[i].ghost = false
       group.players[i].haveToPay = false
-      group.players[i].balance = game.defaultBalance
+      group.players[i].balance = group.balance
     }
   }
 }
