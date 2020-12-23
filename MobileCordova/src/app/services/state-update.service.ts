@@ -68,6 +68,12 @@ export class StateUpdateService {
     }
   }
 
+  public sendText(text: string) {
+    if (this.websocket) {
+      this.websocket.send(JSON.stringify({type: 'text', uuid: this.uuid, text}));
+    }
+  }
+
   public closeConnection() {
     if (this.websocket) {
       this.websocket.close();

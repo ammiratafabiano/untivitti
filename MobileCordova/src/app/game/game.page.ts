@@ -333,4 +333,32 @@ export class GamePage implements OnInit {
       }
     }
   }
+
+  async openChat() {
+    const alert = await this.alertController.create({
+      header: 'Invia un messaggio',
+      inputs: [
+        {
+          name: 'value',
+          type: 'text',
+          min: 0
+        }
+      ],
+      buttons: [
+        {
+          text: 'Annulla',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {}
+        }, {
+          text: 'Invia',
+          handler: (out) => {
+            this.updateStateService.sendText(out.value);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
 }

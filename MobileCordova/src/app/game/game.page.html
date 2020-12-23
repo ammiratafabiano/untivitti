@@ -18,6 +18,11 @@
     <div class="before"></div>
     <div class="after"></div>
   </div>
+  <ion-fab class="chat" horizontal="center" vertical="start" slot="fixed">
+    <ion-fab-button color="light" (click)="openChat()" size="small">
+      <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
   <ion-fab class="help" horizontal="end" vertical="start" slot="fixed">
     <ion-fab-button color="light" (click)="openTutorialModal()" size="small">
       <ion-icon name="help-circle-outline"></ion-icon>
