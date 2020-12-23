@@ -1,3 +1,4 @@
+import { ThrowStmt } from '@angular/compiler';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, AnimationController, ModalController, PopoverController } from '@ionic/angular';
@@ -72,7 +73,7 @@ export class GamePage implements OnInit {
             this.state = response;
             this.stateListener.next(this.state);
             const updatedCurrentPlayer = this.state.players.find(x => x.name === this.currentPlayer.name);
-            if (this.detectChange(this.currentPlayer, updatedCurrentPlayer)) {
+            if (this.detectChange([this.currentPlayer], [updatedCurrentPlayer])) {
               this.currentPlayer = updatedCurrentPlayer;
             }
             this.updateTitle();
@@ -183,10 +184,26 @@ export class GamePage implements OnInit {
     }
   }
 
-  detectChange(player1, player2) {
-    player1.timestamp = undefined;
-    player2.timestamp = undefined;
-    return JSON.stringify(player1) !== JSON.stringify(player2);
+  detectChange(list1, list2) {
+    if (list1 && list2) {
+      list1.forEach(x => {
+        if (x) {
+          x.timestamp = undefined;
+        } else {
+          return true;
+        }
+      });
+      list2.forEach(x => {
+        if (x) {
+          x.timestamp = undefined;
+        } else {
+          return true;
+        }
+      });
+      return JSON.stringify(list1) !== JSON.stringify(list2);
+    } else {
+      return true;
+    }
   }
 
   async openTutorialModal() {
@@ -299,7 +316,9 @@ export class GamePage implements OnInit {
       list.push(current);
       const next = activePlayers[(index + 1 + activePlayers.length) % activePlayers.length];
       current.isAdmin ? list.push(undefined) : list.push(next);
-      this.playersBoard = list;
+      if (this.detectChange(this.playersBoard, list)) {
+        this.playersBoard = list;
+      }
     } else if (activePlayers && this.playersBoard) {
       if (this.state.status) {
         activePlayers.forEach(x => {
