@@ -7,6 +7,7 @@ import { GameStateModel, MoveModel, PlayerModel } from '../models/game-state.mod
 import { GameModel } from '../models/game.model';
 import { PlayersPage } from '../players/players.page';
 import { ApiService } from '../services/api.service';
+import { ImpressedTextService } from '../services/impressed-text.service';
 import { StateUpdateService } from '../services/state-update.service';
 import { UtilsService } from '../services/utils.service';
 import { TutorialPage } from '../tutorial/tutorial.page';
@@ -53,8 +54,8 @@ export class GamePage implements OnInit {
     private updateStateService: StateUpdateService,
     private api: ApiService,
     private animationCtrl: AnimationController,
-    private utils: UtilsService) {
-
+    private utils: UtilsService,
+    private impressedTextService: ImpressedTextService) {
   }
 
   ngOnInit() {
