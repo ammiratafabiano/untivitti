@@ -433,6 +433,15 @@ wsServer.on('connection', (socket: any) => {
           })
         })
         break
+      case 'text':
+        groups.forEach(group => {
+          group.players.forEach(player => {
+            if (player.uuid == msg.uuid) {
+              sendImpressedText(group, msg.text);
+            }
+          })
+        })
+        break;
       default:
         socket.send(JSON.stringify({success: false, type: msg.type}))
     }
