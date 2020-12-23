@@ -776,7 +776,7 @@ function sendNotification(group, text, icon, excludeList = []) {
   })
 }
 
-function sendImpressedText(group, text, time = 2000, excludeList = []) {
+function sendImpressedText(group, text, time = 1500, excludeList = []) {
   group.players.forEach(player => {
     wsServer.clients.forEach((ws) => {
       if (ws.uuid == player.uuid && ws.isAlive && !excludeList.includes(player.name)) {
