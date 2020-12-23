@@ -315,11 +315,17 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
         const icon = 'Money'
         sendNotification(group, text, icon)
         player.balance = newBalance
-        if (newBalance == 0) {
-          setGhost(group, player, true)
-        }
         if (group.money) {
           checkWinner(group)
+        }
+        if (newBalance == 0) {
+          setGhost(group, player, true, false)
+          sendImpressedText(group, player.name + ' è morto!', undefined, [player.name]);
+          let excludeList = []
+          group.players.filter(x => {
+            if (x.name != player.name) excludeList.push(x.name)
+          });
+          sendImpressedText(group, 'Sei morto!', undefined, excludeList);
         }
         response = {
           success: true
@@ -691,7 +697,11 @@ function turnChange(group, player) {
   player.canMove = false;
   player.moves = player.isAdmin ? getAdminMoves(group) : []
   newPlayer.canMove = true;
-  sendImpressedText(group, 'E\' il turno di ' + newPlayer.name);
+  let excludeList = []
+  group.players.filter(x => {
+    if (x.name != newPlayer.name) excludeList.push(x.name)
+  });
+  sendImpressedText(group, 'E\' il tuo turno!', undefined, excludeList);
   getPlayerMoves(group).forEach(move => {
     newPlayer.cards.forEach(card => {
       if (move.forbiddenCards.includes(card)) {
@@ -858,16 +868,19 @@ function setAdmin(group, next = false) {
   }
 }
 
-function setGhost(group, player, value) {
+function setGhost(group, player, value, notification = true) {
   player.ghost = value ? true : false
-  if (player.ghost) {
-    const text = player.name + ' è ora spettatore'
-    const icon = 'Watcher'
-    sendNotification(group, text, icon)
-  } else {
-    const text = player.name + ' è ora giocatore'
-    const icon = 'Player'
-    sendNotification(group, text, icon)
+
+  if (notification) {
+    if (player.ghost) {
+      const text = player.name + ' è ora spettatore'
+      const icon = 'Watcher'
+      sendNotification(group, text, icon)
+    } else {
+      const text = player.name + ' è ora giocatore'
+      const icon = 'Player'
+      sendNotification(group, text, icon)
+    }
   }
 }
 
@@ -946,6 +959,17 @@ function checkWinner(group) {
       const text = winner.name +  ' è il vincitore della partita!'
       const icon = 'Winner'
       sendNotification(group, text, icon)
+      sendImpressedText(group, winner.name + ' ha vinto!', undefined, [winner.name]);
+      let excludeList = []
+      group.players.filter(x => {
+        if (x.name != winner.name) excludeList.push(x.name)
+      });
+      sendImpressedText(group, 'Hai vinto!', undefined, excludeList);
     }
   }
+}
+
+function isFinished(group) {
+  const winner = group.players.find(x => x.isWinner === true);
+  return winner;
 }
