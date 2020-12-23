@@ -691,6 +691,7 @@ function turnChange(group, player) {
   player.canMove = false;
   player.moves = player.isAdmin ? getAdminMoves(group) : []
   newPlayer.canMove = true;
+  sendImpressedText(group, 'E\' il turno di ' + newPlayer.name);
   getPlayerMoves(group).forEach(move => {
     newPlayer.cards.forEach(card => {
       if (move.forbiddenCards.includes(card)) {
@@ -770,6 +771,16 @@ function sendNotification(group, text, icon, excludeList = []) {
     wsServer.clients.forEach((ws) => {
       if (ws.uuid == player.uuid && ws.isAlive && !excludeList.includes(player.name)) {
         ws.send(JSON.stringify({type: 'message', text: text, icon: icon})); 
+      }
+    })
+  })
+}
+
+function sendImpressedText(group, text, time = 2000, excludeList = []) {
+  group.players.forEach(player => {
+    wsServer.clients.forEach((ws) => {
+      if (ws.uuid == player.uuid && ws.isAlive && !excludeList.includes(player.name)) {
+        ws.send(JSON.stringify({type: 'text', text: text, time: time})); 
       }
     })
   })
