@@ -320,12 +320,14 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
         }
         if (newBalance == 0) {
           setGhost(group, player, true, false)
-          sendImpressedText(group, player.name + ' è morto!', undefined, [player.name]);
-          let excludeList = []
-          group.players.filter(x => {
-            if (x.name != player.name) excludeList.push(x.name)
-          });
-          sendImpressedText(group, 'Sei morto!', undefined, excludeList);
+          if (!isFinished(group)) {
+            sendImpressedText(group, player.name + ' è morto!', undefined, [player.name]);
+            let excludeList = []
+            group.players.filter(x => {
+              if (x.name != player.name) excludeList.push(x.name)
+            });
+            sendImpressedText(group, 'Sei morto!', undefined, excludeList);
+          }
         }
         response = {
           success: true
@@ -971,5 +973,5 @@ function checkWinner(group) {
 
 function isFinished(group) {
   const winner = group.players.find(x => x.isWinner === true);
-  return winner;
+  return winner != undefined;
 }
