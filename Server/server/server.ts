@@ -315,11 +315,11 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
         const icon = 'Money'
         sendNotification(group, text, icon)
         player.balance = newBalance
-        if (group.money) {
-          checkWinner(group)
-        }
         if (newBalance == 0) {
           setGhost(group, player, true, false)
+          if (group.money) {
+            checkWinner(group)
+          }
           if (!isFinished(group)) {
             sendImpressedText(group, player.name + ' è morto!', undefined, [player.name]);
             let excludeList = []
