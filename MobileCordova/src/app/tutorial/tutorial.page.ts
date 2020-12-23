@@ -194,17 +194,12 @@ export class TutorialPage implements OnInit {
             title: 'Mosse mazziere fuori dal gioco',
             items: [
               {
-                title: 'Questa sezione permette al mazziere di eseguire operazioni preliminari. E\' necessario cliccare il bottone della mossa per effettuarla. Se questo è trasparente significa che in quel momento non è possibile effettuare quella mossa.',
+                title: 'Questa sezione permette al mazziere di eseguire operazioni preliminari. E\' necessario cliccare il bottone della mossa per effettuarla.',
                 img: './assets/tutorial/admin-moves-start.png'
               },
               {
                 title: 'Bottone "Distribuisci"',
                 subtitle: 'Consente di distribuire le carte ai giocatori.',
-                icon: 'share-outline'
-              },
-              {
-                title: 'Bottone "Passa il mazzo"',
-                subtitle: 'Consente di passare il mazzo al giocatore successivo.',
                 icon: 'albums-outline',
                 rotateIcon: true
               }
@@ -219,7 +214,7 @@ export class TutorialPage implements OnInit {
               },
               {
                 title: 'Bottone "Ritira"',
-                subtitle: 'Consente di ritirare le carte dei giocatori.',
+                subtitle: 'Se questa mossa viene fatta durante il gioco consente di ritirare le carte dei giocatori nel caso succeda un errore. Quando invece viene fatta alla fine del turno consente di ritirare le carte e di automaticamente passare il mazzo al giocatore attivo successivo.',
                 icon: 'download-outline'
               },
               {
