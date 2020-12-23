@@ -47,8 +47,8 @@ const games = [
         name: 'Distribuisci',
         id: 0,
         disabled: false,
-        icon: 'share-outline',
-        rotateIcon: false,
+        icon: 'albums-outline',
+        rotateIcon: true,
         side: 'top',
         status: false
       },
@@ -60,15 +60,6 @@ const games = [
         rotateIcon: false,
         side: 'top',
         status: true
-      },
-      {
-        name: 'Passa il mazzo',
-        id: 2,
-        disabled: false,
-        icon: 'albums-outline',
-        rotateIcon: true,
-        side: 'bottom',
-        status: false
       }
     ],
     playerMoves: [
@@ -576,8 +567,6 @@ function executeMove(group, player, move) {
       return startMove(group, player)
     case 1:
       return stopMove(group,player)
-    case 2:
-      return passMove(group, player)
     case 3:
       return showMove(group, player)
     case 4:
@@ -616,10 +605,16 @@ function startMove(group, player) {
 
 function stopMove(group, player) {
   if (player.isAdmin) {
-    resetGroup(group)
-    const text = player.name +  ' ha ritirato le carte'
-    const icon = 'Pause'
-    sendNotification(group, text, icon)
+    const isFinished = group.players.findIndex(x => x.canMove) == -1;
+    if (isFinished) {
+      resetGroup(group)
+      passMove(group, player)
+    } else {
+      resetGroup(group)
+      const text = player.name +  ' ha ritirato le carte'
+      const icon = 'Pause'
+      sendNotification(group, text, icon)
+    }
     return true
   } else {
     return false
