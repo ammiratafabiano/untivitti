@@ -66,7 +66,31 @@
 }
 
 .player-status {
-    text-align: center;
+  text-align: center;
+  .canMove {
+    background: --ion-color-light;
+    animation: fade 1s infinite;
+    -moz-animation: fade 1s infinite; /* Firefox */
+    -webkit-animation: fade 1s infinite; /* Safari and Chrome */
+  }
+}
+
+@keyframes fade {
+  0% {background: --ion-color-light;}
+  50% {background: #92949c;}
+  100% {background: --ion-color-light;}
+}
+
+@-moz-keyframes fade /* Firefox */ {
+  0% {background: --ion-color-light;}
+  50% {background: #92949c;}
+  100% {background: --ion-color-light;}
+}
+
+@-webkit-keyframes fade /* Safari and Chrome */ {
+  0% {background: --ion-color-light;}
+  50% {background: #92949c;}
+  100% {background: --ion-color-light;}
 }
 
 $particles: 50;

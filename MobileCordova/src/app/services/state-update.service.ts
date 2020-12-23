@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { GameStateModel, PlayerModel } from '../models/game-state.model';
 import { NotificationIcons } from '../models/notification.model';
+import { ImpressedTextService } from './impressed-text.service';
 import { NotificationService } from './notification.service';
 import { UtilsService } from './utils.service';
 
@@ -20,7 +21,8 @@ export class StateUpdateService {
 
   constructor(
     private notificationService: NotificationService,
-    private utils: UtilsService) {}
+    private utils: UtilsService,
+    private impressedTextService: ImpressedTextService) {}
 
   public initConnection(state: GameStateModel, player: PlayerModel): BehaviorSubject<GameStateModel> {
     this.websocket = new WebSocket(this.endpoint);
@@ -47,8 +49,10 @@ export class StateUpdateService {
             break;
           case 'move':
             break;
+          case 'text':
+            this.impressedTextService.openTextModal(msg.text, msg.time);
+            break;
           default:
-            this.stateListener.next(undefined);
             console.log(msg);
         }
       };

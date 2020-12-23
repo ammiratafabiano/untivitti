@@ -3,7 +3,7 @@
 }
 
 .canMove {
-    --ion-background-color: #fff9f7;
+    --ion-background-color: #fff4f0;
     border: 1px solid #fff9f7;
     animation: fade 2s infinite;
     -moz-animation: fade 2s infinite; /* Firefox */
@@ -12,20 +12,20 @@
 
 @keyframes fade {
     0% {--ion-background-color: #fff4f0;}
-    50% {--ion-background-color:#ffffff;}
-    100% {--ion-background-color: #fff4f0;}
+    50% {--ion-background-color: #ffffff;}
+    100% {--ion-background-color: #ffffff;}
 }
 
 @-moz-keyframes fade /* Firefox */ {
     0% {--ion-background-color: #fff4f0;}
-    50% {--ion-background-color:#ffffff;}
+    50% {--ion-background-color: #ffffff;}
     100% {--ion-background-color: #fff4f0;}
 }
 
 @-webkit-keyframes fade /* Safari and Chrome */ {
     0% {--ion-background-color: #fff4f0;}
-    50% {--ion-background-color:#ffffff;}
-    100% {--ion-background-color: #fff4f0;;}
+    50% {--ion-background-color: #ffffff;}
+    100% {--ion-background-color:  #fff4f0;}
 }
 
 .cards-container {

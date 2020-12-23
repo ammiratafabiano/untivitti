@@ -34,7 +34,7 @@
       <ion-grid class="board-container">
         <ion-row class="players-container">
           <ion-col class="player-status" *ngFor="let player of playersBoard; let i = index">
-            <ion-chip *ngIf="player" [ngSwitch]="player.lastMove" [disabled]="i == 2">
+            <ion-chip [ngClass]="{'canMove': i==1}" *ngIf="player" [ngSwitch]="player.lastMove" [disabled]="i == 2">
               <ion-icon *ngSwitchCase="3" name="hand-left-outline" color="danger"></ion-icon>
               <ion-icon *ngSwitchCase="4" name="thumbs-up-outline" color="success"></ion-icon>
               <ion-icon *ngSwitchCase="5" name="repeat-outline" color="warning"></ion-icon>

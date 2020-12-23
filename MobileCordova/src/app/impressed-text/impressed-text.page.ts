@@ -32,7 +32,6 @@ export class ImpressedTextPage implements OnInit, AfterViewInit {
       .duration(100)
       .fromTo('transform', 'scale(1.2)', 'scale(1)')
       .onFinish(() => {
-  
       }).play();
     }).play();
   }

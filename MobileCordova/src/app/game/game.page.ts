@@ -54,8 +54,7 @@ export class GamePage implements OnInit {
     private updateStateService: StateUpdateService,
     private api: ApiService,
     private animationCtrl: AnimationController,
-    private utils: UtilsService,
-    private impressedTextService: ImpressedTextService) {
+    private utils: UtilsService) {
   }
 
   ngOnInit() {
