@@ -3,12 +3,10 @@
     <ion-item lines="none">
       <ion-icon name="arrow-back-circle-outline" color="danger" (click)="confirmExit()"></ion-icon>
       <ion-title mode="md">{{ title }}</ion-title>
-      <ng-container *ngIf="state && state.players">
-        <ion-icon name="people-outline" (click)="openPlayersModal()"></ion-icon>
-        <ion-badge color="success" slot="end" (click)="openPlayersModal()">
-          {{ state.activePlayers }}
-        </ion-badge>
-      </ng-container>
+      <ion-chip slot="end" color="success" *ngIf="state && state.players" (click)="openPlayersModal()">
+        <ion-icon name="people-outline" ></ion-icon>
+        <ion-label>{{ state.activePlayers }}</ion-label>
+      </ion-chip>
     </ion-item>
   </ion-toolbar>
 </ion-header>

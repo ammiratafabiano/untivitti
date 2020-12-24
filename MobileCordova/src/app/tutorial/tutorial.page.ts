@@ -96,7 +96,7 @@ export class TutorialPage implements OnInit {
             title: 'Informazioni generali',
             items: [
               {
-                title: 'Nella parte superiore ci sono diversi indicatori utili al gioco.',
+                title: 'Nella parte superiore ci sono diversi bottoni e indicatori utili al gioco.',
                 img: './assets/tutorial/game-header.png'
               },
               {
@@ -110,19 +110,19 @@ export class TutorialPage implements OnInit {
                 icon: 'alert-circle-outline'
               },
               {
-                title: 'Bottone lista giocatori',
-                subtitle: 'Consente di entrare all\'interno della pagina di riepilogo.',
+                title: 'Bottone giocatori',
+                subtitle: 'Consente di entrare all\'interno della pagina di riepilogo. Vi è inoltre un indicatore della quantità di giocatori attivi.',
                 icon: 'people-outline'
-              },
-              {
-                title: 'Indicatore numero giocatori"',
-                subtitle: 'Posto accanto al bottone lista giocatori, indica la quantità di giocatori online.',
-                icon: 'alert-circle-outline'
               },
               {
                 title: 'Indicatore monete',
                 subtitle: 'Indica la quantità di monete disponibili.',
                 icon: 'server-outline'
+              },
+              {
+                title: 'Bottone messaggio di testo',
+                subtitle: 'Consente di mandare un messaggio testuale visibile a tutti i giocatori.',
+                icon: 'chatbubble-ellipses-outline'
               }
             ]
           },
