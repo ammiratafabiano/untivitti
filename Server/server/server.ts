@@ -437,7 +437,7 @@ wsServer.on('connection', (socket: any) => {
         groups.forEach(group => {
           group.players.forEach(player => {
             if (player.uuid == msg.uuid) {
-              sendImpressedText(group, msg.text, undefined, undefined, msg.from);
+              sendImpressedText(group, msg.text, undefined, msg.from);
             }
           })
         })
@@ -797,11 +797,11 @@ function sendNotification(group, text, icon, excludeList = []) {
   })
 }
 
-function sendImpressedText(group, text, time = 1500, excludeList = [], from = undefined) {
+function sendImpressedText(group, text, excludeList = [], from = undefined) {
   group.players.forEach(player => {
     wsServer.clients.forEach((ws) => {
       if (ws.uuid == player.uuid && ws.isAlive && !excludeList.includes(player.name)) {
-        ws.send(JSON.stringify({type: 'text', text: text, time: time, from: from})); 
+        ws.send(JSON.stringify({type: 'text', text: text, from: from})); 
       }
     })
   })
