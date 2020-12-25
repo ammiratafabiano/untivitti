@@ -353,7 +353,7 @@ export class GamePage implements OnInit {
         }, {
           text: 'Invia',
           handler: (out) => {
-            this.updateStateService.sendText(out.value);
+            this.updateStateService.sendText(out.value, this.currentPlayer);
           }
         }
       ]

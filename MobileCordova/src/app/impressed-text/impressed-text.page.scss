@@ -3,10 +3,21 @@ ion-content{
 }
 
 .center {
-    font-size: 12vw;
     margin: 30vh 5vw;
     width: 90vw;
     padding: 10px;
+}
+
+.title {
+    font-size: 12vw;
     text-align: center;
     font-weight: bold;
+}
+
+.from-game {
+    font-style: italic;
+}
+
+.subtitle {
+    font-size: 5vw;
 }

@@ -50,7 +50,7 @@ export class StateUpdateService {
           case 'move':
             break;
           case 'text':
-            this.impressedTextService.openTextModal(msg.text, msg.time);
+            this.impressedTextService.openTextModal(msg.text, msg.from);
             break;
           default:
             console.log(msg);
@@ -68,9 +68,9 @@ export class StateUpdateService {
     }
   }
 
-  public sendText(text: string) {
+  public sendText(text: string, player: PlayerModel) {
     if (this.websocket) {
-      this.websocket.send(JSON.stringify({type: 'text', uuid: this.uuid, text}));
+      this.websocket.send(JSON.stringify({type: 'text', uuid: this.uuid, text, from: player.name}));
     }
   }
 

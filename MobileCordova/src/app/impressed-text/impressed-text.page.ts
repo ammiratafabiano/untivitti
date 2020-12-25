@@ -10,12 +10,12 @@ export class ImpressedTextPage implements OnInit, AfterViewInit {
 
   @ViewChild('text') text: ElementRef;
 
-  output: string;
+  msg: any;
 
   constructor(
     private animationCtrl: AnimationController,
     public navParams: NavParams) {
-    this.output = this.navParams.get('text');
+    this.msg = this.navParams.get('msg');
   }
 
   ngOnInit() {
