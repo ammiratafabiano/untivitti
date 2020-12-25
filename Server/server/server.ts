@@ -321,12 +321,12 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
             checkWinner(group)
           }
           if (!isFinished(group)) {
-            sendImpressedText(group, player.name + ' è morto!', undefined, [player.name], true);
+            sendImpressedText(group, player.name + ' è morto!', undefined, [player.name]);
             let excludeList = []
             group.players.filter(x => {
               if (x.name != player.name) excludeList.push(x.name)
             });
-            sendImpressedText(group, 'Sei morto!', undefined, excludeList, true);
+            sendImpressedText(group, 'Sei morto!', undefined, excludeList);
           }
         }
         response = {
@@ -437,7 +437,7 @@ wsServer.on('connection', (socket: any) => {
         groups.forEach(group => {
           group.players.forEach(player => {
             if (player.uuid == msg.uuid) {
-              sendImpressedText(group, msg.text);
+              sendImpressedText(group, msg.text, undefined, undefined, msg.from);
             }
           })
         })
@@ -712,7 +712,7 @@ function turnChange(group, player) {
   group.players.filter(x => {
     if (x.name != newPlayer.name) excludeList.push(x.name)
   });
-  sendImpressedText(group, 'E\' il tuo turno!', undefined, excludeList, true);
+  sendImpressedText(group, 'E\' il tuo turno!', undefined, excludeList);
   getPlayerMoves(group).forEach(move => {
     newPlayer.cards.forEach(card => {
       if (move.forbiddenCards.includes(card)) {
@@ -797,11 +797,11 @@ function sendNotification(group, text, icon, excludeList = []) {
   })
 }
 
-function sendImpressedText(group, text, time = 1500, excludeList = [], fromGame = false) {
+function sendImpressedText(group, text, time = 1500, excludeList = [], from = undefined) {
   group.players.forEach(player => {
     wsServer.clients.forEach((ws) => {
       if (ws.uuid == player.uuid && ws.isAlive && !excludeList.includes(player.name)) {
-        ws.send(JSON.stringify({type: 'text', text: text, time: time, fromGame: fromGame})); 
+        ws.send(JSON.stringify({type: 'text', text: text, time: time, from: from})); 
       }
     })
   })
@@ -970,12 +970,12 @@ function checkWinner(group) {
       const text = winner.name +  ' è il vincitore della partita!'
       const icon = 'Winner'
       sendNotification(group, text, icon)
-      sendImpressedText(group, winner.name + ' ha vinto!', undefined, [winner.name], true);
+      sendImpressedText(group, winner.name + ' ha vinto!', undefined, [winner.name]);
       let excludeList = []
       group.players.filter(x => {
         if (x.name != winner.name) excludeList.push(x.name)
       });
-      sendImpressedText(group, 'Hai vinto!', undefined, excludeList, true);
+      sendImpressedText(group, 'Hai vinto!', undefined, excludeList);
     }
   }
 }
