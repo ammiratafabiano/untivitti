@@ -466,7 +466,7 @@ setInterval(function() {
           ws.ping(null, false, true);
         }
       });
-      if (Date.now() - player.timestamp > 1000 * 60) {
+      if (Date.now() - player.timestamp > 1000 * 120) {
         deletePlayer(player.uuid)
       }
     })
