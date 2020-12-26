@@ -321,7 +321,7 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
             checkWinner(group)
           }
           if (!isFinished(group)) {
-            sendImpressedText(group, player.name + ' è morto!', [player.name]);
+            sendImpressedText(group, player.name + ' è morto/a!', [player.name]);
             let excludeList = []
             group.players.filter(x => {
               if (x.name != player.name) excludeList.push(x.name)
