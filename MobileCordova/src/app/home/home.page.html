@@ -1,4 +1,4 @@
-<ion-header [translucent]="true">
+<ion-header [translucent]="true" (click)="reloadPage()">
   <ion-toolbar>
     <ion-title>
       un<ion-text color="warning">ti</ion-text><ion-text color="danger">vitti</ion-text>
@@ -7,7 +7,7 @@
 </ion-header>
 
 <ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
+  <ion-header collapse="condense" (click)="reloadPage()">
     <ion-toolbar>
       <ion-title size="large">
         un<ion-text color="warning">ti</ion-text><ion-text color="danger">vitti</ion-text>
@@ -53,9 +53,9 @@
       </ion-label>
     </ion-list-header>
     <ion-item *ngIf="selectedSet">
-      <ion-label>Set di carte</ion-label>
+      <ion-label (click)="addCardSet()">Set di carte</ion-label>
       <ion-select required [(ngModel)]="selectedSet.id" [ngModelOptions]="{standalone: true}"
-        cancelText="Annulla" okText="Ok">
+        (ionCancel)="onCardSetSelectCancel()" cancelText="Annulla" okText="Ok">
         <ion-select-option *ngFor="let set of cardSets" [value]="set.id">{{ set.name }}</ion-select-option>
       </ion-select>
     </ion-item>

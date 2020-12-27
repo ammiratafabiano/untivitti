@@ -37,6 +37,8 @@ export class HomePage {
 
   session: SessionModel;
 
+  extraSetCounter = 0;
+
   constructor(
     public alertController: AlertController,
     private route: ActivatedRoute,
@@ -250,6 +252,49 @@ export class HomePage {
       this.utils.setStorage('uuid', undefined);
       this.session = undefined;
     });
+  }
+
+  reloadPage() {
+    window.location.reload();
+  }
+
+  onCardSetSelectCancel() {
+    this.extraSetCounter += 1;
+    if (this.extraSetCounter === 3) {
+      this.addCardSet();
+    }
+  }
+
+  async addCardSet() {
+    const alert = await this.alertController.create({
+      header: 'Inserisci codice mazzo da aggiungere',
+      inputs: [
+        {
+          name: 'value',
+          type: 'text',
+          min: 0
+        }
+      ],
+      buttons: [
+        {
+          text: 'Annulla',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {}
+        }, {
+          text: 'Conferma',
+          handler: (out) => {
+            if (this.code) {
+              window.location.href = '/?code=' + this.code + '&extraSet=' + out.value;
+            } else {
+              window.location.href = '/?extraSet=' + out.value;
+            }
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 
 }
