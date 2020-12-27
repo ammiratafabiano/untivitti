@@ -12,6 +12,11 @@ export class UtilsService {
   }
 
   getStorage(key: string) {
-    return window.localStorage.getItem(key);
+    const valueToRet = window.localStorage.getItem(key);
+    if (valueToRet !== 'undefined' && valueToRet !== undefined && valueToRet !== '') {
+      return valueToRet;
+    } else {
+      return undefined;
+    }
   }
 }

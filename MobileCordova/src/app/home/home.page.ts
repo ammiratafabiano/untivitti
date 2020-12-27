@@ -10,6 +10,7 @@ import { NotificationIcons } from '../models/notification.model';
 import { GameModel, GameTypeEnum } from '../models/game.model';
 import { JoinErrorEnum } from '../models/response.model';
 import { TutorialPage } from '../tutorial/tutorial.page';
+import { SessionModel } from '../models/session.model';
 
 @Component({
   selector: 'app-home',
@@ -34,6 +35,8 @@ export class HomePage {
 
   isOffline = false;
 
+  session: SessionModel;
+
   constructor(
     public alertController: AlertController,
     private route: ActivatedRoute,
@@ -42,10 +45,12 @@ export class HomePage {
     private utils: UtilsService,
     private notificationService: NotificationService,
     public modalController: ModalController) {
-      this.existingSession();
       this.route.queryParams.subscribe(params => {
         if (params && params.code) {
           this.code = params.code;
+          this.checkExistingSession();
+        } else {
+          this.checkExistingSession(true);
         }
         if (params && params.extraSet) {
           this.notificationService.addNotification('Set di carte nascosto sbloccato!', NotificationIcons.Info, 4000);
@@ -205,23 +210,43 @@ export class HomePage {
     tutorialModal.present();
   }
 
-  existingSession() {
+  checkExistingSession(enter = false) {
     const uuid = this.utils.getStorage('uuid');
     if (uuid) {
       this.api.retrieveSession(uuid).subscribe(response => {
-        if (response.success && response.data && response.data.group && response.data.player) {
-          const navigationExtras: NavigationExtras = {
-            queryParams: {
-                group: JSON.stringify(response.data.group),
-                player: JSON.stringify(response.data.player),
-                game: JSON.stringify(response.data.game)
-            },
-            skipLocationChange: true
-          };
-          this.router.navigate(['/game'], navigationExtras);
+        if (response.success && response.data && response.data.group && response.data.player && response.data.game) {
+          this.session = response.data;
+          if (enter || this.session.group.code === this.code) {
+            this.enterExistingSession();
+          }
+        } else {
+          this.session = undefined;
         }
       });
+    } else {
+      this.session = undefined;
     }
+  }
+
+  enterExistingSession() {
+    if (this.session) {
+      const navigationExtras: NavigationExtras = {
+        queryParams: {
+            group: JSON.stringify(this.session.group),
+            player: JSON.stringify(this.session.player),
+            game: JSON.stringify(this.session.game)
+        },
+        skipLocationChange: true
+      };
+      this.router.navigate(['/game'], navigationExtras);
+    }
+  }
+
+  closeExistingSession() {
+    this.api.exitGroup(this.session.player.name, this.session.group.code).subscribe(_ => {
+      this.utils.setStorage('uuid', undefined);
+      this.session = undefined;
+    });
   }
 
 }

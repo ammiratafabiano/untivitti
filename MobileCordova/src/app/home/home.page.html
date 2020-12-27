@@ -26,6 +26,17 @@
       <ion-label position="floating">Nickname</ion-label>
       <ion-input type="text" required [(ngModel)]="nickname"></ion-input>
     </ion-item>
+    <ion-item *ngIf="session" color="danger">
+      <ion-label>Gruppo {{ session.group.code }}</ion-label>
+      <ion-chip (click)="enterExistingSession()">
+        <ion-label>Continua</ion-label>
+      </ion-chip>
+      <ion-buttons slot="end">
+        <ion-button color="dark" (click)="closeExistingSession()">
+            <ion-icon name="close"></ion-icon>
+        </ion-button>
+    </ion-buttons>
+    </ion-item>
     <ion-list-header lines="full">
       <ion-label>
         Gruppo Esistente
