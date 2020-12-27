@@ -29,6 +29,12 @@ const extraCardSets = [
     name: 'Siciliane (Friends Edition)',
     size: 40,
     code: 'FRIENDS'
+  },
+  {
+    id: 2,
+    name: 'Siciliane (Family Edition)',
+    size: 40,
+    code: 'FAMILY'
   }
 ]
 
@@ -524,7 +530,7 @@ function deletePlayer(uuid) {
           setAdmin(group, true)
         }
         group.players.splice(i, 1)
-        if (group.status && !player.ghost && getPlayersLength(group) > 0) {
+        if (group.status && !group.ground && !player.ghost && getPlayersLength(group) > 0) {
           resetGroup(group)
           group.round -= 1;
           const text = 'Partita interrotta'
@@ -538,17 +544,18 @@ function deletePlayer(uuid) {
 }
 
 function retrievePlayer(uuid) {
-  let retrievedGroup, retrievedPlayer, retrievedGame
+  let retrievedGroup, retrievedPlayer, retrievedGame, retrieveCardSet
   groups.forEach(group => {
     group.players.forEach(player => {
       if (player.uuid == uuid) {
         retrievedGroup = group
         retrievedPlayer = player
         retrievedGame = games.find(x => x.id == retrievedGroup.game)
+        retrieveCardSet = cardSets.concat(extraCardSets).find(x => x.id == retrievedGroup.cardSet)
       } 
     })
   })
-  return [retrievedGroup, retrievedPlayer, retrievedGame]
+  return [retrievedGroup, retrievedPlayer, retrievedGame, retrieveCardSet]
 }
 
 function logoutClient(uuid) {
