@@ -68,6 +68,6 @@ export class ImpressedTextService {
   }
 
   computeTime(text: string) {
-    return Math.max(text.trim().split(' ').length * 500, 1500);
+    return Math.max(text.trim().split(' ').length * 500, 2000);
   }
 }
