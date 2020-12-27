@@ -396,14 +396,15 @@ app.get('/retrieveSession/:uuid', cors(corsOptions), (req, res) => {
   const uuid = req.params['uuid']
   let response
   if (uuid) {
-    let group, player, game;
-    [group, player, game] = retrievePlayer(uuid)
+    let group, player, game, cardSet;
+    [group, player, game, cardSet] = retrievePlayer(uuid)
     response = {
       success: true,
       data: {
         group: group,
         player: player,
-        game: game
+        game: game,
+        cardSet: cardSet
       }
     }
   } else {
