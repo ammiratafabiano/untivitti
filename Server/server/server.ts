@@ -1,3 +1,5 @@
+import e from "express";
+
 const express = require('express');
 const bodyParser = require('body-parser')
 const crypt = require("crypto")
@@ -157,6 +159,7 @@ app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
     cards: [],
     ground: [],
     activePlayers: 0,
+    history: [],
     players: [
       {
         name: req.body.nickname,
@@ -186,11 +189,13 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
   let group = groups.find(x => x.code == req.params['code'])
   let response
   if (group) {
-    if (group.status != true) {
+    const savedPlayer = loadState(group, nickname)
+    if ((group.status != true && group.round == 0) || 
+        (group.status != true && group.round > 0 && savedPlayer)) {
       const game = games.find(x => x.id == group.game)
       if (getPlayersLength(group) < game.maxPlayers) {
         if (!group.players.find(x => x.name == nickname)) {
-          const player = {
+          const player = savedPlayer ? savedPlayer : {
             name: nickname,
             isAdmin: false,
             canMove: false,
@@ -202,7 +207,11 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
             ghost: false,
             isWinner: false
           }
-          group.players.push(player)
+          if (player.index) {
+            group.players.splice(player.index, 0, player);
+          } else {
+            group.players.push(player)
+          }
           setAdmin(group)
           const text = nickname + ' si è connesso/a'
           const icon = 'Login'
@@ -456,6 +465,7 @@ setInterval(function() {
     }
     group.activePlayers = getPlayersLength(group)
     group.players.forEach(player => {
+      saveState(group, player)
       wsServer.clients.forEach(ws => {
         if (ws.uuid == player.uuid) {
           if (ws.isAlive) {
@@ -983,4 +993,18 @@ function checkWinner(group) {
 function isFinished(group) {
   const winner = group.players.find(x => x.isWinner === true);
   return winner != undefined;
+}
+
+function saveState(group, player) {
+  const index = group.history.findIndex(x => x.name == player.name)
+  if (index != -1) {
+    player.index = index;
+    group.histroy[index] = player;
+  } else {
+    group.history.push(player);
+  }
+}
+
+function loadState(group, nickname) {
+  return group.history.find(x => x.name == nickname)
 }
