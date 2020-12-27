@@ -633,6 +633,7 @@ function stopMove(group, player) {
       passMove(group, player)
     } else {
       resetGroup(group)
+      group.round -= 1;
       const text = player.name +  ' ha ritirato le carte'
       const icon = 'Pause'
       sendNotification(group, text, icon)
