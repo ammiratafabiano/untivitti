@@ -89,7 +89,8 @@ export class HomePage {
         queryParams: {
             group: JSON.stringify(group),
             player: JSON.stringify(currentPlayer),
-            game: JSON.stringify(this.games.find(x => x.id === group.game))
+            game: JSON.stringify(this.games.find(x => x.id === group.game)),
+            cardSet: JSON.stringify(this.cardSets.find(x => x.id === group.cardSet))
         },
         skipLocationChange: true
       };
@@ -214,7 +215,8 @@ export class HomePage {
     const uuid = this.utils.getStorage('uuid');
     if (uuid) {
       this.api.retrieveSession(uuid).subscribe(response => {
-        if (response.success && response.data && response.data.group && response.data.player && response.data.game) {
+        if (response.success && response.data && response.data.group
+          && response.data.player && response.data.game && response.data.cardSet) {
           this.session = response.data;
           if (enter || this.session.group.code === this.code) {
             this.enterExistingSession();
@@ -234,7 +236,8 @@ export class HomePage {
         queryParams: {
             group: JSON.stringify(this.session.group),
             player: JSON.stringify(this.session.player),
-            game: JSON.stringify(this.session.game)
+            game: JSON.stringify(this.session.game),
+            cardSet: JSON.stringify(this.session.cardSet)
         },
         skipLocationChange: true
       };

@@ -3,6 +3,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, AnimationController, ModalController, PopoverController } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
+import { CardSetModel } from '../models/card-set.model';
 import { GameStateModel, MoveModel, PlayerModel } from '../models/game-state.model';
 import { GameModel } from '../models/game.model';
 import { PlayersPage } from '../players/players.page';
@@ -26,6 +27,7 @@ export class GamePage implements OnInit {
 
   currentPlayer: PlayerModel;
   currentGame: GameModel;
+  currentCardSet: CardSetModel;
   state: GameStateModel;
   stateListener: BehaviorSubject<GameStateModel>;
 
@@ -64,6 +66,7 @@ export class GamePage implements OnInit {
         this.stateListener = new BehaviorSubject<GameStateModel>(this.state);
         this.currentPlayer = JSON.parse(params.player);
         this.currentGame = JSON.parse(params.game);
+        this.currentCardSet = JSON.parse(params.cardSet);
       } else {
         this.exitGame();
       }
@@ -171,7 +174,7 @@ export class GamePage implements OnInit {
     if (!this.playerModal) {
       this.playerModal = await this.modalController.create({
         component: PlayersPage,
-        componentProps: { state: this.stateListener, nickname: this.currentPlayer.name }
+        componentProps: { state: this.stateListener, nickname: this.currentPlayer.name, cardSet: this.currentCardSet }
       });
       this.playerModal.onDidDismiss().then(() => { this.playerModal = undefined; });
       await this.playerModal.present();

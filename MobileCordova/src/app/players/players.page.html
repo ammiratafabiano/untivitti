@@ -21,12 +21,12 @@
         <ion-label [ngClass]="{'myself': player.name == currentPlayer.name}">{{ player.name }}</ion-label>
         <div *ngIf="player.cards.length > 0 && player.visible || (status && player.cards.length > 0 && (player.name == currentPlayer.name || currentPlayer.ghost))" class="cards-container">
           <div class="card">
-            <img src="./assets/cardSets/{{cardSet}}/{{player.cards[0]}}.png" />
+            <img src="./assets/cardSets/{{cardSet.id}}/{{player.cards[0]}}.png" />
           </div>
         </div>
         <div *ngIf="status && player.isAdmin && ground.length > 0" class="ground-container">
           <div class="card">
-            <img src="./assets/cardSets/{{cardSet}}/{{ground[0]}}.png" />
+            <img src="./assets/cardSets/{{cardSet.id}}/{{ground[0]}}.png" />
           </div>
         </div>
         <ion-icon *ngIf="player.isAdmin" name="albums-outline" class="rotate-right"></ion-icon>
@@ -49,6 +49,11 @@
   <ion-item class="ion-padding-top" lines="none">
     <ion-label *ngIf="code">
       Codice partita: {{ code }}
+    </ion-label>
+  </ion-item>
+  <ion-item *ngIf="cardSet" lines="none">
+    <ion-label *ngIf="code">
+      Mazzo: {{ cardSet.name }}
     </ion-label>
   </ion-item>
   <ion-item *ngIf="!status" (click)="shareLink()">

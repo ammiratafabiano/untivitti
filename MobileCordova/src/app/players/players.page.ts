@@ -5,7 +5,7 @@ import { ApiService } from '../services/api.service';
 import { finalize, timeout } from 'rxjs/operators';
 import { NotificationService } from '../services/notification.service';
 import { NotificationIcons, NotificationModel } from '../models/notification.model';
-import { CardTypeEnum } from '../models/card-set.model';
+import { CardSetModel, CardTypeEnum } from '../models/card-set.model';
 import { TutorialPage } from '../tutorial/tutorial.page';
 import { LoaderService } from '../services/loader.service';
 
@@ -25,7 +25,7 @@ export class PlayersPage implements OnInit {
   reordering = false;
 
   status = true;
-  cardSet: CardTypeEnum;
+  cardSet: CardSetModel;
 
   moneyMode: boolean;
 
@@ -40,13 +40,13 @@ export class PlayersPage implements OnInit {
     private loaderService: LoaderService) {
     const stateListener = this.navParams.get('state');
     const nickname = this.navParams.get('nickname');
+    this.cardSet = this.navParams.get('cardSet');
     stateListener.subscribe(value => {
       if (!this.reordering && this.detectChange(this.players, value.players)) {
         this.players = value.players;
         this.code = value.code;
         this.currentPlayer = value.players.find(x => x.name === nickname);
         this.status = value.status;
-        this.cardSet = value.cardSet;
         this.moneyMode = value.money;
         this.ground = value.ground;
       }

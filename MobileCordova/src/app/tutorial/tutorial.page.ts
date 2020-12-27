@@ -38,6 +38,20 @@ export class TutorialPage implements OnInit {
         subtitle: 'Qui saranno elencate e spiegate le operazioni che si possono fare all\'interno della pagina iniziale.',
         sections: [
           {
+            title: 'Nickname',
+            items: [
+              {
+                title: 'E\' necessario per partecipare ad una partita già creata o per crearne una nuova.',
+                img: './assets/tutorial/nickname.png'
+              },
+              {
+                title: 'Input "Nickname"',
+                subtitle: 'Qui deve essere insertito il nickname che si vuole usare. Esso rimarrà salvato nel browser per accessi successivi.',
+                icon: 'text-outline'
+              }
+            ]
+          },
+          {
             title: 'Partecipa',
             items: [
               {
@@ -82,6 +96,25 @@ export class TutorialPage implements OnInit {
                 title: 'Bottone "Crea"',
                 subtitle: 'Consente di creare una partita con le impostazioni scelte.',
                 icon: 'arrow-forward-circle-outline'
+              }
+            ]
+          },
+          {
+            title: 'Sessione',
+            items: [
+              {
+                title: 'E\' possibile rientrare in una partita qualora si sia usciti per errore.',
+                img: './assets/tutorial/session.png'
+              },
+              {
+                title: 'Bottone "Continua"',
+                subtitle: 'Consente di continuare la partita salvata in sessione.',
+                icon: 'alert-circle-outline'
+              },
+              {
+                title: 'Bottone "x"',
+                subtitle: 'Consente di terminare la partita salvata in sessione.',
+                icon: 'close'
               }
             ]
           }
@@ -275,7 +308,7 @@ export class TutorialPage implements OnInit {
             title: 'Condivisione',
             items: [
               {
-                title: 'In questa sezione vi è la possibilità di avere e condividere le informazioni della partita.',
+                title: 'In questa sezione vi è la possibilità di vedere e condividere le informazioni della partita.',
                 img: './assets/tutorial/players-sharing.png'
               },
               {
@@ -287,6 +320,12 @@ export class TutorialPage implements OnInit {
                 title: 'Codice partita',
                 subtitle: 'E\' il codice univoco della partita che identifica univocamente il gioco con le persone presenti.',
                 icon: 'alert-circle-outline'
+              },
+              {
+                title: 'Mazzo partita',
+                subtitle: 'E\' il nome del mazzo usato in partita.',
+                icon: 'albums-outline',
+                rotateIcon: true
               }
             ]
           },
