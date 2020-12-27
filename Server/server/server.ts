@@ -195,19 +195,20 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
       const game = games.find(x => x.id == group.game)
       if (getPlayersLength(group) < game.maxPlayers) {
         if (!group.players.find(x => x.name == nickname)) {
-          const player = savedPlayer ? savedPlayer : {
+          const player = {
             name: nickname,
             isAdmin: false,
             canMove: false,
             moves: [],
             cards: [],
             visible: false,
-            balance: group.balance,
-            haveToPay: false,
+            balance: savedPlayer ? savedPlayer.balance : group.balance,
+            haveToPay: savedPlayer ? savedPlayer.haveToPay : false,
             ghost: false,
-            isWinner: false
+            isWinner: false,
+            index: savedPlayer ? savedPlayer.index : undefined
           }
-          if (player.index) {
+          if (player.index && player.index < group.players.length) {
             group.players.splice(player.index, 0, player);
           } else {
             group.players.push(player)
@@ -521,6 +522,7 @@ function deletePlayer(uuid) {
         group.players.splice(i, 1)
         if (group.status && !player.ghost && getPlayersLength(group) > 0) {
           resetGroup(group)
+          group.round -= 1;
           const text = 'Partita interrotta'
           const icon = 'Pause'
           sendNotification(group, text, icon)
