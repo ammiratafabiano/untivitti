@@ -1012,9 +1012,9 @@ function saveState(group, player) {
   if (index != -1) {
     player.index = index;
     player.round = group.round;
-    group.history.splice(index, 1, player);
+    group.history.splice(index, 1, Object.assign({}, player));
   } else {
-    group.history.push(player);
+    group.history.push(Object.assign({}, player));
   }
 }
 
