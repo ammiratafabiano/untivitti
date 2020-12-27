@@ -85,14 +85,14 @@ export class HomePage {
     this.getCode();
   }
 
-  private goToGame(currentPlayer: PlayerModel, group: GameStateModel) {
+  private goToGame(currentPlayer: PlayerModel, group: GameStateModel, cardSet: CardSetModel) {
     this.saveData().then(_ => {
       const navigationExtras: NavigationExtras = {
         queryParams: {
             group: JSON.stringify(group),
             player: JSON.stringify(currentPlayer),
             game: JSON.stringify(this.games.find(x => x.id === group.game)),
-            cardSet: JSON.stringify(this.cardSets.find(x => x.id === group.cardSet))
+            cardSet: JSON.stringify(cardSet)
         },
         skipLocationChange: true
       };
@@ -160,7 +160,8 @@ export class HomePage {
       if (response.success && response.data) {
         const group = response.data;
         const currentPlayer = response.data.players.find(x => x.name === this.nickname);
-        this.goToGame(currentPlayer, group);
+        const cardSet = this.cardSets.find(x => x.id === group.cardSet);
+        this.goToGame(currentPlayer, group, cardSet);
       } else {
         this.presentAlert('Qualcosa non va, riprova più tardi.');
       }
@@ -170,9 +171,10 @@ export class HomePage {
   private retrieveGroup() {
     this.api.joinGroup(this.nickname, this.code).subscribe((response) => {
       if (response.success && response.data) {
-        const group = response.data;
-        const currentPlayer = response.data.players.find(x => x.name === this.nickname);
-        this.goToGame(currentPlayer, group);
+        const group = response.data.group;
+        const currentPlayer = group.players.find(x => x.name === this.nickname);
+        const cardSet = response.data.cardSet;
+        this.goToGame(currentPlayer, group, cardSet);
       } else {
         switch (response.errorCode) {
           case JoinErrorEnum.Duplicate:

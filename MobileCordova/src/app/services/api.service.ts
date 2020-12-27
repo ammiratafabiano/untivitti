@@ -64,7 +64,7 @@ export class ApiService {
       );
   }
 
-  joinGroup(nickname: string, code: string): Observable<ResponseModel<GameStateModel>>{
+  joinGroup(nickname: string, code: string): Observable<ResponseModel<any>>{
     return this.http
       .get<ResponseModel<any>>(this.endpoint + '/joinGroup/' + nickname + '/' + code)
       .pipe(
