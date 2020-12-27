@@ -195,6 +195,7 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
   let group = groups.find(x => x.code == req.params['code'])
   let response
   if (group) {
+    const cardSet = cardSets.concat(extraCardSets).find(x => x.id == group.cardSet)
     const savedPlayer = loadState(group, nickname)
     if ((group.status != true && group.round == 0) || 
         (group.status != true && group.round > 0 && savedPlayer)) {
@@ -229,7 +230,7 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
           sendNotification(group, text, icon)
           response = {
             success: true,
-            data: group
+            data: { group, cardSet }
           }
         } else {
           response = {
