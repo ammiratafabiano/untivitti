@@ -262,6 +262,7 @@ export class HomePage {
     this.extraSetCounter += 1;
     if (this.extraSetCounter === 3) {
       this.addCardSet();
+      this.extraSetCounter = 0;
     }
   }
 
