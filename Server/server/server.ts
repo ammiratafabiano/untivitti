@@ -204,7 +204,7 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
             visible: false,
             balance: savedPlayer ? savedPlayer.balance : group.balance,
             haveToPay: savedPlayer ? savedPlayer.haveToPay : false,
-            ghost: false,
+            ghost: savedPlayer ? savedPlayer.ghost : false,
             isWinner: false,
             index: savedPlayer ? savedPlayer.index : undefined
           }
@@ -213,7 +213,11 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
           } else {
             group.players.push(player)
           }
-          setAdmin(group)
+          if (savedPlayer && savedPlayer.isAdmin && !savedPlayer.ghost && group.round == savedPlayer.round) {
+            setAdmin(group, undefined, player)
+          } else {
+            setAdmin(group)
+          }
           const text = nickname + ' si è connesso/a'
           const icon = 'Login'
           sendNotification(group, text, icon)
@@ -872,14 +876,19 @@ function getPlayersLength(group) {
   return count
 }
 
-function setAdmin(group, next = false) {
+function setAdmin(group, next = false, player?) {
   const admin = group.players.find(x => x.isAdmin == true)
   if (admin) {
     admin.isAdmin = false
     admin.moves = []
   }
   if (getPlayersLength(group) > 0) {
-    const newAdmin = getNextPlayer(group, admin, next)
+    let newAdmin;
+    if (player) {
+      newAdmin = player;
+    } else {
+      newAdmin = getNextPlayer(group, admin, next)
+    }
     if (newAdmin) {
       newAdmin.isAdmin = true
       newAdmin.moves = getAdminMoves(group)
@@ -1002,6 +1011,7 @@ function saveState(group, player) {
   const index = group.history.findIndex(x => x.name == player.name)
   if (index != -1) {
     player.index = index;
+    player.round = group.round;
     group.history.splice(index, 1, player);
   } else {
     group.history.push(player);
