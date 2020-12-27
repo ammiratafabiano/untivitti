@@ -53,7 +53,7 @@ export class NotificationService {
   async showNotification(notification: NotificationModel) {
     this.queue++;
     setTimeout(async () => {
-      let buttons = [];
+      const buttons = [];
       if (notification.icon) {
         buttons.push({
           side: 'start',
@@ -71,7 +71,7 @@ export class NotificationService {
       const toast = await this.toastController.create({
         message: notification.message,
         duration: notification.time,
-        buttons: buttons
+        buttons
       });
       toast.onDidDismiss().then(_ => { this.queue--; });
       toast.present();

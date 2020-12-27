@@ -50,7 +50,7 @@ export class StateUpdateService {
           case 'move':
             break;
           case 'text':
-            this.impressedTextService.openTextModal(msg.text, msg.from);
+            this.impressedTextService.addImpressedText(msg.text, msg.from);
             break;
           default:
             console.log(msg);

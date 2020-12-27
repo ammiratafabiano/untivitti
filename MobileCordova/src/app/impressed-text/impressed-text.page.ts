@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
-import { AnimationController, NavParams } from '@ionic/angular';
+import { AnimationController, ModalController, NavParams } from '@ionic/angular';
+import { ImpressedTextModel } from '../models/impressed-text.model';
 
 @Component({
   selector: 'app-impressed-text',
@@ -10,11 +11,13 @@ export class ImpressedTextPage implements OnInit, AfterViewInit {
 
   @ViewChild('text') text: ElementRef;
 
-  msg: any;
+  msg: ImpressedTextModel;
+  showClose = false;
 
   constructor(
     private animationCtrl: AnimationController,
-    public navParams: NavParams) {
+    public navParams: NavParams,
+    private modalController: ModalController) {
     this.msg = this.navParams.get('msg');
   }
 
@@ -32,8 +35,13 @@ export class ImpressedTextPage implements OnInit, AfterViewInit {
       .duration(100)
       .fromTo('transform', 'scale(1.2)', 'scale(1)')
       .onFinish(() => {
+        this.showClose = true;
       }).play();
     }).play();
+  }
+
+  dismiss() {
+    this.modalController.dismiss();
   }
 
 }

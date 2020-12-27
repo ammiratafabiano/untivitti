@@ -5,7 +5,14 @@
 </div>
 <div *ngIf="msg.from" #text class="center">
   <div class="subtitle">
-    <ion-text color="primary">{{ msg.from }}</ion-text>
+    <ion-item lines="none">
+      <ion-text color="primary">{{ msg.from }}</ion-text>
+      <ion-buttons *ngIf="showClose" slot="end">
+        <ion-button color="dark" (click)="dismiss()">
+            <ion-icon name="close"></ion-icon>
+        </ion-button>
+      </ion-buttons>
+    </ion-item>
   </div>
   <div class="title">
     <ion-text>{{ msg.text }}</ion-text>

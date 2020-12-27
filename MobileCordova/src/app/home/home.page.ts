@@ -103,7 +103,9 @@ export class HomePage {
   }
 
   private async saveData(): Promise<void> {
-    this.utils.setStorage('nickname', this.nickname);
+    if (this.nickname !== '' && this.nickname !== undefined) {
+      this.utils.setStorage('nickname', this.nickname);
+    }
   }
 
   private loadData() {
