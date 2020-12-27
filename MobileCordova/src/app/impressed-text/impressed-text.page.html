@@ -6,7 +6,7 @@
 <div *ngIf="msg.from" #text class="center">
   <div class="subtitle">
     <ion-text color="primary">{{ msg.from }}</ion-text>
-    <ion-icon class="close" slot="end" name="close" (click)="dismiss()"></ion-icon>
+    <ion-icon *ngIf="showClose" class="close" slot="end" name="close" (click)="dismiss()"></ion-icon>
   </div>
   <div class="title">
     <ion-text>{{ msg.text }}</ion-text>
