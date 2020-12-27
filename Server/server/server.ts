@@ -999,7 +999,7 @@ function saveState(group, player) {
   const index = group.history.findIndex(x => x.name == player.name)
   if (index != -1) {
     player.index = index;
-    group.histroy.splice(index, 1, player);
+    group.history.splice(index, 1, player);
   } else {
     group.history.push(player);
   }
