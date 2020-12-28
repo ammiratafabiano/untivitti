@@ -136,7 +136,9 @@ const games = [
       },
       {
         name: 'Ritira carte',
-        id: 1,                        
+        id: 1,            
+        disabled: false,
+        icon: 'albums-outline',            
         rotateIcon: false,
         side: 'top',
         status: true
