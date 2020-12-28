@@ -22,8 +22,8 @@ export class HomePage {
   code: string;
   nickname: string;
 
-  selectedSet: CardSetModel;
-  selectedGame: GameModel;
+  selectedSet: number;
+  selectedGame: number;
   money = true;
   balance: number;
 
@@ -32,6 +32,7 @@ export class HomePage {
   cardSets: CardSetModel[];
   extraSet: string;
   games: GameModel[];
+  filteredGames: GameModel[];
 
   isOffline = false;
 
@@ -55,7 +56,6 @@ export class HomePage {
           this.checkExistingSession(true);
         }
         if (params && params.extraSet) {
-          this.notificationService.addNotification('Set di carte nascosto sbloccato!', NotificationIcons.Info, 4000);
           this.extraSet = params.extraSet;
         }
       });
@@ -118,7 +118,6 @@ export class HomePage {
 
   private loadData() {
     this.nickname = this.utils.getStorage('nickname');
-    this.getCardSets();
     this.getGames();
   }
 
@@ -127,7 +126,18 @@ export class HomePage {
       response => {
         if (response.success && response.data) {
           this.cardSets = response.data;
-          this.selectedSet = this.cardSets.filter(x => x.code === this.extraSet)[0];
+          const set = this.cardSets.filter(x => x.code === this.extraSet)[0];
+          if (set) {
+            this.selectedSet = this.cardSets.filter(x => x.code === this.extraSet)[0].id;
+            if (this.extraSet) {
+              this.notificationService.addNotification('Set di carte nascosto sbloccato!', NotificationIcons.Info, 4000);
+            }
+          } else {
+            this.selectedSet = this.cardSets[0].id;
+            this.notificationService.addNotification('Codice carte inesistente!', NotificationIcons.Info, 4000);
+          }
+          this.onCardSetSelected();
+          this.onGameSelected();
         } else {
           this.setOfflineStatus();
         }
@@ -143,8 +153,7 @@ export class HomePage {
       response => {
         if (response.success && response.data) {
           this.games = response.data;
-          this.selectedGame = this.games[0];
-          this.balance = this.selectedGame.defaultBalance;
+          this.getCardSets();
         } else {
           this.setOfflineStatus();
         }
@@ -156,8 +165,9 @@ export class HomePage {
   }
 
   private getCode() {
-    this.api.createGroup(this.nickname, this.selectedSet.id, this.selectedGame.id, this.money, this.balance).subscribe((response) => {
-      if (response.success && response.data) {
+    const selectedGame = this.filteredGames.find(x => x.id === this.selectedGame);
+    this.api.createGroup(this.nickname, this.selectedSet, selectedGame.id, this.money, this.balance).subscribe((response) => {
+      if (response.success && response.data && selectedGame.id !== 1) {
         const group = response.data;
         const currentPlayer = response.data.players.find(x => x.name === this.nickname);
         const cardSet = this.cardSets.find(x => x.id === group.cardSet);
@@ -298,6 +308,15 @@ export class HomePage {
     });
 
     await alert.present();
+  }
+
+  onCardSetSelected() {
+    this.filteredGames = this.games.filter(x => this.cardSets.find(y => y.id === this.selectedSet).games.includes(x.id));
+    this.selectedGame = this.filteredGames[0].id;
+  }
+
+  onGameSelected() {
+    this.balance = this.games.find(x => x.id === this.selectedGame).defaultBalance;
   }
 
 }

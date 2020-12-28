@@ -9,4 +9,5 @@ export class CardSetModel {
   name: string;
   size: number;
   code: string;
+  games: number[];
 }

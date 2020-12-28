@@ -8,6 +8,7 @@ import { NotificationIcons, NotificationModel } from '../models/notification.mod
 import { CardSetModel, CardTypeEnum } from '../models/card-set.model';
 import { TutorialPage } from '../tutorial/tutorial.page';
 import { LoaderService } from '../services/loader.service';
+import { GameModel } from '../models/game.model';
 
 @Component({
   selector: 'app-players',
@@ -26,6 +27,7 @@ export class PlayersPage implements OnInit {
 
   status = true;
   cardSet: CardSetModel;
+  game: GameModel;
 
   moneyMode: boolean;
 
@@ -41,6 +43,7 @@ export class PlayersPage implements OnInit {
     const stateListener = this.navParams.get('state');
     const nickname = this.navParams.get('nickname');
     this.cardSet = this.navParams.get('cardSet');
+    this.game = this.navParams.get('game');
     stateListener.subscribe(value => {
       if (!this.reordering && this.detectChange(this.players, value.players)) {
         this.players = value.players;

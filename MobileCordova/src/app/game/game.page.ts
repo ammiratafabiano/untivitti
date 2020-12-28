@@ -174,7 +174,12 @@ export class GamePage implements OnInit {
     if (!this.playerModal) {
       this.playerModal = await this.modalController.create({
         component: PlayersPage,
-        componentProps: { state: this.stateListener, nickname: this.currentPlayer.name, cardSet: this.currentCardSet }
+        componentProps: {
+          state: this.stateListener,
+          nickname: this.currentPlayer.name,
+          cardSet: this.currentCardSet,
+          game: this.currentGame
+        }
       });
       this.playerModal.onDidDismiss().then(() => { this.playerModal = undefined; });
       await this.playerModal.present();

@@ -1,9 +1,10 @@
 export enum GameTypeEnum {
-    Cucu = 0
+    Cucu = 0,
+    Bacara = 1
 }
 
 export class GameModel {
-    id: number;
+    id: GameTypeEnum;
     name: string;
     handCards: number;
     minPlayers: number;

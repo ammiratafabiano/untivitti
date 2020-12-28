@@ -52,21 +52,21 @@
         Nuovo gruppo
       </ion-label>
     </ion-list-header>
-    <ion-item *ngIf="selectedSet">
-      <ion-label (click)="addCardSet()">Set di carte</ion-label>
-      <ion-select required [(ngModel)]="selectedSet.id" [ngModelOptions]="{standalone: true}"
-        (ionCancel)="onCardSetSelectCancel()" cancelText="Annulla" okText="Ok">
+    <ion-item *ngIf="selectedSet != undefined">
+      <ion-label>Set di carte</ion-label>
+      <ion-select required [(ngModel)]="selectedSet" [ngModelOptions]="{standalone: true}"
+        (ionCancel)="onCardSetSelectCancel()" (ionChange)="onCardSetSelected()" cancelText="Annulla" okText="Ok">
         <ion-select-option *ngFor="let set of cardSets" [value]="set.id">{{ set.name }}</ion-select-option>
       </ion-select>
     </ion-item>
-    <ion-item *ngIf="selectedGame">
+    <ion-item *ngIf="selectedGame != undefined">
       <ion-label>Gioco</ion-label>
-      <ion-select required [(ngModel)]="selectedGame.id" [ngModelOptions]="{standalone: true}"
-        cancelText="Annulla" okText="Ok">
-        <ion-select-option *ngFor="let game of games" [value]="game.id">{{ game.name }}</ion-select-option>
+      <ion-select required [(ngModel)]="selectedGame" [ngModelOptions]="{standalone: true}"
+      (ionChange)="onGameSelected()" cancelText="Annulla" okText="Ok">
+        <ion-select-option *ngFor="let game of filteredGames" [value]="game.id">{{ game.name }}</ion-select-option>
       </ion-select>
     </ion-item>
-    <ion-item *ngIf="selectedGame">
+    <ion-item *ngIf="selectedGame != undefined">
       <ion-label>Monete:</ion-label>
       <ion-input type="number" [(ngModel)]="balance" [disabled]="!money"></ion-input>
       <ion-toggle slot="end" [(ngModel)]="money" color="warning"></ion-toggle>
