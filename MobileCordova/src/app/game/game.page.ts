@@ -278,6 +278,22 @@ export class GamePage implements OnInit {
     .fromTo('transform', 'translateX(0) translateY(0) rotate(0)', 'translateX(-100%) translateY(-50%) rotate(-30deg)');
   }
 
+  showNextAnimation() {
+    this.animationCtrl.create()
+    .addElement(this.ground.nativeElement)
+    .duration(1000)
+    .fromTo('transform', 'translateX(100%) translateY(-100%)', 'translateX(20%) translateY(-100%)')
+    .onFinish(() => {
+      this.animationCtrl.create()
+      .addElement(this.ground.nativeElement)
+      .duration(1000)
+      .fromTo('transform', 'translateX(20%) translateY(-100%)', 'translateX(100%) translateY(-100%)')
+      .onFinish(() => {
+        this.tempGround = undefined;
+      }).play();
+    }).play();
+  }
+
   checkSwapBack() {
     if (this.tempCard === undefined && this.currentPlayer.cards.length > 0) {
       this.tempCard = this.currentPlayer.cards[0];
@@ -304,7 +320,10 @@ export class GamePage implements OnInit {
     } else if (!this.currentPlayer.isAdmin && this.currentPlayer.cards.length > 0
       && this.currentPlayer.lastMove === 5 && this.tempCard === this.currentPlayer.cards[0] && this.moving) {
       this.moving = false;
-      this.swapAnimationEnd().play();
+      this.tempGround = this.getNextCard();
+      this.swapAnimationEnd().onFinish(() => {
+        this.showNextAnimation();
+      }).play();
     }
   }
 
@@ -363,5 +382,14 @@ export class GamePage implements OnInit {
     });
 
     await alert.present();
+  }
+
+  getNextCard() {
+    let card;
+    const index = this.state.players.findIndex(x => x.name === this.currentPlayer.name);
+    do {
+      card = this.state.players[(index + 1) % this.state.players.length].cards[0];
+    } while (!card);
+    return card;
   }
 }
