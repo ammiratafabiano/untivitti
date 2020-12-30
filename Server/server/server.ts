@@ -1106,16 +1106,11 @@ function getNewTeam(group) {
   const nTeams = game.teams;
   let members = []
   for (let i = 0; i < nTeams; i++) {
-    if (game.fixedDealer && i == 0) {
-      members.push(Infinity)
-    } else {
-      const players = group.players.filter(x => x.team == i)
-      console.log(i, players.length)
-      members.push(players.length)
-    }
+    const index = game.fixedDealer ? i + 1 : i
+    const players = group.players.filter(x => x.team == index)
+    members.push(players.length)
   }
-  console.log(members)
   const min = Math.min(...members)
   const newTeam = members.indexOf(min)
-  return newTeam
+  return game.fixedDealer ? newTeam + 1 : newTeam
 }
