@@ -58,6 +58,8 @@ const games = [
     defaultBalance: 3,
     mustShow: true,
     maxValue: 10,
+    fixedDealer: false,
+    teams: 0,
     adminMoves: [
       {
         name: 'Distribuisci',
@@ -124,6 +126,8 @@ const games = [
     defaultBalance: 500,
     mustShow: true,
     maxValue: 13,
+    fixedDealer: true,
+    teams: 2,
     adminMoves: [
       {
         name: 'Distribuisci',
@@ -240,7 +244,9 @@ app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
         balance: req.body.balance,
         haveToPay: false,
         ghost: false,
-        isWinner: false
+        isWinner: false,
+        index: 0,
+        team: game.teams ? 0 : undefined
       }
     ]
   }
@@ -276,7 +282,8 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
             haveToPay: savedPlayer ? savedPlayer.haveToPay : false,
             ghost: savedPlayer ? savedPlayer.ghost : false,
             isWinner: false,
-            index: savedPlayer ? savedPlayer.index : undefined
+            index: savedPlayer ? savedPlayer.index : undefined,
+            team: savedPlayer ? savedPlayer.team : getNewTeam(group)
           }
           if (player.index && player.index < group.players.length) {
             group.players.splice(player.index, 0, player);
@@ -1075,21 +1082,34 @@ function checkWinner(group) {
 }
 
 function isFinished(group) {
-  const winner = group.players.find(x => x.isWinner === true);
-  return winner != undefined;
+  const winner = group.players.find(x => x.isWinner === true)
+  return winner != undefined
 }
 
 function saveState(group, player) {
   const index = group.history.findIndex(x => x.name == player.name)
   if (index != -1) {
-    player.index = index;
-    player.round = group.round;
-    group.history.splice(index, 1, Object.assign({}, player));
+    player.index = index
+    player.round = group.round
+    group.history.splice(index, 1, Object.assign({}, player))
   } else {
-    group.history.push(Object.assign({}, player));
+    group.history.push(Object.assign({}, player))
   }
 }
 
 function loadState(group, nickname) {
   return group.history.find(x => x.name == nickname)
+}
+
+function getNewTeam(group) {
+  const game = games.find(x => x.id == group.game)
+  const nTeams = game.fixedDealer ? game.teams - 1 : game.teams;
+  let members = []
+  for (let i = 0; i < nTeams; i++) {
+    const players = group.players.filter(x => x.team == i)
+    members.push(players.length)
+  }
+  const min = Math.min(...members)
+  const newTeam = members.indexOf(min)
+  return game.fixedDealer ? newTeam + 1 : newTeam
 }
