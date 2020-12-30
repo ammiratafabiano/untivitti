@@ -278,8 +278,8 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
             } else {
               team = savedPlayer.team
             }
+            index = getIndexByTeam(group, team)
           }
-          index = getIndexByTeam(group, team)
           const player = {
             name: nickname,
             isAdmin: false,
