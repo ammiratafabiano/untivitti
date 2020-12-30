@@ -1096,10 +1096,12 @@ function isFinished(group) {
 }
 
 function saveState(group, player) {
-  const index = group.history.findIndex(x => x.name == player.name)
-  if (index != -1) {
+  const historyIndex = group.history.findIndex(x => x.name == player.name)
+  if (historyIndex != -1) {
     player.round = group.round
-    group.history.splice(index, 1, Object.assign({}, player))
+    const index = group.players.findIndex(x => x.name == player.name)
+    player.index = index
+    group.history.splice(historyIndex, 1, Object.assign({}, player))
   } else {
     group.history.push(Object.assign({}, player))
   }
