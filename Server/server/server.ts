@@ -1098,7 +1098,6 @@ function isFinished(group) {
 function saveState(group, player) {
   const index = group.history.findIndex(x => x.name == player.name)
   if (index != -1) {
-    player.index = index
     player.round = group.round
     group.history.splice(index, 1, Object.assign({}, player))
   } else {
@@ -1131,5 +1130,5 @@ function getIndexByTeam(group, team) {
       last = i
     }
   }
-  return last
+  return last + 1
 }
