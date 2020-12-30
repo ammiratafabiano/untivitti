@@ -388,6 +388,7 @@ app.post('/updatePlayers', jsonParser, cors(corsOptions), (req, res) => {
   let response
   if (group) {
     group.players = solveConflicts(group, newPlayers);
+    resetTeams(group)
     response = {
       success: true
     }
@@ -1133,4 +1134,21 @@ function getIndexByTeam(group, team) {
     }
   }
   return last + 1
+}
+
+function resetTeams(group) {
+  const game = games.find(x => x.id == group.game)
+  if (game.teams) {
+    let current = 0
+    let count = 0
+    for (let i = 0; i < group.players.length; i++) {
+      if (group.players[i].team != current + 1 || count == 0) {
+        group.players[i].team = current
+        count += 1
+      } else {
+        current += 1
+        count = 0
+      }
+    }
+  }
 }
