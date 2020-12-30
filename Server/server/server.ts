@@ -283,7 +283,7 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
             ghost: savedPlayer ? savedPlayer.ghost : false,
             isWinner: false,
             index: savedPlayer ? savedPlayer.index : undefined,
-            team: savedPlayer ? savedPlayer.team : getNewTeam(group)
+            team: savedPlayer ? savedPlayer.team : game.teams ? getNewTeam(group) : undefined
           }
           if (player.index && player.index < group.players.length) {
             group.players.splice(player.index, 0, player);
