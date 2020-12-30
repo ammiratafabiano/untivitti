@@ -1126,7 +1126,7 @@ function getNewTeam(group) {
 }
 
 function getIndexByTeam(group, team) {
-  let last = 0
+  let last = group.players.length - 1
   for (let i = 0; i < group.players.length; i++) {
     if (group.players[i].team == team) {
       last = i
