@@ -273,8 +273,13 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
         if (!group.players.find(x => x.name == nickname)) {
           let team, index
           if (game.teams) {
-            [team, index] = getNewTeam(group)
+            if (!savedPlayer) {
+              team = getNewTeam(group)
+            } else {
+              team = savedPlayer.team
+            }
           }
+          index = getIndexByTeam(group, team)
           const player = {
             name: nickname,
             isAdmin: false,
@@ -286,8 +291,8 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
             haveToPay: savedPlayer ? savedPlayer.haveToPay : false,
             ghost: savedPlayer ? savedPlayer.ghost : false,
             isWinner: false,
-            index: savedPlayer ? savedPlayer.index : game.teams ? index : undefined,
-            team: savedPlayer ? savedPlayer.team : game.teams ? team : undefined
+            index: game.teams ? index : savedPlayer ? savedPlayer.index : undefined,
+            team: team
           }
           if (player.index && player.index < group.players.length) {
             group.players.splice(player.index, 0, player);
@@ -1116,11 +1121,15 @@ function getNewTeam(group) {
   }
   const min = Math.min(...members)
   const newTeam = members.indexOf(min)
+  return game.fixedDealer ? newTeam + 1 : newTeam
+}
+
+function getIndexByTeam(group, team) {
   let last = 0
   for (let i = 0; i < group.players.length; i++) {
-    if (group.players[i].team == newTeam) {
+    if (group.players[i].team == team) {
       last = i
     }
   }
-  return game.fixedDealer ? [newTeam + 1, last + 1] : [newTeam, last + 1]
+  return last
 }
