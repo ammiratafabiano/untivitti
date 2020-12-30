@@ -1103,13 +1103,17 @@ function loadState(group, nickname) {
 
 function getNewTeam(group) {
   const game = games.find(x => x.id == group.game)
-  const nTeams = game.fixedDealer ? game.teams - 1 : game.teams;
+  const nTeams = game.teams;
   let members = []
   for (let i = 0; i < nTeams; i++) {
-    const players = group.players.filter(x => x.team == i)
-    members.push(players.length)
+    if (game.fixedDealer && i == 0) {
+      members.push(Infinity)
+    } else {
+      const players = group.players.filter(x => x.team == i)
+      members.push(players.length)
+    }
   }
   const min = Math.min(...members)
   const newTeam = members.indexOf(min)
-  return game.fixedDealer ? newTeam + 1 : newTeam
+  return newTeam
 }
