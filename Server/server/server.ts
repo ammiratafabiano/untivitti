@@ -1110,9 +1110,11 @@ function getNewTeam(group) {
       members.push(Infinity)
     } else {
       const players = group.players.filter(x => x.team == i)
+      console.log(i, players.length)
       members.push(players.length)
     }
   }
+  console.log(members)
   const min = Math.min(...members)
   const newTeam = members.indexOf(min)
   return newTeam
