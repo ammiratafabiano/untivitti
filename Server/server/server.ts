@@ -1146,14 +1146,14 @@ function getIndexByTeam(group, team) {
 
 function resetDealer(group) {
   let list = []
-    group.players.array.forEach(player => {
+    group.players.forEach(player => {
       if (player.isAdmin) {
         list.push(player.name)
         player.isAdmin = false
         player.moves = []
       }
     });
-    group.players.array.forEach(player => {
+    group.players.forEach(player => {
       if (player.team == 0) {
         player.isAdmin = false
         player.moves = []
