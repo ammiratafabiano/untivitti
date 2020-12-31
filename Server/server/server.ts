@@ -142,7 +142,7 @@ const games = [
         name: 'Ritira carte',
         id: 1,            
         disabled: false,
-        icon: 'albums-outline',            
+        icon: 'download-outline',            
         rotateIcon: false,
         side: 'top',
         status: true
