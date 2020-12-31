@@ -1155,8 +1155,8 @@ function resetDealer(group) {
     });
     group.players.forEach(player => {
       if (player.team == 0) {
-        player.isAdmin = false
-        player.moves = []
+        player.isAdmin = true
+        player.moves = getAdminMoves(group)
         if (!list.includes(player.name)) {
           const text = player.name + ' è il nuovo mazziere'
           const icon = 'Admin'
