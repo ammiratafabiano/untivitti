@@ -382,12 +382,16 @@ app.get('/getGames', cors(corsOptions), (req, res) => {
 })
 
 app.post('/updatePlayers', jsonParser, cors(corsOptions), (req, res) => {
+  const game = games.find(x => x.id == group.game)
   let newPlayers = req.body.players;
   const code = req.body.code;
   const group = groups.find(x => x.code == code);
   let response
   if (group) {
     group.players = solveConflicts(group, newPlayers);
+    if (game.fixedDealer && game.teams) {
+      resetDealer(group)
+    } 
     response = {
       success: true
     }
@@ -965,26 +969,31 @@ function getPlayersLength(group) {
 }
 
 function setAdmin(group, next = false, player?) {
-  const admin = group.players.find(x => x.isAdmin == true)
-  if (admin) {
-    admin.isAdmin = false
-    admin.moves = []
-  }
-  if (getPlayersLength(group) > 0) {
-    let newAdmin;
-    if (player) {
-      newAdmin = player;
-    } else {
-      newAdmin = getNextPlayer(group, admin, next)
+  const game = games.find(x => x.id == group.game)
+  if (game.fixedDealer && game.teams) {
+    resetDealer(group)
+  } else {
+    const admin = group.players.find(x => x.isAdmin == true)
+    if (admin) {
+      admin.isAdmin = false
+      admin.moves = []
     }
-    if (newAdmin) {
-      newAdmin.isAdmin = true
-      newAdmin.moves = getAdminMoves(group)
-    }
-    if (!admin || admin.name != newAdmin.name) {
-      const text = newAdmin.name + ' è il nuovo mazziere'
-      const icon = 'Admin'
-      sendNotification(group, text, icon)
+    if (getPlayersLength(group) > 0) {
+      let newAdmin;
+      if (player) {
+        newAdmin = player;
+      } else {
+        newAdmin = getNextPlayer(group, admin, next)
+      }
+      if (newAdmin) {
+        newAdmin.isAdmin = true
+        newAdmin.moves = getAdminMoves(group)
+      }
+      if (!admin || admin.name != newAdmin.name) {
+        const text = newAdmin.name + ' è il nuovo mazziere'
+        const icon = 'Admin'
+        sendNotification(group, text, icon)
+      }
     }
   }
 }
@@ -1133,4 +1142,26 @@ function getIndexByTeam(group, team) {
     }
   }
   return last + 1
+}
+
+function resetDealer(group) {
+  let list = []
+    group.players.array.forEach(player => {
+      if (player.isAdmin) {
+        list.push(player.name)
+        player.isAdmin = false
+        player.moves = []
+      }
+    });
+    group.players.array.forEach(player => {
+      if (player.team == 0) {
+        player.isAdmin = false
+        player.moves = []
+        if (!list.includes(player.name)) {
+          const text = player.name + ' è il nuovo mazziere'
+          const icon = 'Admin'
+          sendNotification(group, text, icon)
+        }
+      }
+    });
 }
