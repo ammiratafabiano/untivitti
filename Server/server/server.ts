@@ -722,6 +722,9 @@ function startMove(group, player) {
         group.players.forEach(player => {
           if (player.team == i) {
             player.cards = newCards;
+            if (i != 0) {
+              player.canMove = true;
+            }
           }
         });
       }
@@ -729,6 +732,7 @@ function startMove(group, player) {
       const text = player.name +  ' ha distribuito le carte'
       const icon = 'Start'
       sendNotification(group, text, icon)
+
       return true
     } else {
       group.status = true
