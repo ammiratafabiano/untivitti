@@ -267,7 +267,8 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
     const cardSet = cardSets.concat(extraCardSets).find(x => x.id == group.cardSet)
     const savedPlayer = loadState(group, nickname)
     if ((group.status != true && group.round == 0) || 
-        (group.status != true && group.round > 0 && savedPlayer)) {
+        (group.status != true && group.round > 0 && savedPlayer) ||
+        (group.status == true && group.round > 0 && savedPlayer && savedPlayer.ghost)) {
       const game = games.find(x => x.id == group.game)
       if (getPlayersLength(group) < game.maxPlayers) {
         if (!group.players.find(x => x.name == nickname)) {
