@@ -144,7 +144,7 @@ const games = [
         disabled: false,
         icon: 'download-outline',            
         rotateIcon: false,
-        side: 'top',
+        side: 'bottom',
         status: true
       }
     ],
@@ -707,42 +707,71 @@ function executeMove(group, player, move) {
 function startMove(group, player) {
   const game = games.find(x => x.id == group.game)
   if (player.isAdmin) {
-    group.status = true
-    group.cards = getShuffledSet(group.cardSet)
-    group.ground = []
-    for (let i = 0; i < group.players.length; i++) {
-      group.players[i].cards = []
-      group.players[i].isWinner = false
-      if (!group.players[i].ghost) {
+    if (game.fixedDealer) {
+      group.status = true
+      // TODO: check for reset group
+      if (!group.cards) {
+        group.cards = getShuffledSet(group.cardSet, 6)
+      }
+      group.ground = []
+      for (let i = 0; i < group.teams; i++) {
+        const newCards = []
         for (let j = 0; j < game.handCards; j++) {
-          group.players[i].cards.push(group.cards.pop())
+          newCards.push(group.cards.pop())
+        }
+        group.players.array.forEach(player => {
+          if (player.team == i) {
+            player.cards = newCards;
+          }
+        });
+      }
+      group.round += 1
+      const text = player.name +  ' ha distribuito le carte'
+      const icon = 'Start'
+      sendNotification(group, text, icon)
+      return true
+    } else {
+      group.status = true
+      group.cards = getShuffledSet(group.cardSet)
+      group.ground = []
+      for (let i = 0; i < group.players.length; i++) {
+        group.players[i].cards = []
+        group.players[i].isWinner = false
+        if (!group.players[i].ghost) {
+          for (let j = 0; j < game.handCards; j++) {
+            group.players[i].cards.push(group.cards.pop())
+          }
         }
       }
+      group.round += 1
+      const text = player.name +  ' ha distribuito le carte'
+      const icon = 'Start'
+      sendNotification(group, text, icon)
+      return turnChange(group, player)
     }
-    group.round += 1
-    const text = player.name +  ' ha distribuito le carte'
-    const icon = 'Start'
-    sendNotification(group, text, icon)
-    return turnChange(group, player)
   } else {
     return false
   }
 }
 
 function stopMove(group, player) {
+  const game = games.find(x => x.id == group.game)
   if (player.isAdmin) {
-    const isFinished = group.players.findIndex(x => x.canMove) == -1;
-    if (isFinished) {
-      resetGroup(group)
-      passMove(group, player)
+    if (game.fixedDealer) {
+
     } else {
-      resetGroup(group)
-      group.round -= 1;
-      const text = player.name +  ' ha ritirato le carte'
-      const icon = 'Pause'
-      sendNotification(group, text, icon)
+      const isFinished = group.players.findIndex(x => x.canMove) == -1;
+      if (isFinished) {
+        passMove(group, player)
+      } else {
+        resetGroup(group)
+        group.round -= 1;
+        const text = player.name +  ' ha ritirato le carte'
+        const icon = 'Pause'
+        sendNotification(group, text, icon)
+      }
+      return true
     }
-    return true
   } else {
     return false
   }
@@ -806,12 +835,15 @@ function swapMove(group, player) {
 }
 
 function passMove(group, player) {
+  const game = games.find(x => x.id == group.game)
   if (player.isAdmin) {
     resetGroup(group)
-    const text = player.name +  ' passa il mazzo'
-    const icon = 'Admin'
-    sendNotification(group, text, icon, [player.name])
-    setAdmin(group, true)
+    if (!game.fixedDealer) {
+      const text = player.name +  ' passa il mazzo'
+      const icon = 'Admin'
+      sendNotification(group, text, icon, [player.name])
+      setAdmin(group, true)
+    }
     return true
   } else {
     return false
@@ -859,9 +891,12 @@ function turnStop(group, player) {
   return true
 }
 
-function getShuffledSet(cardSet) {
+function getShuffledSet(cardSet, decks = 1) {
   const size = cardSets.concat(extraCardSets).find(x => x.id == cardSet).size
-  for (var array=[],i=0; i < size; ++i) array[i]=i
+  let array = []
+  for (let i = 0; i < decks; i++) {
+    for (let j=0; j < size; ++j) array.push(j)
+  }
   var tmp, current, top = array.length
   if(top) while(--top) {
     current = Math.floor(Math.random() * (top + 1))
@@ -886,7 +921,9 @@ function getNextPlayer(group, player, next = true) {
 function resetGroup(group, hard?) {
   const game = games.find(x => x.id == group.game)
   group.status = false
-  group.cards = []
+  if (!game.fixedDealer) {
+    group.cards = []
+  }
   group.ground = []
   for (let i = 0; i < group.players.length; i++) {
     group.players[i].cards = []
