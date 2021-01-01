@@ -710,7 +710,7 @@ function startMove(group, player) {
     if (game.fixedDealer) {
       group.status = true
       // TODO: check for reset group
-      if (!group.cards) {
+      if (group.cards.length == 0) {
         group.cards = getShuffledSet(group.cardSet, 6)
       }
       group.ground = []
