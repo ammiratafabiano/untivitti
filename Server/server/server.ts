@@ -563,13 +563,18 @@ setInterval(function() {
     group.players.forEach(player => {
       saveState(group, player)
       wsServer.clients.forEach(ws => {
-        if (ws.uuid == player.uuid) {
-          if (ws.isAlive) {
-            player.timestamp = Date.now()
-            ws.send(JSON.stringify({type: 'update', state: group}))
+        try {
+          if (ws.uuid == player.uuid) {
+            if (ws.isAlive) {
+              player.timestamp = Date.now()
+              ws.send(JSON.stringify({type: 'update', state: group}))
+            }
+            ws.isAlive = false;
+            ws.ping(null, false, true);
           }
-          ws.isAlive = false;
-          ws.ping(null, false, true);
+        } catch(error) {
+          console.log("Websocket error\n\n===>\n\n")
+          console.log(error)
         }
       });
       if (Date.now() - player.timestamp > 1000 * 120) {
