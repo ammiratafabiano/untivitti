@@ -761,25 +761,17 @@ function startMove(group, player) {
 function stopMove(group, player) {
   const game = games.find(x => x.id == group.game)
   if (player.isAdmin) {
-    if (game.fixedDealer) {
+    const isFinished = group.players.findIndex(x => x.canMove) == -1;
+    if (isFinished ) {
+      passMove(group, player)
+    } else {
       resetGroup(group)
       group.round -= 1;
       const text = player.name +  ' ha ritirato le carte'
       const icon = 'Pause'
       sendNotification(group, text, icon)
-    } else {
-      const isFinished = group.players.findIndex(x => x.canMove) == -1;
-      if (isFinished) {
-        passMove(group, player)
-      } else {
-        resetGroup(group)
-        group.round -= 1;
-        const text = player.name +  ' ha ritirato le carte'
-        const icon = 'Pause'
-        sendNotification(group, text, icon)
-      }
-      return true
     }
+    return true
   } else {
     return false
   }
