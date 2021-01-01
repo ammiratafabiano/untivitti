@@ -615,11 +615,7 @@ function deletePlayer(uuid) {
           setAdmin(group, true)
         }
         group.players.splice(i, 1)
-        console.log(group.status)
-        console.log(!group.ground)
-        console.log(!player.ghost)
-        console.log(getPlayersLength(group))
-        if (group.status && !group.ground && !player.ghost && getPlayersLength(group) > 0) {
+        if (group.status && group.ground.length == 0 && !player.ghost && getPlayersLength(group) > 0) {
           resetGroup(group)
           group.round -= 1;
           const text = 'Partita interrotta'
