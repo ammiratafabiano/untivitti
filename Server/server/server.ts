@@ -707,14 +707,14 @@ function executeMove(group, player, move) {
 function startMove(group, player) {
   const game = games.find(x => x.id == group.game)
   if (player.isAdmin) {
-    if (game.fixedDealer) {
+    if (game.fixedDealer && game.teams) {
       group.status = true
       // TODO: check for reset group
       if (group.cards.length == 0) {
         group.cards = getShuffledSet(group.cardSet, 6)
       }
       group.ground = []
-      for (let i = 0; i < group.teams; i++) {
+      for (let i = 0; i < game.teams + 1; i++) {
         const newCards = []
         for (let j = 0; j < game.handCards; j++) {
           newCards.push(group.cards.pop())
