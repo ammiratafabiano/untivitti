@@ -1048,14 +1048,15 @@ function computeLosers(group) {
   if (losers.length > 1) {
     let tie = false
     if (losers.length == getPlayersLength(group)) {
-      losers.forEach(loser => {
-        const player = group.players.find(x => x.name == loser)
+      for (let i = 0; i < losers.length; i++) {
+        const player = group.players.find(x => x.name == losers[i])
         if (player.balance == 1) {
           tie = true
         } else {
           tie = false
-        }
-      })
+          break;
+        }      
+      }
     }
     if (tie) {
       group.players.forEach(player => {
