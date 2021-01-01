@@ -67,6 +67,12 @@
 
 .board-container {
     padding-top: 10vh;
+    ion-row {
+      padding: 0;
+      ion-col {
+        padding: 0;
+      }
+    }
 }
 
 .player-status {
@@ -95,6 +101,12 @@
   0% {background: --ion-color-light;}
   50% {background: #92949c;}
   100% {background: --ion-color-light;}
+}
+
+.ellipsis {
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 $particles: 50;

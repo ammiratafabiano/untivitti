@@ -121,7 +121,7 @@ export class GamePage implements OnInit {
           if (this.currentPlayer.canMove) {
             this.title = 'E\' il tuo turno!';
           } else {
-            this.title = `E' il turno di ${ player.name }`;
+            this.title = `Tocca a ${ player.name }`;
           }
         } else {
           this.title = 'Giro terminato';

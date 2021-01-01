@@ -2,7 +2,7 @@
   <ion-toolbar>
     <ion-item lines="none">
       <ion-icon name="arrow-back-circle-outline" color="danger" (click)="confirmExit()"></ion-icon>
-      <ion-title mode="md">{{ title }}</ion-title>
+      <ion-title class="ellipsis" mode="md">{{ title }}</ion-title>
       <ion-chip slot="end" color="success" *ngIf="state && state.players" (click)="openPlayersModal()">
         <ion-icon name="people-outline" ></ion-icon>
         <ion-label>{{ state.activePlayers }}</ion-label>
@@ -36,12 +36,12 @@
     <div class="other-cards-container">
       <ion-grid class="board-container">
         <ion-row class="players-container">
-          <ion-col class="player-status" *ngFor="let player of playersBoard; let i = index">
+          <ion-col size="4" class="player-status" *ngFor="let player of playersBoard; let i = index">
             <ion-chip [ngClass]="{'canMove': player.canMove}" *ngIf="player" [ngSwitch]="player.lastMove" [disabled]="i == 2">
               <ion-icon *ngSwitchCase="3" name="hand-left-outline" color="danger"></ion-icon>
               <ion-icon *ngSwitchCase="4" name="thumbs-up-outline" color="success"></ion-icon>
               <ion-icon *ngSwitchCase="5" name="repeat-outline" color="warning"></ion-icon>
-              <ion-label>{{ player.name }}</ion-label>
+              <div>{{ player.name }}</div>
             </ion-chip>
           </ion-col>
         </ion-row>
