@@ -719,7 +719,7 @@ function startMove(group, player) {
         for (let j = 0; j < game.handCards; j++) {
           newCards.push(group.cards.pop())
         }
-        group.players.array.forEach(player => {
+        group.players.forEach(player => {
           if (player.team == i) {
             player.cards = newCards;
           }
