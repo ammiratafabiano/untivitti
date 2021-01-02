@@ -24,6 +24,7 @@ export class PlayerModel {
     timestamp: number;
     isWinner: boolean;
     lastMove: number;
+    team: number;
 }
 
 export class GameStateModel {

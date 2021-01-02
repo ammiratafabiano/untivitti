@@ -35,7 +35,7 @@
   <div class="cards-area">
     <div class="other-cards-container">
       <ion-grid class="board-container">
-        <ion-row class="players-container">
+        <ion-row *ngIf="!(currentGame.fixedDealer && currentGame.teams)" class="players-container">
           <ion-col size="4" class="player-status" *ngFor="let player of playersBoard; let i = index">
             <ion-chip [ngClass]="{'canMove': player.canMove}" *ngIf="player" [ngSwitch]="player.lastMove" [disabled]="i == 2">
               <ion-icon *ngSwitchCase="3" name="hand-left-outline" color="danger"></ion-icon>
@@ -45,15 +45,39 @@
             </ion-chip>
           </ion-col>
         </ion-row>
+        <ion-row *ngIf="currentGame.fixedDealer && currentGame.teams" class="players-container">
+          <ng-container *ngFor="let player of state.players; let i = index">
+            <ion-col class="player-status" *ngIf="i == 0 || state.players[i].team != state.players[i-1].team">
+              <ion-chip>
+                <ion-icon *ngIf="false" name="thumbs-up-outline" color="warning"></ion-icon>
+                <ion-icon *ngIf="false" name="thumbs-down-outline" color="warning"></ion-icon>
+                <ion-label *ngIf="player.team == 0">Banco</ion-label>
+                <ion-label *ngIf="player.team != 0">Squadra {{ player.team }}</ion-label>
+              </ion-chip>
+            </ion-col>
+          </ng-container>
+        </ion-row>
       </ion-grid>
     </div>
     <div class="cards-container">
-      <div class="card" #card>
-        <img *ngIf="tempCard != undefined" src="./assets/cardSets/{{state.cardSet}}/{{tempCard}}.png" />
-      </div>
-      <div class="ground" #ground>
-        <img *ngIf="tempGround != undefined" src="./assets/cardSets/{{state.cardSet}}/{{tempGround}}.png" />
-      </div>
+      <ng-container *ngIf="currentPlayer.cards.length > 1">
+        <ion-grid>
+          <ion-row>
+            <ion-col class="card multi-card" *ngFor="let card of currentPlayer.cards">
+              <div class="flip-card-front"><img src="./assets/cardSets/{{state.cardSet}}/-1.png" /></div>
+              <div class="flip-card-back"><img src="./assets/cardSets/{{state.cardSet}}/{{card}}.png" /></div>
+            </ion-col>
+          </ion-row>
+        </ion-grid>
+      </ng-container>
+      <ng-container *ngIf="currentPlayer.cards.length <= 1">
+        <div class="card" #card>
+          <img *ngIf="tempCard != undefined" src="./assets/cardSets/{{state.cardSet}}/{{tempCard}}.png" />
+        </div>
+        <div class="ground" #ground>
+          <img *ngIf="tempGround != undefined" src="./assets/cardSets/{{state.cardSet}}/{{tempGround}}.png" />
+        </div>
+      </ng-container>
     </div>
   </div>
   <ion-fab class="action-button" horizontal="center" slot="fixed">

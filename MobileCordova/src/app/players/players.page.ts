@@ -64,18 +64,30 @@ export class PlayersPage implements OnInit {
   }
 
   reorderPlayers(ev: any) {
-    this.loaderService.show().then(_ => {
-      this.reordering = true;
-      const itemMove = this.players.splice(ev.detail.from, 1)[0];
-      this.players.splice(ev.detail.to, 0, itemMove);
+    if (ev.detail.to < this.players.length) {
+      this.loaderService.show().then(_ => {
+        this.reordering = true;
+        const itemMove = this.players.splice(ev.detail.from, 1)[0];
+        this.players.splice(ev.detail.to, 0, itemMove);
+        if (this.game.teams) {
+          console.log(ev.detail.to, ev.detail.from)
+          if (ev.detail.to < ev.detail.from) {
+            this.players[ev.detail.to].team = this.players[ev.detail.to + 1].team
+          } else {
+            this.players[ev.detail.to].team = this.players[ev.detail.to - 1].team
+          }
+        }
+        ev.detail.complete();
+        this.api.updatePlayers(this.players, this.code)
+        .pipe(finalize(() => {
+          this.reordering = false;
+          this.loaderService.hide();
+        }
+        )).subscribe();
+      });
+    } else {
       ev.detail.complete();
-      this.api.updatePlayers(this.players, this.code)
-      .pipe(finalize(() => {
-        this.reordering = false;
-        this.loaderService.hide();
-       }
-      )).subscribe();
-    });
+    }
   }
 
   detectChange(list1, list2) {
@@ -146,7 +158,7 @@ export class PlayersPage implements OnInit {
   async openTutorialModal() {
     const tutorialModal = await this.modalController.create({
       component: TutorialPage,
-      componentProps: { type: 'PLAYERS_PAGE' }
+      componentProps: { type: 'PLAYERS_PAGE', game: this.game.id }
     });
     tutorialModal.present();
   }
@@ -178,5 +190,8 @@ export class PlayersPage implements OnInit {
       });
     });
   }
-
+  
+  getTeamSize(team) {
+    return this.players.filter(x => x.team == team).length;
+  }
 }

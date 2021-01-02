@@ -15,15 +15,16 @@
       <ion-icon name="help-circle-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>
-  <ion-reorder-group (ionItemReorder)="reorderPlayers($event)" [disabled]="!(currentPlayer.isAdmin && players.length > 1 && !status)">
-    <ion-item-sliding *ngFor="let player of players" [ngClass]="{'canMove': player.canMove}">
+  <ion-reorder-group (ionItemReorder)="reorderPlayers($event)" [disabled]="!(currentPlayer.isAdmin && players.length >= game.minPlayers && !status)">
+    <ion-item-sliding *ngFor="let player of players; let i = index" [ngClass]="{'canMove': player.canMove, 'ion-margin-top': game.teams && (i == 0 || players[i].team != players[i-1].team)}">
       <ion-item class="player-container" [disabled]="player.ghost">
         <ion-label [ngClass]="{'myself': player.name == currentPlayer.name}">{{ player.name }}</ion-label>
-        <div *ngIf="player.cards.length > 0 && player.visible || (status && player.cards.length > 0 && (player.name == currentPlayer.name || currentPlayer.ghost))" class="cards-container">
-          <div class="card">
-            <img src="./assets/cardSets/{{cardSet.id}}/{{player.cards[0]}}.png" />
-          </div>
-        </div>
+        <ion-row *ngIf="status && player.cards.length > 0 || (status && player.cards.length > 0 && game.teams && (i == 0 || players[i].team != players[i-1].team))" class="cards-container">
+          <ion-col class="card" *ngFor="let card of player.cards">
+            <img *ngIf="player.visible || player.name == currentPlayer.name || currentPlayer.ghost" src="./assets/cardSets/{{cardSet.id}}/{{card}}.png" />
+            <img *ngIf="!(player.visible || player.name == currentPlayer.name || currentPlayer.ghost)" src="./assets/cardSets/{{cardSet.id}}/-1.png" />
+          </ion-col>
+        </ion-row>
         <div *ngIf="status && player.isAdmin && ground.length > 0" class="ground-container">
           <div class="card">
             <img src="./assets/cardSets/{{cardSet.id}}/{{ground[0]}}.png" />
@@ -37,7 +38,7 @@
         <ion-chip [outline]="player.name != currentPlayer.name" color="danger" *ngIf="moneyMode && player.haveToPay" (click)="player.name == currentPlayer.name && onClickPay()">
           <ion-label>Paga</ion-label>
         </ion-chip>
-        <ion-reorder slot="end"></ion-reorder>
+        <ion-reorder *ngIf="getTeamSize(player.team) > 1" slot="end"></ion-reorder>
       </ion-item>
       <ion-item-options side="end">
         <ion-item-option *ngIf="currentPlayer.isAdmin && currentPlayer.name != player.name && !status"  (click)="remove(player)">Rimuovi</ion-item-option>

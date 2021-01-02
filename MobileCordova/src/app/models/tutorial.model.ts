@@ -1,3 +1,5 @@
+import { GameTypeEnum } from "./game.model";
+
 export enum TutorialTypeEnum {
   HomePage = 'HOME_PAGE',
   GamePage = 'GAME_PAGE',
@@ -19,6 +21,7 @@ export class TutorialSectionModel {
 
 export class TutorialModel {
   type: TutorialTypeEnum;
+  game: GameTypeEnum;
   title = '';
   subtitle = '';
   sections: TutorialSectionModel[] = [];

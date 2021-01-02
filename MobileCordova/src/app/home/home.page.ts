@@ -220,7 +220,7 @@ export class HomePage {
   async openTutorialModal() {
     const tutorialModal = await this.modalController.create({
       component: TutorialPage,
-      componentProps: { type: 'HOME_PAGE' }
+      componentProps: { type: 'HOME_PAGE', game: this.selectedGame }
     });
     tutorialModal.present();
   }

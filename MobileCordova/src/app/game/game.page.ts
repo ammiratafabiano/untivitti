@@ -119,9 +119,21 @@ export class GamePage implements OnInit {
         const player = this.state.players.find(x => x.canMove === true);
         if (player) {
           if (this.currentPlayer.canMove) {
-            this.title = 'E\' il tuo turno!';
+            if (this.currentGame.teams) {
+              this.title = 'E\' il vostro turno!';
+            } else {
+              this.title = 'E\' il tuo turno!';
+            }
           } else {
-            this.title = `Tocca a ${ player.name }`;
+            if (this.currentGame.teams) {
+              if (player.team === 0) {
+              this.title = 'Tocca al Banco';
+              } else {
+                this.title = 'Tocca alle squadre';
+              }
+            } else {
+              this.title = `Tocca a ${ player.name }`;
+            }
           }
         } else {
           this.title = 'Giro terminato';
@@ -217,7 +229,7 @@ export class GamePage implements OnInit {
   async openTutorialModal() {
     const tutorialModal = await this.modalController.create({
       component: TutorialPage,
-      componentProps: { type: 'GAME_PAGE' }
+      componentProps: { type: 'GAME_PAGE', game: this.currentGame.id }
     });
     tutorialModal.present();
   }
@@ -326,9 +338,11 @@ export class GamePage implements OnInit {
       && this.currentPlayer.lastMove === 5 && this.tempCard === this.currentPlayer.cards[0] && this.moving) {
       this.moving = false;
       this.tempGround = this.getNextCard();
-      this.swapAnimationEnd().onFinish(() => {
-        this.showNextAnimation();
-      }).play();
+      if (this.tempGround) {
+        this.swapAnimationEnd().onFinish(() => {
+          this.showNextAnimation();
+        }).play();
+      }
     }
   }
 
@@ -392,9 +406,11 @@ export class GamePage implements OnInit {
   getNextCard() {
     let card;
     const index = this.state.players.findIndex(x => x.name === this.currentPlayer.name);
+    let attempt = 0;
     do {
+      attempt += 1;
       card = this.state.players[(index + 1) % this.state.players.length].cards[0];
-    } while (!card);
+    } while (!card && attempt < this.state.players.length);
     return card;
   }
 }

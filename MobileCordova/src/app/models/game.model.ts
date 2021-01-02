@@ -11,4 +11,6 @@ export class GameModel {
     maxPlayers: number;
     clockwise: boolean;
     defaultBalance: number;
+    fixedDealer: boolean;
+    teams: number;
 }
