@@ -981,17 +981,7 @@ function getPlayerMoves(group) {
   const game = games.find(x => x.id == group.game)
   let moveToReturn = []
   game.playerMoves.forEach(move => {
-    moveToReturn.push({
-      name: move.name,
-      id: move.id,
-      disabled: false,
-      icon: move.icon,
-      rotateIcon: move.rotateIcon,
-      side: move.side,
-      status: move.status,
-      forbiddenCards: move.forbiddenCards,
-      forbiddenNextCards: move.forbiddenNextCards
-    })
+    moveToReturn.push(copyMove(move))
   })
   return moveToReturn
 }
