@@ -60,6 +60,7 @@ const games = [
     maxValue: 10,
     fixedDealer: false,
     teams: 0,
+    bet: false,
     adminMoves: [
       {
         name: 'Distribuisci',
@@ -82,7 +83,13 @@ const games = [
         warnings: [
           {
             type: 'NOT_FINISHED',
-            description: 'Ritirando ora invalidi la partita, clicca questo bottone solo per errori nel gioco o per consentire ad un partecipante di rientrare in partita.'
+            description: 'Ritirando ora invalidi la partita, clicca questo bottone solo per errori nel gioco o per consentire ad un partecipante di rientrare in partita.',
+            block: false
+          },
+          {
+            type: 'NOT_PAID',
+            description: 'Prima di ritirare le carte è necessario che tutti i giocatori paghino.',
+            block: true
           }
         ]
       }
@@ -138,6 +145,7 @@ const games = [
     maxValue: 13,
     fixedDealer: true,
     teams: 2,
+    bet: true,
     adminMoves: [
       {
         name: 'Distribuisci',
@@ -147,7 +155,13 @@ const games = [
         rotateIcon: true,
         side: 'top',
         status: false,
-        warnings: []
+        warnings: [
+          {
+            type: 'NOT_BET',
+            description: 'Prima di iniziare il turno è necessario che tutti i giocatori facciano la propria puntata.',
+            block: true
+          }
+        ]
       },
       {
         name: 'Ritira carte',
@@ -160,7 +174,13 @@ const games = [
         warnings: [
           {
             type: 'NOT_FINISHED',
-            description: 'Ritirando ora invalidi la partita, clicca questo bottone solo per errori nel gioco o per consentire ad un partecipante di rientrare in partita.'
+            description: 'Ritirando ora invalidi la partita, clicca questo bottone solo per errori nel gioco o per consentire ad un partecipante di rientrare in partita.',
+            block: false
+          },
+          {
+            type: 'NOT_PAID',
+            description: 'Prima di ritirare le carte è necessario che tutti i giocatori paghino.',
+            block: true
           }
         ]
       }
@@ -265,7 +285,8 @@ app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
         ghost: false,
         isWinner: false,
         index: 0,
-        team: game.teams ? 0 : undefined
+        team: game.teams ? 0 : undefined,
+        bet: 0
       }
     ]
   }
@@ -312,7 +333,8 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
             ghost: savedPlayer ? savedPlayer.ghost : false,
             isWinner: false,
             index: game.teams ? index : savedPlayer ? savedPlayer.index : undefined,
-            team: team
+            team: team,
+            bet: savedPlayer ? savedPlayer.bet : 0
           }
           if (player.index && player.index < group.players.length) {
             group.players.splice(player.index, 0, player);
