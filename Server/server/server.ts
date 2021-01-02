@@ -68,7 +68,8 @@ const games = [
         icon: 'albums-outline',
         rotateIcon: true,
         side: 'top',
-        status: false
+        status: false,
+        warnings: []
       },
       {
         name: 'Ritira carte',
@@ -77,7 +78,13 @@ const games = [
         icon: 'download-outline',
         rotateIcon: false,
         side: 'top',
-        status: true
+        status: true,
+        warnings: [
+          {
+            type: 'NOT_FINISHED',
+            description: 'Ritirando ora invalidi la partita, clicca questo bottone solo per errori nel gioco o per consentire ad un partecipante di rientrare in partita.'
+          }
+        ]
       }
     ],
     playerMoves: [
@@ -89,6 +96,7 @@ const games = [
         rotateIcon: false,
         side: 'bottom',
         status: true,
+        warnings: [],
         forbiddenCards: [0,1,2,3,4,5,6,7,8,10,11,12,13,14,15,16,17,18,20,21,22,23,24,25,26,27,28,30,31,32,33,34,35,36,37,38],
         forbiddenNextCards: []
       },
@@ -100,6 +108,7 @@ const games = [
         rotateIcon: false,
         side: 'start',
         status: true,
+        warnings: [],
         forbiddenCards: [9,19,29,39],
         forbiddenNextCards: []
       },
@@ -111,6 +120,7 @@ const games = [
         rotateIcon: false,
         side: 'end',
         status: true,
+        warnings: [],
         forbiddenCards: [9,19,29,39],
         forbiddenNextCards: [9,19,29,39]
       },
@@ -136,7 +146,8 @@ const games = [
         icon: 'albums-outline',
         rotateIcon: true,
         side: 'top',
-        status: false
+        status: false,
+        warnings: []
       },
       {
         name: 'Ritira carte',
@@ -145,7 +156,13 @@ const games = [
         icon: 'download-outline',            
         rotateIcon: false,
         side: 'bottom',
-        status: true
+        status: true,
+        warnings: [
+          {
+            type: 'NOT_FINISHED',
+            description: 'Ritirando ora invalidi la partita, clicca questo bottone solo per errori nel gioco o per consentire ad un partecipante di rientrare in partita.'
+          }
+        ]
       }
     ],
     playerMoves: [
@@ -732,7 +749,6 @@ function startMove(group, player) {
       const text = player.name +  ' ha distribuito le carte'
       const icon = 'Start'
       sendNotification(group, text, icon)
-
       return true
     } else {
       group.status = true
