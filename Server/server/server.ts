@@ -174,6 +174,7 @@ const games = [
         rotateIcon: false,
         side: 'end',
         status: true,
+        warnings: [],
         forbiddenCards: [],
         forbiddenNextCards: []
       },
@@ -185,6 +186,7 @@ const games = [
         rotateIcon: false,
         side: 'start',
         status: true,
+        warnings: [],
         forbiddenCards: [],
         forbiddenNextCards: []
       }
@@ -1012,6 +1014,7 @@ function copyMove(move, disabled?) {
     rotateIcon: move.rotateIcon,
     side: move.side,
     status: move.status,
+    warnings: move.warnings,
     forbiddenCards: move.forbiddenCards,
     forbiddenNextCards: move.forbiddenNextCards
   }
