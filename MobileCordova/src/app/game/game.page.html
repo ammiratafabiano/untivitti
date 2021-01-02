@@ -86,7 +86,7 @@
     </ion-fab-button>
     <ng-container *ngFor="let move of currentPlayer.moves">
       <ion-fab-list *ngIf="move.status == state.status" [side]="move.side">
-        <ion-fab-button class="fab" (click)="sendMove(move)" [ngClass]="{'disabled': move.disabled}" [disabled]="move.disabled">
+        <ion-fab-button class="fab" (click)="confirmMove(move)" [ngClass]="{'disabled': move.disabled}" [disabled]="move.disabled">
           <ion-icon [name]="move.icon" [ngClass]="{'rotate-right': move.rotateIcon}"></ion-icon>
         </ion-fab-button>
       </ion-fab-list>

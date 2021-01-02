@@ -3,13 +3,14 @@ ion-content{
 }
 
 .center {
-    margin: 30vh 5vw;
+    margin: auto 5vw;
     width: 90vw;
-    padding: 10px;
+    padding: 15vh 5vw;
+    overflow: scroll;
 }
 
 .title {
-    font-size: 12vw;
+    font-size: calc(4vw + 4vh);
     text-align: center;
     font-weight: bold;
 }
@@ -19,7 +20,7 @@ ion-content{
 }
 
 .subtitle {
-    font-size: 5vw;
+    font-size: calc(2vw + 2vh);
 }
 
 .close {

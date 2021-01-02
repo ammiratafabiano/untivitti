@@ -1,14 +1,14 @@
-import { ThrowStmt } from '@angular/compiler';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, AnimationController, ModalController, PopoverController } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
 import { CardSetModel } from '../models/card-set.model';
-import { GameStateModel, MoveModel, PlayerModel } from '../models/game-state.model';
+import { GameStateModel } from '../models/game-state.model';
 import { GameModel } from '../models/game.model';
+import { MoveModel, WarningMoveModel, WarningMoveTypeEnum } from '../models/move.model';
+import { PlayerModel } from '../models/player.model';
 import { PlayersPage } from '../players/players.page';
 import { ApiService } from '../services/api.service';
-import { ImpressedTextService } from '../services/impressed-text.service';
 import { StateUpdateService } from '../services/state-update.service';
 import { UtilsService } from '../services/utils.service';
 import { TutorialPage } from '../tutorial/tutorial.page';
@@ -100,7 +100,7 @@ export class GamePage implements OnInit {
       if (this.state.status === false) {
         this.tempCard = undefined;
         this.tempGround = undefined;
-        const winner = this.state.players.find(x => x.isWinner === true);
+        const winner = this.isGameOver();
         if (winner) {
           this.title = `${ winner.name } ha vinto!`;
           this.automaticModal = true;
@@ -116,7 +116,7 @@ export class GamePage implements OnInit {
         }
       } else {
         this.fireworks = false;
-        const player = this.state.players.find(x => x.canMove === true);
+        const player = this.isNotTurnOver();
         if (player) {
           if (this.currentPlayer.canMove) {
             if (this.currentGame.teams) {
@@ -412,5 +412,51 @@ export class GamePage implements OnInit {
       card = this.state.players[(index + 1) % this.state.players.length].cards[0];
     } while (!card && attempt < this.state.players.length);
     return card;
+  }
+
+  async confirmMove(move: MoveModel) {
+    let warningToShow: WarningMoveModel;
+    for (const warning of  move.warnings) {
+      if (warningToShow) {
+        break;
+      }
+      switch (warning.type) {
+        case WarningMoveTypeEnum.NotFinished:
+          if (this.isNotTurnOver()) {
+            warningToShow = warning;
+            break;
+          }
+      }
+    }
+
+    if (warningToShow) {
+      const alert = await this.alertController.create({
+        header: 'Attenzione',
+        message: warningToShow.description,
+        buttons: [
+          {
+            text: 'Annulla',
+            role: 'cancel'
+          },
+          {
+            text: move.name,
+            handler: () => {
+              this.sendMove(move);
+            }
+          }
+        ]
+      });
+      await alert.present();
+    } else {
+      this.sendMove(move);
+    }
+  }
+
+  isGameOver() {
+    return this.state.players.find(x => x.isWinner);
+  }
+
+  isNotTurnOver() {
+    return this.state.players.find(x => x.canMove);
   }
 }

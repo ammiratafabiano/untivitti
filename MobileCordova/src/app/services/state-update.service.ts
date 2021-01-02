@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { GameStateModel, PlayerModel } from '../models/game-state.model';
+import { GameStateModel } from '../models/game-state.model';
 import { NotificationIcons } from '../models/notification.model';
+import { PlayerModel } from '../models/player.model';
 import { ImpressedTextService } from './impressed-text.service';
 import { NotificationService } from './notification.service';
 import { UtilsService } from './utils.service';

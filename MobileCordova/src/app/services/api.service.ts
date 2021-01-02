@@ -3,8 +3,9 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { CardSetModel, CardTypeEnum } from '../models/card-set.model';
-import { GameStateModel, PlayerModel } from '../models/game-state.model';
+import { GameStateModel } from '../models/game-state.model';
 import { GameModel, GameTypeEnum } from '../models/game.model';
+import { PlayerModel } from '../models/player.model';
 import { ResponseModel } from '../models/response.model';
 
 @Injectable({

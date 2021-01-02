@@ -1,16 +1,17 @@
 import { Component } from '@angular/core';
 import { AlertController, ModalController } from '@ionic/angular';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
-import { CardSetModel, CardTypeEnum } from '../models/card-set.model';
+import { CardSetModel } from '../models/card-set.model';
 import { ApiService } from '../services/api.service';
 import { UtilsService } from '../services/utils.service';
-import { GameStateModel, PlayerModel } from '../models/game-state.model';
+import { GameStateModel } from '../models/game-state.model';
 import { NotificationService } from '../services/notification.service';
 import { NotificationIcons } from '../models/notification.model';
-import { GameModel, GameTypeEnum } from '../models/game.model';
+import { GameModel } from '../models/game.model';
 import { JoinErrorEnum } from '../models/response.model';
 import { TutorialPage } from '../tutorial/tutorial.page';
 import { SessionModel } from '../models/session.model';
+import { PlayerModel } from '../models/player.model';
 
 @Component({
   selector: 'app-home',

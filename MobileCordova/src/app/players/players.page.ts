@@ -1,14 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { AlertController, ModalController, NavParams } from '@ionic/angular';
-import { GameStateModel, PlayerModel } from '../models/game-state.model';
 import { ApiService } from '../services/api.service';
-import { finalize, timeout } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 import { NotificationService } from '../services/notification.service';
-import { NotificationIcons, NotificationModel } from '../models/notification.model';
-import { CardSetModel, CardTypeEnum } from '../models/card-set.model';
+import { NotificationModel } from '../models/notification.model';
+import { CardSetModel } from '../models/card-set.model';
 import { TutorialPage } from '../tutorial/tutorial.page';
 import { LoaderService } from '../services/loader.service';
 import { GameModel } from '../models/game.model';
+import { PlayerModel } from '../models/player.model';
 
 @Component({
   selector: 'app-players',
@@ -70,11 +70,10 @@ export class PlayersPage implements OnInit {
         const itemMove = this.players.splice(ev.detail.from, 1)[0];
         this.players.splice(ev.detail.to, 0, itemMove);
         if (this.game.teams) {
-          console.log(ev.detail.to, ev.detail.from)
           if (ev.detail.to < ev.detail.from) {
-            this.players[ev.detail.to].team = this.players[ev.detail.to + 1].team
+            this.players[ev.detail.to].team = this.players[ev.detail.to + 1].team;
           } else {
-            this.players[ev.detail.to].team = this.players[ev.detail.to - 1].team
+            this.players[ev.detail.to].team = this.players[ev.detail.to - 1].team;
           }
         }
         ev.detail.complete();
@@ -190,8 +189,8 @@ export class PlayersPage implements OnInit {
       });
     });
   }
-  
+
   getTeamSize(team) {
-    return this.players.filter(x => x.team == team).length;
+    return this.players.filter(x => x.team === team).length;
   }
 }
