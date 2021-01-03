@@ -491,14 +491,14 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
           }
           if (!isFinished(group)) {
             let text = player.name + ' non ha più monete!'
-            let icon = 'server'
+            let icon = 'Money'
             sendNotification(group, text, icon, [player.name])
             let excludeList = []
             group.players.filter(x => {
               if (x.name != player.name) excludeList.push(x.name)
             });
             text = 'Non hai più monete!'
-            icon = 'server'
+            icon = 'Money'
             sendNotification(group, text, icon, excludeList)
             if (game.deadMessage) {
               sendImpressedText(group, game.deadMessage);
