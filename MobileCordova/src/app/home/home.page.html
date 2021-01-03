@@ -66,10 +66,17 @@
         <ion-select-option *ngFor="let game of filteredGames" [value]="game.id">{{ game.name }}</ion-select-option>
       </ion-select>
     </ion-item>
-    <ion-item *ngIf="selectedGame != undefined">
+    <ion-item *ngIf="selectedGame != undefined && balance != undefined">
       <ion-label>Monete:</ion-label>
-      <ion-input type="number" [(ngModel)]="balance" [disabled]="!money"></ion-input>
-      <ion-toggle slot="end" [(ngModel)]="money" color="warning"></ion-toggle>
+      <ion-input type="number" [(ngModel)]="balance"></ion-input>
+    </ion-item>
+    <ion-item *ngIf="selectedGame != undefined && minBet != undefined">
+      <ion-label>Puntata minima:</ion-label>
+      <ion-input type="number" [(ngModel)]="minBet"></ion-input>
+    </ion-item>
+    <ion-item *ngIf="selectedGame != undefined && maxBet != undefined">
+      <ion-label>Puntata massima:</ion-label>
+      <ion-input type="number" [(ngModel)]="maxBet"></ion-input>
     </ion-item>
     <ion-button color="warning" (click)="create()">Crea</ion-button>
   </div>

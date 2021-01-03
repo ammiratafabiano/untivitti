@@ -15,4 +15,5 @@ export class PlayerModel {
     isWinner: boolean;
     lastMove: number;
     team: number;
+    bet: number;
 }

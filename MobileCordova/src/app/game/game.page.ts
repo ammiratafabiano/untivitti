@@ -2,13 +2,16 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { AlertController, AnimationController, ModalController, PopoverController } from '@ionic/angular';
 import { BehaviorSubject } from 'rxjs';
+import { finalize } from 'rxjs/operators';
 import { CardSetModel } from '../models/card-set.model';
 import { GameStateModel } from '../models/game-state.model';
 import { GameModel } from '../models/game.model';
 import { MoveModel, WarningMoveModel, WarningMoveTypeEnum } from '../models/move.model';
 import { PlayerModel } from '../models/player.model';
+import { TeamModel } from '../models/team.model';
 import { PlayersPage } from '../players/players.page';
 import { ApiService } from '../services/api.service';
+import { LoaderService } from '../services/loader.service';
 import { StateUpdateService } from '../services/state-update.service';
 import { UtilsService } from '../services/utils.service';
 import { TutorialPage } from '../tutorial/tutorial.page';
@@ -36,14 +39,12 @@ export class GamePage implements OnInit {
   playerModal: any;
   automaticModal = true;
 
-  allPaid = true;
-
   tempCard: number;
   tempGround: number;
 
   moving: boolean;
 
-  playersBoard: PlayerModel[];
+  playersBoard: PlayerModel[] | TeamModel[];
 
   fireworks = false;
 
@@ -56,7 +57,8 @@ export class GamePage implements OnInit {
     private updateStateService: StateUpdateService,
     private api: ApiService,
     private animationCtrl: AnimationController,
-    private utils: UtilsService) {
+    private utils: UtilsService,
+    private loaderService: LoaderService) {
   }
 
   ngOnInit() {
@@ -76,13 +78,10 @@ export class GamePage implements OnInit {
             this.state = response;
             this.stateListener.next(this.state);
             const updatedCurrentPlayer = this.state.players.find(x => x.name === this.currentPlayer.name);
-            if (this.detectChange([this.currentPlayer], [updatedCurrentPlayer])) {
+            if (this.utils.detectChange([this.currentPlayer], [updatedCurrentPlayer])) {
               this.currentPlayer = updatedCurrentPlayer;
             }
             this.updateTitle();
-            if (this.state.money) {
-              this.checkPayments();
-            }
             if (this.card && this.ground) {
               this.checkSwapBack();
             }
@@ -204,42 +203,12 @@ export class GamePage implements OnInit {
     }
   }
 
-  detectChange(list1, list2) {
-    if (list1 && list2) {
-      list1.forEach(x => {
-        if (x) {
-          x.timestamp = undefined;
-        } else {
-          return true;
-        }
-      });
-      list2.forEach(x => {
-        if (x) {
-          x.timestamp = undefined;
-        } else {
-          return true;
-        }
-      });
-      return JSON.stringify(list1) !== JSON.stringify(list2);
-    } else {
-      return true;
-    }
-  }
-
   async openTutorialModal() {
     const tutorialModal = await this.modalController.create({
       component: TutorialPage,
       componentProps: { type: 'GAME_PAGE', game: this.currentGame.id }
     });
     tutorialModal.present();
-  }
-
-  checkPayments() {
-    if (this.state.players.findIndex(x => x.haveToPay === true) !== -1) {
-      this.allPaid = false;
-    } else {
-      this.allPaid = true;
-    }
   }
 
   sendMove(move: MoveModel) {
@@ -347,30 +316,49 @@ export class GamePage implements OnInit {
   }
 
   setBoardPlayers() {
-    const list: PlayerModel[] = [];
-    const activePlayers = this.state.players.filter(x => !x.ghost);
-    const index = activePlayers.findIndex(x => x.canMove === true);
-    if (index !== -1) {
-      const prev = activePlayers[(index - 1 + activePlayers.length) % activePlayers.length];
-      prev.isAdmin ? list.push(undefined) : list.push(prev);
-      const current = activePlayers[index % activePlayers.length];
-      list.push(current);
-      const next = activePlayers[(index + 1 + activePlayers.length) % activePlayers.length];
-      current.isAdmin ? list.push(undefined) : list.push(next);
-      if (this.detectChange(this.playersBoard, list)) {
-        this.playersBoard = list;
-      }
-    } else if (activePlayers && this.playersBoard) {
-      if (this.state.status) {
-        activePlayers.forEach(x => {
-          this.playersBoard.forEach(y => {
-            if (x && y && x.name === y.name && x.lastMove !== y.lastMove) {
-              y.lastMove = x.lastMove;
-            }
+    if (!(this.currentGame.fixedDealer && this.currentGame.teams)) {
+      const list: PlayerModel[] = [];
+      const activePlayers = this.state.players.filter(x => !x.ghost);
+      const index = activePlayers.findIndex(x => x.canMove === true);
+      if (index !== -1) {
+        const prev = activePlayers[(index - 1 + activePlayers.length) % activePlayers.length];
+        prev.isAdmin ? list.push(undefined) : list.push(prev);
+        const current = activePlayers[index % activePlayers.length];
+        list.push(current);
+        const next = activePlayers[(index + 1 + activePlayers.length) % activePlayers.length];
+        current.isAdmin ? list.push(undefined) : list.push(next);
+        if (this.utils.detectChange(this.playersBoard, list)) {
+          this.playersBoard = list;
+        }
+      } else if (activePlayers && this.playersBoard) {
+        if (this.state.status) {
+          activePlayers.forEach(x => {
+            this.playersBoard.forEach(y => {
+              if (x && y && x.name === y.name && x.lastMove !== y.lastMove) {
+                y.lastMove = x.lastMove;
+              }
+            });
           });
-        });
-      } else {
-        this.playersBoard = [];
+        } else {
+          this.playersBoard = [];
+        }
+      }
+    } else {
+      const list: TeamModel[] = [];
+      this.state.players.forEach(player => {
+        const team = list.find(x => x.id === player.team);
+        if (!team) {
+          const newTeam: TeamModel = new TeamModel();
+          newTeam.id = player.team;
+          newTeam.name = player.team === 0 ? 'Banco' : 'Squadra ' + player.team;
+          newTeam.members = [player];
+          list.push(newTeam);
+        } else {
+          team.members.push(player);
+        }
+      });
+      if (this.utils.detectChange(this.playersBoard, list)) {
+        this.playersBoard = list;
       }
     }
   }
@@ -424,8 +412,22 @@ export class GamePage implements OnInit {
         case WarningMoveTypeEnum.NotFinished:
           if (this.isNotTurnOver()) {
             warningToShow = warning;
-            break;
           }
+          break;
+        case WarningMoveTypeEnum.NotBet:
+          if (this.state.money) {
+            if (this.state.players.findIndex(x => !x.isAdmin && x.bet === 0) !== -1) {
+              warningToShow = warning;
+            }
+          }
+          break;
+        case WarningMoveTypeEnum.NotPaid:
+          if (this.state.money) {
+            if (this.state.players.findIndex(x => x.haveToPay === true) !== -1) {
+              warningToShow = warning;
+            }
+          }
+          break;
       }
     }
 
@@ -433,7 +435,12 @@ export class GamePage implements OnInit {
       const alert = await this.alertController.create({
         header: 'Attenzione',
         message: warningToShow.description,
-        buttons: [
+        buttons: warningToShow.block ? [
+          {
+            text: 'Ok',
+            role: 'cancel'
+          }
+        ] : [
           {
             text: 'Annulla',
             role: 'cancel'
@@ -458,5 +465,46 @@ export class GamePage implements OnInit {
 
   isNotTurnOver() {
     return this.state.players.find(x => x.canMove);
+  }
+
+  setBet(player, value) {
+    this.loaderService.show().then(_ => {
+      this.api.placeBet(player.name, this.state.code, value)
+      .pipe(finalize(() => this.loaderService.hide() ))
+        .subscribe(response => {
+          if (!response.success) {
+            this.placeBet(player, response.errorCode);
+          }
+        });
+    });
+  }
+
+  async placeBet(player, error?) {
+    const alert = await this.alertController.create({
+      header: 'Piazza una puntata',
+      subHeader: error ? error : undefined,
+      inputs: [
+        {
+          name: 'value',
+          value: player.bet,
+          type: 'number'
+        }
+      ],
+      buttons: [
+        {
+          text: 'Annulla',
+          role: 'cancel',
+          cssClass: 'secondary',
+          handler: () => {}
+        }, {
+          text: 'Conferma',
+          handler: (out) => {
+            this.setBet(player, out.value);
+          }
+        }
+      ]
+    });
+
+    await alert.present();
   }
 }

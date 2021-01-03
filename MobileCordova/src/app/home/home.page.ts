@@ -25,8 +25,10 @@ export class HomePage {
 
   selectedSet: number;
   selectedGame: number;
-  money = true;
+  money = true; // TODO remove
   balance: number;
+  minBet: number;
+  maxBet: number;
 
   currentPlayer: PlayerModel;
 
@@ -167,8 +169,9 @@ export class HomePage {
 
   private getCode() {
     const selectedGame = this.filteredGames.find(x => x.id === this.selectedGame);
-    this.api.createGroup(this.nickname, this.selectedSet, selectedGame.id, this.money, this.balance).subscribe((response) => {
-      if (response.success && response.data && selectedGame.id !== 1) {
+    this.api.createGroup(this.nickname, this.selectedSet, selectedGame.id, this.money, this.balance, this.minBet, this.maxBet)
+      .subscribe((response) => {
+      if (response.success && response.data) {
         const group = response.data;
         const currentPlayer = response.data.players.find(x => x.name === this.nickname);
         const cardSet = this.cardSets.find(x => x.id === group.cardSet);
@@ -317,7 +320,10 @@ export class HomePage {
   }
 
   onGameSelected() {
-    this.balance = this.games.find(x => x.id === this.selectedGame).defaultBalance;
+    const game = this.games.find(x => x.id === this.selectedGame);
+    this.balance = game.defaultBalance;
+    this.minBet = game.minBet;
+    this.maxBet = game.maxBet;
   }
 
 }

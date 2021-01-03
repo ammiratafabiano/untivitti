@@ -124,8 +124,7 @@ export class PlayersPage implements OnInit {
         {
           name: 'value',
           value: player.balance,
-          type: 'number',
-          min: 0
+          type: 'number'
         }
       ],
       buttons: [

@@ -13,4 +13,6 @@ export class GameModel {
     defaultBalance: number;
     fixedDealer: boolean;
     teams: number;
+    minBet: number;
+    maxBet: number;
 }

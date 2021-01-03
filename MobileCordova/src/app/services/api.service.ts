@@ -56,9 +56,9 @@ export class ApiService {
   }
 
   createGroup(nickname: string, cardSet: CardTypeEnum, game: GameTypeEnum,
-              money: boolean, balance: number): Observable<ResponseModel<GameStateModel>>{
+              money: boolean, balance: number, minBet: number, maxBet: number): Observable<ResponseModel<GameStateModel>>{
     return this.http
-      .post<ResponseModel<any>>(this.endpoint + '/createGroup', { nickname, cardSet, game, money, balance })
+      .post<ResponseModel<any>>(this.endpoint + '/createGroup', { nickname, cardSet, game, money, balance, minBet, maxBet })
       .pipe(
         retry(2),
         catchError(this.handleError)
@@ -113,6 +113,15 @@ export class ApiService {
   retrieveSession(uuid: string): Observable<ResponseModel<any>>{
     return this.http
       .get<ResponseModel<GameStateModel>>(this.endpoint + '/retrieveSession/' + uuid)
+      .pipe(
+        retry(2),
+        catchError(this.handleError)
+      );
+  }
+
+  placeBet(nickname: string, code: string, value: boolean): Observable<ResponseModel<any>>{
+    return this.http
+      .post<ResponseModel<any>>(this.endpoint + '/placeBet', { nickname, code, value })
       .pipe(
         retry(2),
         catchError(this.handleError)

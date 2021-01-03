@@ -27,9 +27,13 @@
     </ion-fab-button>
   </ion-fab>
   <ion-fab class="my-balance" horizontal="start" vertical="start">
-    <ion-chip outline *ngIf="state.money">
+    <ion-chip outline *ngIf="state.money" (click)="placeBet(currentPlayer)">
       <ion-icon name="server" color="warning"></ion-icon>
-      <ion-label>{{ currentPlayer.balance }}</ion-label>
+      <ion-label>
+        <ion-text>{{ currentPlayer.balance }}</ion-text>
+        <ion-text *ngIf="currentPlayer.bet"> | </ion-text>
+        <ion-text *ngIf="currentPlayer.bet" color="success">{{ currentPlayer.bet }}</ion-text>
+      </ion-label>
     </ion-chip>
   </ion-fab>
   <div class="cards-area">
@@ -46,13 +50,10 @@
           </ion-col>
         </ion-row>
         <ion-row *ngIf="currentGame.fixedDealer && currentGame.teams" class="players-container">
-          <ng-container *ngFor="let player of state.players; let i = index">
-            <ion-col class="player-status" *ngIf="i == 0 || state.players[i].team != state.players[i-1].team">
+          <ng-container *ngFor="let team of playersBoard">
+            <ion-col class="player-status">
               <ion-chip>
-                <ion-icon *ngIf="false" name="thumbs-up-outline" color="warning"></ion-icon>
-                <ion-icon *ngIf="false" name="thumbs-down-outline" color="warning"></ion-icon>
-                <ion-label *ngIf="player.team == 0">Banco</ion-label>
-                <ion-label *ngIf="player.team != 0">Squadra {{ player.team }}</ion-label>
+                <ion-label>{{ team.name }}</ion-label>
               </ion-chip>
             </ion-col>
           </ng-container>
@@ -81,7 +82,7 @@
     </div>
   </div>
   <ion-fab class="action-button" horizontal="center" slot="fixed">
-    <ion-fab-button color="warning" [disabled]="!((currentPlayer.isAdmin || (!currentPlayer.isAdmin && currentPlayer.canMove)) && state.activePlayers >= currentGame.minPlayers && allPaid)">
+    <ion-fab-button color="warning" [disabled]="!((currentPlayer.isAdmin || (!currentPlayer.isAdmin && currentPlayer.canMove)) && state.activePlayers >= currentGame.minPlayers)">
       <ion-icon name="caret-up-outline"></ion-icon>
     </ion-fab-button>
     <ng-container *ngFor="let move of currentPlayer.moves">
