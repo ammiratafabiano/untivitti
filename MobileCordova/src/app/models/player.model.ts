@@ -16,4 +16,5 @@ export class PlayerModel {
     lastMove: number;
     team: number;
     bet: number;
+    vote: boolean;
 }

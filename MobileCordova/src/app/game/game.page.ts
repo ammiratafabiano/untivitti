@@ -26,8 +26,6 @@ export class GamePage implements OnInit {
   @ViewChild('card') card: ElementRef;
   @ViewChild('ground') ground: ElementRef;
 
-  loop: any;
-
   currentPlayer: PlayerModel;
   currentGame: GameModel;
   currentCardSet: CardSetModel;
@@ -47,6 +45,8 @@ export class GamePage implements OnInit {
   playersBoard: PlayerModel[] | TeamModel[];
 
   fireworks = false;
+
+  dragging: boolean;
 
   constructor(
     private route: ActivatedRoute,
@@ -511,5 +511,27 @@ export class GamePage implements OnInit {
     });
 
     await alert.present();
+  }
+
+  onHandDragging(event) {
+    this.storePosition(event.x, event.y);
+  }
+
+  onHandDragStart(event) {
+    this.dragging = true;
+  }
+
+  onHandDragEnd(event) {
+    this.dragging = false;
+  }
+
+  storePosition(xOffset, yOffset) {
+    const hand = document.getElementById('hand');
+    const viewport = this.utils.getViewport();
+    const oldLeft = parseFloat(window.getComputedStyle(hand).getPropertyValue('left'));
+    const oldTop = parseFloat(window.getComputedStyle(hand).getPropertyValue('top'));
+    const newVw = String(((oldLeft + xOffset) * 100) / viewport[0]) + 'vw';
+    const newVh = String(((oldTop + yOffset) * 100) / viewport[1]) + 'vh';
+    this.updateStateService.storeHandPosition(newVw, newVh);
   }
 }

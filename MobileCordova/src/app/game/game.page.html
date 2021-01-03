@@ -61,6 +61,10 @@
       </ion-grid>
     </div>
     <div class="cards-container">
+      <div *ngIf="currentGame.fixedDealer && currentGame.teams && state.status" id="hand" mwlDraggable class="hiding-hand"
+      (dragStart)="onHandDragStart($event)" (dragEnd)="onHandDragEnd($event)" (dragging)="onHandDragging($event)">
+        <ion-icon name="hand-left" color="warning"></ion-icon>
+      </div>
       <ng-container *ngIf="currentPlayer.cards.length > 1">
         <ion-grid>
           <ion-row>

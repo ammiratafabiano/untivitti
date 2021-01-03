@@ -53,6 +53,9 @@ export class StateUpdateService {
           case 'text':
             this.impressedTextService.addImpressedText(msg.text, msg.from);
             break;
+          case 'hand':
+            this.moveHand(msg.newVw, msg.newVh);
+            break;
           default:
             console.log(msg);
         }
@@ -78,6 +81,20 @@ export class StateUpdateService {
   public closeConnection() {
     if (this.websocket) {
       this.websocket.close();
+    }
+  }
+
+  public storeHandPosition(newVw, newVh) {
+    if (this.websocket) {
+      this.websocket.send(JSON.stringify({type: 'hand', uuid: this.uuid, newVw, newVh}));
+    }
+  }
+
+  private moveHand(newVw, newVh) {
+    const hand = document.getElementById('hand');
+    if (hand) {
+      hand.style.left = newVw;
+      hand.style.top = newVh;
     }
   }
 }
