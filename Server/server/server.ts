@@ -148,6 +148,7 @@ const games = [
     bet: true,
     minBet: 20,
     maxBet: 100,
+    decks: 6,
     adminMoves: [
       {
         name: 'Distribuisci',
