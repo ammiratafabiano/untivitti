@@ -61,7 +61,7 @@ const games = [
     fixedDealer: false,
     teams: 0,
     bet: false,
-    deadMessage: 'E su puirtaru... bobom, bobom!',
+    deadMessage: 'E su purtaru... bobom, bobom!',
     adminMoves: [
       {
         name: 'Distribuisci',
