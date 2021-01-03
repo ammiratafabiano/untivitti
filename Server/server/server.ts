@@ -171,7 +171,7 @@ const games = [
         disabled: false,
         icon: 'download-outline',            
         rotateIcon: false,
-        side: 'bottom',
+        side: 'top',
         status: true,
         warnings: [
           {
@@ -182,6 +182,22 @@ const games = [
           {
             type: 'NOT_PAID',
             description: 'Prima di ritirare le carte è necessario che tutti i giocatori paghino.',
+            block: true
+          }
+        ]
+      },
+      {
+        name: 'Dai carta',
+        id: 2,            
+        disabled: false,
+        icon: 'tablet-portrait-outline',            
+        rotateIcon: false,
+        side: 'end',
+        status: true,
+        warnings: [
+          {
+            type: 'NOT_MOVE',
+            description: 'Non puoi dare la carta se prima i giocatori non hanno deciso se essere chiusi o aperti.',
             block: true
           }
         ]
@@ -923,9 +939,7 @@ function turnChange(group, player) {
   if (game.fixedDealer && game.teams) {
     let excludeList = []
     group.players.forEach(player => {
-      if (player.canMove) {
-        player.canMove = false
-        player.moves = player.isAdmin ? getAdminMoves(group) : []
+      if (player.team == 0) {
         excludeList.push(player.name)
       } else {
         player.canMove = true
