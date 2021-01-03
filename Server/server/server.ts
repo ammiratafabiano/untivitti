@@ -552,7 +552,7 @@ app.post('/placeBet', jsonParser, cors(corsOptions), (req, res) => {
   let response
   if (group) {
     if (bet >= group.minBet && bet <= group.maxBet) {
-      const player = group.players(x => x.name == nickname)
+      const player = group.players.find(x => x.name == nickname)
       if (player) {
         player.bet = bet
         response = {
