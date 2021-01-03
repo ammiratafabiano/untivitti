@@ -799,17 +799,9 @@ function startMove(group, player) {
         group.players.forEach(player => {
           if (player.team == i) {
             player.cards = newCards;
-            if (i != 0) {
-              player.canMove = true;
-            }
           }
         });
       }
-      group.round += 1
-      const text = player.name +  ' ha distribuito le carte'
-      const icon = 'Start'
-      sendNotification(group, text, icon)
-      return true
     } else {
       group.status = true
       group.cards = getShuffledSet(group.cardSet)
@@ -823,12 +815,12 @@ function startMove(group, player) {
           }
         }
       }
-      group.round += 1
-      const text = player.name +  ' ha distribuito le carte'
-      const icon = 'Start'
-      sendNotification(group, text, icon)
-      return turnChange(group, player)
     }
+    group.round += 1
+    const text = player.name +  ' ha distribuito le carte'
+    const icon = 'Start'
+    sendNotification(group, text, icon)
+    return turnChange(group, player)
   } else {
     return false
   }
@@ -927,29 +919,45 @@ function passMove(group, player) {
 }
 
 function turnChange(group, player) {
-  const newPlayer = getNextPlayer(group, player)
-  player.canMove = false;
-  player.moves = player.isAdmin ? getAdminMoves(group) : []
-  newPlayer.canMove = true;
-  let excludeList = []
-  group.players.filter(x => {
-    if (x.name != newPlayer.name) excludeList.push(x.name)
-  });
-  sendImpressedText(group, 'E\' il tuo turno!', excludeList);
-  getPlayerMoves(group).forEach(move => {
-    newPlayer.cards.forEach(card => {
-      if (move.forbiddenCards.includes(card)) {
-        newPlayer.moves.push(copyMove(move, true))
+  const game = games.find(x => x.id == group.game)
+  if (game.fixedDealer && game.teams) {
+    let excludeList = []
+    group.players.forEach(player => {
+      if (player.canMove) {
+        player.canMove = false
+        player.moves = player.isAdmin ? getAdminMoves(group) : []
+        excludeList.push(player.name)
       } else {
-        newPlayer.moves.push(copyMove(move))
+        player.canMove = true
+        player.moves = player.isAdmin ? player.moves : getPlayerMoves(group)
       }
+    });
+    sendImpressedText(group, 'E\' il vostro turno!', excludeList);
+  } else {
+    const newPlayer = getNextPlayer(group, player)
+    player.canMove = false
+    player.moves = player.isAdmin ? getAdminMoves(group) : []
+    newPlayer.canMove = true
+    let excludeList = []
+    group.players.filter(x => {
+      if (x.name != newPlayer.name) excludeList.push(x.name)
+    });
+    sendImpressedText(group, 'E\' il tuo turno!', excludeList);
+    getPlayerMoves(group).forEach(move => {
+      newPlayer.cards.forEach(card => {
+        if (move.forbiddenCards.includes(card)) {
+          newPlayer.moves.push(copyMove(move, true))
+        } else {
+          newPlayer.moves.push(copyMove(move))
+        }
+      })
     })
-  })
-  if (newPlayer.isAdmin) {
-    newPlayer.visible = true
-    const text = 'La carta del mazziere ' + newPlayer.name +  ' è ora visibile'
-    const icon = 'Show'
-    sendNotification(group, text, icon)
+    if (newPlayer.isAdmin) {
+      newPlayer.visible = true
+      const text = 'La carta del mazziere ' + newPlayer.name +  ' è ora visibile'
+      const icon = 'Show'
+      sendNotification(group, text, icon)
+    }
   }
   return true
 }
