@@ -1094,6 +1094,9 @@ function resetGroup(group, hard?) {
   if (!game.fixedDealer) {
     group.cards = []
   }
+  if (hard) {
+    group.round = 0
+  }
   group.ground = []
   for (let i = 0; i < group.players.length; i++) {
     group.players[i].cards = []
