@@ -14,4 +14,6 @@ export class GameStateModel {
     cards: number[];
     ground: number[];
     activePlayers: number;
+    minBet: number;
+    maxBet: number;
 }

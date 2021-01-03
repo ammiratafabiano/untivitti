@@ -15,4 +15,5 @@ export class GameModel {
     teams: number;
     minBet: number;
     maxBet: number;
+    decks: number;
 }

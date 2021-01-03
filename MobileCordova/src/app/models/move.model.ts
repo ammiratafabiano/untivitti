@@ -1,7 +1,8 @@
 export enum WarningMoveTypeEnum {
     NotFinished = 'NOT_FINISHED',
     NotPaid = 'NOT_PAID',
-    NotBet = 'NOT_BET'
+    NotBet = 'NOT_BET',
+    NotMove = 'NOT_MOVE'
 }
 
 export class WarningMoveModel {

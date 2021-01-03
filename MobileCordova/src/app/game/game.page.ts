@@ -364,8 +364,9 @@ export class GamePage implements OnInit {
   }
 
   async openChat() {
+    const isPrivate = this.currentGame.fixedDealer && this.currentGame.teams && this.state.status;
     const alert = await this.alertController.create({
-      header: 'Invia un messaggio',
+      header: isPrivate ? 'Invia un messaggio privato alla squadra' : 'Invia un messaggio',
       inputs: [
         {
           name: 'value',
@@ -382,7 +383,7 @@ export class GamePage implements OnInit {
         }, {
           text: 'Invia',
           handler: (out) => {
-            this.updateStateService.sendText(out.value, this.currentPlayer);
+            this.updateStateService.sendText(out.value, this.currentPlayer, isPrivate);
           }
         }
       ]
@@ -428,6 +429,10 @@ export class GamePage implements OnInit {
             }
           }
           break;
+        case WarningMoveTypeEnum.NotMove:
+          if (!this.currentPlayer.canMove) {
+            warningToShow = warning;
+          }
       }
     }
 
@@ -486,7 +491,7 @@ export class GamePage implements OnInit {
       inputs: [
         {
           name: 'value',
-          value: player.bet,
+          value: this.state.minBet,
           type: 'number'
         }
       ],

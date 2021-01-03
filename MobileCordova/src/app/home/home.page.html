@@ -78,6 +78,10 @@
       <ion-label>Puntata massima:</ion-label>
       <ion-input type="number" [(ngModel)]="maxBet"></ion-input>
     </ion-item>
+    <ion-item *ngIf="selectedGame != undefined && decks != undefined">
+      <ion-label>Mazzi:</ion-label>
+      <ion-input type="number" [(ngModel)]="decks"></ion-input>
+    </ion-item>
     <ion-button color="warning" (click)="create()">Crea</ion-button>
   </div>
   <div *ngIf="isOffline" id="container">

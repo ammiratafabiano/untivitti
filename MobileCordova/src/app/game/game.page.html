@@ -17,7 +17,7 @@
     <div class="after"></div>
   </div>
   <ion-fab class="chat" horizontal="center" vertical="start" slot="fixed">
-    <ion-fab-button color="light" (click)="openChat()" size="small">
+    <ion-fab-button [color]="currentGame.fixedDealer && currentGame.teams && state.status ? 'dark' : 'light'" (click)="openChat()" size="small">
       <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
     </ion-fab-button>
   </ion-fab>

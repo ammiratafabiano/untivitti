@@ -69,9 +69,9 @@ export class StateUpdateService {
     }
   }
 
-  public sendText(text: string, player: PlayerModel) {
+  public sendText(text: string, player: PlayerModel, isPrivate) {
     if (this.websocket) {
-      this.websocket.send(JSON.stringify({type: 'text', uuid: this.uuid, text, from: player.name}));
+      this.websocket.send(JSON.stringify({type: 'text', uuid: this.uuid, text, from: player.name, isPrivate}));
     }
   }
 
