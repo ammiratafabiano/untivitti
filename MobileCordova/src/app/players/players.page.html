@@ -34,8 +34,8 @@
         <ion-chip outline *ngIf="moneyMode && !player.haveToPay" (click)="currentPlayer.isAdmin && !status && changeBalance(player)">
           <ion-icon name="server" color="warning"></ion-icon>
           <ion-label>
-            <ion-text *ngIf="!player.bet || status">{{ player.balance }}</ion-text>
-            <ion-text *ngIf="!status && player.bet"> | </ion-text>
+            <ion-text *ngIf="(player.bet && !status) || !player.bet">{{ player.balance }}</ion-text>
+            <ion-text *ngIf="player.bet && !status"> | </ion-text>
             <ion-text *ngIf="player.bet" color="success">{{ player.bet }}</ion-text>
           </ion-label>
         </ion-chip>

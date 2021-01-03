@@ -522,6 +522,7 @@ export class GamePage implements OnInit {
   }
 
   onHandDragEnd(event) {
+    this.updateStateService.storeHandPosition('0vw', '0vh');
     this.dragging = false;
   }
 
