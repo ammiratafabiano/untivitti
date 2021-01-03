@@ -61,6 +61,7 @@ const games = [
     fixedDealer: false,
     teams: 0,
     bet: false,
+    deadMessage: 'E su puirtaru... bobom, bobom!',
     adminMoves: [
       {
         name: 'Distribuisci',
@@ -474,6 +475,7 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
   const group = groups.find(x => x.code == code)
   let response
   if (group) {
+    const game = games.find(x => x.id == group.game)
     if (newBalance >= 0 && newBalance <= group.balance) {
       const player = group.players.find(x => x.name == nickname)
       if (player) {
@@ -488,12 +490,19 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
             checkWinner(group)
           }
           if (!isFinished(group)) {
-            sendImpressedText(group, player.name + ' è morto/a!', [player.name]);
+            let text = player.name + ' non ha più monete!'
+            let icon = 'server'
+            sendNotification(group, text, icon, [player.name])
             let excludeList = []
             group.players.filter(x => {
               if (x.name != player.name) excludeList.push(x.name)
             });
-            sendImpressedText(group, 'Sei morto!', excludeList);
+            text = 'Non hai più monete!'
+            icon = 'server'
+            sendNotification(group, text, icon, excludeList)
+            if (game.deadMessage) {
+              sendImpressedText(group, game.deadMessage);
+            }
           }
         }
         response = {
@@ -651,6 +660,20 @@ wsServer.on('connection', (socket: any) => {
           })
         })
         break;
+      case 'hand':
+        groups.forEach(group => {
+          group.players.forEach(player => {
+            if (player.uuid == msg.uuid) {
+              group.players.forEach(player => {
+                wsServer.clients.forEach((ws) => {
+                  if (ws.uuid == player.uuid && ws.isAlive && player.uuid != msg.uuid) {
+                    ws.send(JSON.stringify({type: 'hand', newVw: msg.newVw, newVh: msg.newVh})); 
+                  }
+                })
+              })
+            }
+          })
+        })
       default:
         socket.send(JSON.stringify({success: false, type: msg.type}))
     }
@@ -862,7 +885,6 @@ function startMove(group, player) {
 }
 
 function stopMove(group, player) {
-  const game = games.find(x => x.id == group.game)
   if (player.isAdmin) {
     const isFinished = group.players.findIndex(x => x.canMove) == -1;
     if (isFinished ) {
@@ -881,7 +903,28 @@ function stopMove(group, player) {
 }
 
 function cardMove(group, player) {
-
+  const game = games.find(x => x.id == group.game)
+  for (let i = 0; i < game.teams + 1; i++) {
+    let openVote = 0
+    let total = 0
+    group.players.forEach(player => {
+      if (player.team == i) {
+        if (player.vote == true) {
+          openVote += 1
+        }
+        total += 1
+      }
+    });
+    if (openVote >= (total / 2)) {
+      const newCard = group.cards.pop()
+      group.players.forEach(player => {
+        if (player.team == i) {
+          player.cards.push(newCard)
+        }
+      });
+    }
+  }
+  computeLosers(group)
 }
 
 function showMove(group, player) {
@@ -957,8 +1000,10 @@ function passMove(group, player) {
   }
 }
 
-function voteMove(group, player, open) {
-  
+function voteMove(group, player, vote) {
+  player.vote = vote;
+  player.canMove = false;
+  player.moves = [];
 }
 
 function turnChange(group, player) {
@@ -1175,68 +1220,72 @@ function setGhost(group, player, value, notification = true) {
 
 function computeLosers(group) {
   const game = games.find(x => x.id == group.game)
-  let results = []
-  for (let i = 0; i < group.players.length; i++) {
-    const player = group.players[i]
-    if (!player.ghost) {
-      if (player.isAdmin && group.ground.length != 0 && !game.playerMoves.find(x => x.id == 5).forbiddenCards.includes(group.ground[0])) {
-        results.push(group.ground[0] % game.maxValue)
-      } else {
-        results.push(player.cards[0] % game.maxValue)
-      }
-    }
-  }
-  const min = Math.min(...results)
+  if (game.fixedDealer && game.teams) {
 
-  let losers = []
-  group.players.forEach(player => {
-    if (!player.ghost) {
-      let card
-      if (player.isAdmin && group.ground.length != 0 && !game.playerMoves.find(x => x.id == 5).forbiddenCards.includes(group.ground[0])) {
-        card = group.ground[0]
-      } else {
-        card = player.cards[0]
-      }
-      if ((card % game.maxValue) == min) { 
-        player.haveToPay = true
-        losers.push(player.name)
-      }
-    }
-  });
-
-  if (losers.length > 1) {
-    let tie = false
-    if (losers.length == getPlayersLength(group)) {
-      for (let i = 0; i < losers.length; i++) {
-        const player = group.players.find(x => x.name == losers[i])
-        if (player.balance == 1) {
-          tie = true
+  } else {
+    let results = []
+    for (let i = 0; i < group.players.length; i++) {
+      const player = group.players[i]
+      if (!player.ghost) {
+        if (player.isAdmin && group.ground.length != 0 && !game.playerMoves.find(x => x.id == 5).forbiddenCards.includes(group.ground[0])) {
+          results.push(group.ground[0] % game.maxValue)
         } else {
-          tie = false
-          break;
-        }      
+          results.push(player.cards[0] % game.maxValue)
+        }
       }
     }
-    if (tie) {
-      group.players.forEach(player => {
-        player.haveToPay = false
-        player.ghost = false
-        player.balance = 1
-      })
-      const text = 'Pareggio! Tutti i giocatori rientrano in partita!'
-      const icon = 'Players'
-      sendNotification(group, text, icon)
+    const min = Math.min(...results)
+
+    let losers = []
+    group.players.forEach(player => {
+      if (!player.ghost) {
+        let card
+        if (player.isAdmin && group.ground.length != 0 && !game.playerMoves.find(x => x.id == 5).forbiddenCards.includes(group.ground[0])) {
+          card = group.ground[0]
+        } else {
+          card = player.cards[0]
+        }
+        if ((card % game.maxValue) == min) { 
+          player.haveToPay = true
+          losers.push(player.name)
+        }
+      }
+    });
+
+    if (losers.length > 1) {
+      let tie = false
+      if (losers.length == getPlayersLength(group)) {
+        for (let i = 0; i < losers.length; i++) {
+          const player = group.players.find(x => x.name == losers[i])
+          if (player.balance == 1) {
+            tie = true
+          } else {
+            tie = false
+            break;
+          }      
+        }
+      }
+      if (tie) {
+        group.players.forEach(player => {
+          player.haveToPay = false
+          player.ghost = false
+          player.balance = 1
+        })
+        const text = 'Pareggio! Tutti i giocatori rientrano in partita!'
+        const icon = 'Players'
+        sendNotification(group, text, icon)
+      } else {
+        const last = losers.pop()
+        const people = losers.join(', ') + 'e ' + last
+        const text = people + ' devono pagare'
+        const icon = 'Money'
+        sendNotification(group, text, icon)
+      }
     } else {
-      const last = losers.pop()
-      const people = losers.join(', ') + 'e ' + last
-      const text = people + ' devono pagare'
+      const text = losers[0] + ' deve pagare'
       const icon = 'Money'
       sendNotification(group, text, icon)
     }
-  } else {
-    const text = losers[0] + ' deve pagare'
-    const icon = 'Money'
-    sendNotification(group, text, icon)
   }
 }
 
