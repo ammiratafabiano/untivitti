@@ -171,7 +171,7 @@ const games = [
         disabled: false,
         icon: 'download-outline',            
         rotateIcon: false,
-        side: 'top',
+        side: 'bottom',
         status: true,
         warnings: [
           {
@@ -190,9 +190,9 @@ const games = [
         name: 'Dai carta',
         id: 2,            
         disabled: false,
-        icon: 'tablet-portrait-outline',            
-        rotateIcon: false,
-        side: 'end',
+        icon: 'albums-outline',
+        rotateIcon: true,
+        side: 'top',
         status: true,
         warnings: [
           {
@@ -287,6 +287,7 @@ app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
     balance: req.body.balance,
     minBet: req.body.minBet,
     maxBet: req.body.maxBet,
+    decks: req.body.decks,
     round: 0,
     cards: [],
     ground: [],
@@ -636,7 +637,15 @@ wsServer.on('connection', (socket: any) => {
         groups.forEach(group => {
           group.players.forEach(player => {
             if (player.uuid == msg.uuid) {
-              sendImpressedText(group, msg.text, undefined, msg.from);
+              let excludeList = []
+              if (msg.isPrivate) {
+                group.players.forEach(otherPlayer => {
+                  if (otherPlayer.team != player.team) {
+                    excludeList.push(otherPlayer.name)
+                  }
+                });
+              }
+              sendImpressedText(group, msg.text, excludeList, msg.from);
             }
           })
         })
@@ -786,12 +795,18 @@ function executeMove(group, player, move) {
       return startMove(group, player)
     case 1:
       return stopMove(group,player)
+    case 2:
+      return cardMove(group, player)
     case 3:
       return showMove(group, player)
     case 4:
       return skipMove(group, player)
     case 5:
       return swapMove(group, player)
+    case 6:
+      return voteMove(group, player, false)
+    case 7:
+      return voteMove(group, player, true)
     default:
       return false
   }
@@ -804,7 +819,7 @@ function startMove(group, player) {
       group.status = true
       // TODO: check for reset group
       if (group.cards.length == 0) {
-        group.cards = getShuffledSet(group.cardSet, 6)
+        group.cards = getShuffledSet(group.cardSet, group.decks)
       }
       group.ground = []
       for (let i = 0; i < game.teams + 1; i++) {
@@ -817,6 +832,9 @@ function startMove(group, player) {
             player.cards = newCards;
           }
         });
+      }
+      if (group.cards.length < 9 * 2) {
+        sendImpressedText(group, 'Il prossimo giro sarà l\'ultimo!');
       }
     } else {
       group.status = true
@@ -859,6 +877,10 @@ function stopMove(group, player) {
   } else {
     return false
   }
+}
+
+function cardMove(group, player) {
+
 }
 
 function showMove(group, player) {
@@ -932,6 +954,10 @@ function passMove(group, player) {
   } else {
     return false
   }
+}
+
+function voteMove(group, player, open) {
+  
 }
 
 function turnChange(group, player) {
