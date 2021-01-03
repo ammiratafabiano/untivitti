@@ -146,6 +146,8 @@ const games = [
     fixedDealer: true,
     teams: 2,
     bet: true,
+    minBet: 20,
+    maxBet: 100,
     adminMoves: [
       {
         name: 'Distribuisci',
@@ -267,6 +269,8 @@ app.post('/createGroup', jsonParser, cors(corsOptions), (req, res) => {
     status: false,
     money: req.body.money,
     balance: req.body.balance,
+    minBet: req.body.minBet,
+    maxBet: req.body.maxBet,
     round: 0,
     cards: [],
     ground: [],
@@ -424,10 +428,10 @@ app.get('/getGames', cors(corsOptions), (req, res) => {
 })
 
 app.post('/updatePlayers', jsonParser, cors(corsOptions), (req, res) => {
-  const game = games.find(x => x.id == group.game)
-  let newPlayers = req.body.players;
+  const newPlayers = req.body.players;
   const code = req.body.code;
   const group = groups.find(x => x.code == code);
+  const game = games.find(x => x.id == group.game)
   let response
   if (group) {
     group.players = solveConflicts(group, newPlayers);
@@ -450,10 +454,9 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
   const code = req.params['code']
   const newBalance = parseInt(req.params['balance'], 10)
   const group = groups.find(x => x.code == code)
-  const game = games.find(x => x.id == group.game)
   let response
   if (group) {
-    if (newBalance >= 0 && newBalance <= game.defaultBalance) {
+    if (newBalance >= 0 && newBalance <= group.balance) {
       const player = group.players.find(x => x.name == nickname)
       if (player) {
         player.haveToPay = false
@@ -486,7 +489,7 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
     } else {
       response = {
         success: false,
-        errorCode: "Valore non valido"
+        errorCode: "Valori ammessi tra 0 e " + group.balance
       }
     }
   } else {
@@ -540,6 +543,39 @@ app.get('/retrieveSession/:uuid', cors(corsOptions), (req, res) => {
   }
   res.send(response)
 })
+
+app.post('/placeBet', jsonParser, cors(corsOptions), (req, res) => {
+  const nickname = req.body.nickname
+  const code = req.body.code
+  const bet = req.body.value
+  const group = groups.find(x => x.code == code)
+  let response
+  if (group) {
+    if (bet >= group.minBet && bet <= group.maxBet) {
+      const player = group.players(x => x.name == nickname)
+      if (player) {
+        player.bet = bet
+        response = {
+          success: true
+        }
+      } else {
+        response = {
+          success: false
+        }
+      }
+    } else {
+      response = {
+        success: false,
+        errorCode: "Valori ammessi tra " + group.minBet + " e " + group.maxBet
+      }
+    }
+  } else {
+    response = {
+      success: false
+    }
+  }
+  res.send(response)
+});
 
 const wsServer = new ws.Server({ noServer: true });
 wsServer.on('connection', (socket: any) => {
