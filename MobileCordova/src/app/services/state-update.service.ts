@@ -97,7 +97,7 @@ export class StateUpdateService {
     const hand = document.getElementById('hand');
     if (hand) {
       hand.style.left = newVw;
-      hand.style.top = newVh;
+      hand.style.bottom = newVh;
     }
   }
 }
