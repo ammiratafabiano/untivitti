@@ -1049,7 +1049,7 @@ function voteMove(group, player, vote) {
     }
     let allVoted = true;
     group.players.forEach(player => {
-      if (player.team != 0 && vote == undefined) {
+      if (player.team != 0 && player.vote == undefined) {
         allVoted = false;
       }
     })
