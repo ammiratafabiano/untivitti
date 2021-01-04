@@ -1014,24 +1014,22 @@ function voteMove(group, player, vote) {
   player.canMove = false;
   player.moves = [];
   let allVoted = true;
-  let moveCard = false;
   group.players.forEach(player => {
     if (player.team != 0 && vote == undefined) {
       allVoted = false;
     }
-    if (player.team != 0 && vote == true) {
-      moveCard = true;
-    }
   })
   if (allVoted) {
+    let excludeList = []
     group.players.forEach(player => {
       if (player.team == 0) {
         player.canMove = true;
-        if (!moveCard) {
-          player.moves.concat(getPlayerMoves(group));
-        }
+        player.moves.concat(getPlayerMoves(group));
+      } else {
+        excludeList.push(player.name);
       }
     })
+    sendImpressedText(group, 'E\' il vostro turno!', excludeList);
   }
 }
 
