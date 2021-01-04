@@ -857,11 +857,11 @@ function startMove(group, player) {
           let earlyShowTeams = []
           if (player.team == i) {
             player.cards = newCards;
-            const tot = computePoints(group, player)
+            const tot = computePoints(group, newCards)
             if (game.earlyShow.includes(tot)) {
-              earlyShowTeams.push(player.team)
               player.visible = true;
               if (!earlyShowTeams.includes(player.team)) {
+                earlyShowTeams.push(player.team)
                 if (i == 0) {
                   sendImpressedText(group, 'Il banco dichiara ' + tot);
                 } else {
@@ -1494,10 +1494,10 @@ function checkVote(group, team) {
   }
 }
 
-function computePoints(group, player) {
+function computePoints(group, cards) {
   const game = games.find(x => x.id == group.game)
   let total
-  player.cards.forEach(card => {
+  cards.forEach(card => {
     const tempValue = (card % game.maxValue) + 1
     total += tempValue < 10 ? tempValue : 0
   });
