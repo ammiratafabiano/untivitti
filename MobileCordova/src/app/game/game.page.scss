@@ -88,6 +88,7 @@
 
 .action-button {
     bottom: 100px;
+    z-index: 9999;
 }
 
 .my-balance {
@@ -154,13 +155,13 @@
 
 .hiding-hand {
   position: absolute;
-  bottom: 0vh;
+  bottom: -20vh;
   left: 0vw;
   overflow: hidden;
   height: 40vh;
   width: 320vh;
   overflow: hidden;
-  z-index: 9999;
+  z-index: 9998;
   transition: bottom 100ms, left 100ms;
 }
 
