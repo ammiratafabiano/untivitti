@@ -532,7 +532,7 @@ export class GamePage implements OnInit {
     const oldLeft = parseFloat(window.getComputedStyle(hand).getPropertyValue('left'));
     const oldBottom = parseFloat(window.getComputedStyle(hand).getPropertyValue('bottom'));
     const newVw = String(((oldLeft + xOffset) * 100) / viewport[0]) + 'vw';
-    const newVh = String(((oldBottom + yOffset) * 100) / viewport[1]) + 'vh';
+    const newVh = String(((oldBottom - yOffset) * 100) / viewport[1]) + 'vh';
     this.updateStateService.storeHandPosition(newVw, newVh);
   }
 }
