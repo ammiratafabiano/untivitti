@@ -1502,8 +1502,11 @@ function checkVote(group, team) {
 
 function computePoints(group, cards) {
   const game = games.find(x => x.id == group.game)
-  let total
+  let total = 0
+  console.log(cards)
   cards.forEach(card => {
+    console.log(card)
+    console.log(card % game.maxValue)
     const tempValue = (card % game.maxValue) + 1
     total += tempValue < 10 ? tempValue : 0
   });
