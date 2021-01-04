@@ -1034,6 +1034,7 @@ function voteMove(group, player, vote) {
       }
     }
   } else {
+    player.canMove = false;
     player.moves = [];
     const vote = checkVote(group, player.team);
     if (vote != undefined) {
