@@ -858,6 +858,7 @@ function startMove(group, player) {
           if (player.team == i) {
             player.cards = newCards;
             const tot = computePoints(group, newCards)
+            console.log(tot)
             if (game.earlyShow.includes(tot)) {
               console.log("earlyShow")
               player.visible = true;
