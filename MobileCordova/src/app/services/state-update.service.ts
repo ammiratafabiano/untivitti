@@ -20,6 +20,8 @@ export class StateUpdateService {
 
   stateListener: BehaviorSubject<GameStateModel>;
 
+  lastHandUpdate = 0;
+
   constructor(
     private notificationService: NotificationService,
     private utils: UtilsService,
@@ -84,8 +86,9 @@ export class StateUpdateService {
     }
   }
 
-  public storeHandPosition(newVw, newVh) {
-    if (this.websocket) {
+  public storeHandPosition(newVw, newVh, forced?) {
+    if (this.websocket && ((Date.now() - this.lastHandUpdate > 100) || forced)) {
+      this.lastHandUpdate = Date.now();
       this.websocket.send(JSON.stringify({type: 'hand', uuid: this.uuid, newVw, newVh}));
     }
   }

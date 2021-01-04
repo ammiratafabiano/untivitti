@@ -27,7 +27,7 @@
     </ion-fab-button>
   </ion-fab>
   <ion-fab class="my-balance" horizontal="start" vertical="start">
-    <ion-chip outline *ngIf="state.money" (click)="placeBet(currentPlayer)">
+    <ion-chip outline *ngIf="state.money" (click)="!currentPlayer.isAdmin && placeBet(currentPlayer)">
       <ion-icon name="server" color="warning"></ion-icon>
       <ion-label>
         <ion-text>{{ currentPlayer.balance }}</ion-text>
@@ -63,7 +63,7 @@
     <div class="cards-container">
       <div *ngIf="currentGame.fixedDealer && currentGame.teams && state.status" id="hand" mwlDraggable class="hiding-hand"
       (dragStart)="onHandDragStart($event)" (dragEnd)="onHandDragEnd($event)" (dragging)="onHandDragging($event)">
-        <ion-icon name="hand-left" color="warning"></ion-icon>
+        <img src="./assets/hand.png">
       </div>
       <ng-container *ngIf="currentPlayer.cards.length > 1">
         <ion-grid>
