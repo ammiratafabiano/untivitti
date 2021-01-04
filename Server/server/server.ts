@@ -201,6 +201,11 @@ const games = [
             type: 'NOT_MOVE',
             description: 'Non puoi dare la carta se prima i giocatori non hanno deciso se essere chiusi o aperti.',
             block: true
+          },
+          {
+            type: 'NOT_OPEN',
+            description: 'Nessuna squadra ha le carte aperte.',
+            block: true
           }
         ]
       }
@@ -212,7 +217,7 @@ const games = [
         disabled: false,                                                                                                                                                                                                                             
         icon: 'thumbs-up-outline',
         rotateIcon: false,
-        side: 'end',
+        side: 'start',
         status: true,
         warnings: [],
         forbiddenCards: [],
@@ -224,7 +229,7 @@ const games = [
         disabled: false,
         icon: 'thumbs-down-outline',
         rotateIcon: false,
-        side: 'start',
+        side: 'end',
         status: true,
         warnings: [],
         forbiddenCards: [],
@@ -924,7 +929,11 @@ function cardMove(group, player) {
       });
     }
   }
-  computeLosers(group)
+  group.players.forEach(player => {
+    if (player.team == 0) {
+      player.moves.concat(getPlayerMoves(group));
+    }
+  })
 }
 
 function showMove(group, player) {
@@ -1005,15 +1014,22 @@ function voteMove(group, player, vote) {
   player.canMove = false;
   player.moves = [];
   let allVoted = true;
+  let moveCard = false;
   group.players.forEach(player => {
     if (player.team != 0 && vote == undefined) {
       allVoted = false;
+    }
+    if (player.team != 0 && vote == true) {
+      moveCard = true;
     }
   })
   if (allVoted) {
     group.players.forEach(player => {
       if (player.team == 0) {
         player.canMove = true;
+        if (!moveCard) {
+          player.moves.concat(getPlayerMoves(group));
+        }
       }
     })
   }
