@@ -204,7 +204,7 @@ const games = [
           },
           {
             type: 'NOT_OPEN',
-            description: 'Nessuna squadra ha le carte aperte.',
+            description: 'Nessuna squadra o il banco ha le carte aperte.',
             block: true
           }
         ]
@@ -859,6 +859,7 @@ function startMove(group, player) {
         group.players.forEach(player => {
           if (player.team == i) {
             player.cards = newCards;
+            // TODO: check for early close
           }
         });
       }
@@ -909,31 +910,35 @@ function stopMove(group, player) {
 
 function cardMove(group, player) {
   const game = games.find(x => x.id == group.game)
-  for (let i = 0; i < game.teams + 1; i++) {
-    let openVote = 0
-    let total = 0
+  const vote = checkVote(group, 0);
+  if (vote != undefined) {
+    const newCard = group.cards.pop()
     group.players.forEach(player => {
-      if (player.team == i) {
-        if (player.vote == true) {
-          openVote += 1
-        }
-        total += 1
+      if (player.team == 0) {
+        player.cards.push(newCard)
       }
     });
-    if (openVote >= (total / 2)) {
-      const newCard = group.cards.pop()
-      group.players.forEach(player => {
-        if (player.team == i) {
-          player.cards.push(newCard)
+    computeLosers(group);
+  } else {
+    for (let i = 1; i < game.teams + 1; i++) {
+      const vote = checkVote(group, i);
+      if (vote != undefined) {
+        if (vote == true) {
+          const newCard = group.cards.pop()
+          group.players.forEach(player => {
+            if (player.team == i) {
+              player.cards.push(newCard)
+            }
+          });
         }
-      });
+      }
     }
+    group.players.forEach(player => {
+      if (player.team == 0) {
+        player.moves = getAdminMoves(group).concat(getPlayerMoves(group));
+      }
+    })
   }
-  group.players.forEach(player => {
-    if (player.team == 0) {
-      player.moves.concat(getPlayerMoves(group));
-    }
-  })
 }
 
 function showMove(group, player) {
@@ -1012,24 +1017,54 @@ function passMove(group, player) {
 function voteMove(group, player, vote) {
   player.vote = vote;
   player.canMove = false;
-  player.moves = [];
-  let allVoted = true;
-  group.players.forEach(player => {
-    if (player.team != 0 && vote == undefined) {
-      allVoted = false;
-    }
-  })
-  if (allVoted) {
-    let excludeList = []
-    group.players.forEach(player => {
-      if (player.team == 0) {
-        player.canMove = true;
-        player.moves.concat(getPlayerMoves(group));
+  if (player.team == 0) {
+    player.moves = getAdminMoves(group);
+    const vote = checkVote(group, 0);
+    if (vote != undefined) {
+      if (vote == true) {
+        const text = 'Il banco è aperto'
+        const icon = 'No'
+        sendNotification(group, text, icon)
       } else {
-        excludeList.push(player.name);
+        const text = 'Il banco è chiuso'
+        const icon = 'Ok'
+        sendNotification(group, text, icon)
+        computeLosers(group);
+      }
+    }
+  } else {
+    player.moves = [];
+    const vote = checkVote(group, player.team);
+    if (vote != undefined) {
+      if (vote == true) {
+        const text = 'La squadra ' + player.team + ' è aperta'
+        const icon = 'No'
+        sendNotification(group, text, icon)
+      } else {
+        const text = 'La squadra ' + player.team + ' è chiusa'
+        const icon = 'Ok'
+        sendNotification(group, text, icon)
+        computeLosers(group);
+      }
+    }
+    let allVoted = true;
+    group.players.forEach(player => {
+      if (player.team != 0 && vote == undefined) {
+        allVoted = false;
       }
     })
-    sendImpressedText(group, 'E\' il vostro turno!', excludeList);
+    if (allVoted) {
+      let excludeList = []
+      group.players.forEach(player => {
+        if (player.team == 0) {
+          player.canMove = true;
+          player.moves = getAdminMoves(group).concat(getPlayerMoves(group));
+        } else {
+          excludeList.push(player.name);
+        }
+      })
+      sendImpressedText(group, 'E\' il vostro turno!', excludeList);
+    }
   }
 }
 
@@ -1251,7 +1286,7 @@ function setGhost(group, player, value, notification = true) {
 function computeLosers(group) {
   const game = games.find(x => x.id == group.game)
   if (game.fixedDealer && game.teams) {
-
+    // TODO: calc have to pay
   } else {
     let results = []
     for (let i = 0; i < group.players.length; i++) {
@@ -1403,4 +1438,30 @@ function resetDealer(group) {
         }
       }
     });
+}
+
+function checkVote(group, team) {
+  let openVote = 0
+  let closeVote = 0
+  let total = 0
+  group.players.forEach(player => {
+    if (player.team == team) {
+      if (player.vote == true) {
+        openVote += 1
+      }
+      if (player.vote == false) {
+        closeVote += 1
+      }
+      total += 1
+    }
+  });
+  if ((closeVote + openVote) == total) {
+    if (openVote >= (total / 2)) {
+      return true;
+    } else {
+      return false;
+    }
+  } else {
+    return undefined;
+  }
 }
