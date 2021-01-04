@@ -664,9 +664,9 @@ wsServer.on('connection', (socket: any) => {
         groups.forEach(group => {
           group.players.forEach(player => {
             if (player.uuid == msg.uuid) {
-              group.players.forEach(player => {
+              group.players.forEach(player2 => {
                 wsServer.clients.forEach((ws) => {
-                  if (ws.uuid == player.uuid && ws.isAlive && player.uuid != msg.uuid) {
+                  if (ws.uuid == player2.uuid && ws.isAlive && player2.uuid != msg.uuid && player.team == player2.team) {
                     ws.send(JSON.stringify({type: 'hand', newVw: msg.newVw, newVh: msg.newVh})); 
                   }
                 })
@@ -1004,6 +1004,19 @@ function voteMove(group, player, vote) {
   player.vote = vote;
   player.canMove = false;
   player.moves = [];
+  let allVoted = true;
+  group.players.foreEach(player => {
+    if (player.team != 0 && vote == undefined) {
+      allVoted = false;
+    }
+  })
+  if (allVoted) {
+    group.players.foreEach(player => {
+      if (player.team == 0) {
+        player.canMove = true;
+      }
+    })
+  }
 }
 
 function turnChange(group, player) {
