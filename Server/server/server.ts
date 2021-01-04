@@ -853,8 +853,8 @@ function startMove(group, player) {
         for (let j = 0; j < game.handCards; j++) {
           newCards.push(group.cards.pop())
         }
+        let earlyShowTeams = []
         group.players.forEach(player => {
-          let earlyShowTeams = []
           if (player.team == i) {
             player.cards = newCards;
             const tot = computePoints(group, newCards)
@@ -1060,7 +1060,7 @@ function voteMove(group, player, vote) {
     }
     let allVoted = true;
     group.players.forEach(player => {
-      if (player.team != 0 && player.vote == undefined) {
+      if (player.team != 0 && !player.ghost && player.vote == undefined) {
         allVoted = false;
       }
     })
