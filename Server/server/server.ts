@@ -848,18 +848,20 @@ function startMove(group, player) {
         group.cards = getShuffledSet(group.cardSet, group.decks)
       }
       group.ground = []
+      let earlyShowTeams = []
       for (let i = 0; i < game.teams + 1; i++) {
         const newCards = []
         for (let j = 0; j < game.handCards; j++) {
           newCards.push(group.cards.pop())
         }
-        let earlyShowTeams = []
         group.players.forEach(player => {
           if (player.team == i) {
             player.cards = newCards;
             const tot = computePoints(group, newCards)
             if (game.earlyShow.includes(tot)) {
+              console.log("earlyShow")
               player.visible = true;
+              console.log(earlyShowTeams)
               if (!earlyShowTeams.includes(player.team)) {
                 earlyShowTeams.push(player.team)
                 if (i == 0) {
@@ -1035,7 +1037,10 @@ function voteMove(group, player, vote) {
         const icon = 'No'
         sendNotification(group, text, icon)
       } else {
-        player.canMove = false;
+        group.players.forEach(x => {
+          player.canMove = false;
+          player.visible = true;
+        })
         const text = 'Il banco è chiuso'
         const icon = 'Ok'
         sendNotification(group, text, icon)
