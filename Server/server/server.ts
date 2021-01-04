@@ -150,6 +150,7 @@ const games = [
     minBet: 20,
     maxBet: 100,
     decks: 6,
+    earlyShow: [8,9],
     adminMoves: [
       {
         name: 'Distribuisci',
@@ -485,11 +486,8 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
       const player = group.players.find(x => x.name == nickname)
       if (player) {
         player.haveToPay = false
-        const text = player.name + ' ha pagato'
-        const icon = 'Money'
-        sendNotification(group, text, icon)
         player.balance = newBalance
-        if (newBalance == 0) {
+        if (newBalance == 0 || (group.maxBet && newBalance < group.maxBet)) {
           setGhost(group, player, true, false)
           if (group.money) {
             checkWinner(group)
@@ -846,7 +844,6 @@ function startMove(group, player) {
   if (player.isAdmin) {
     if (game.fixedDealer && game.teams) {
       group.status = true
-      // TODO: check for reset group
       if (group.cards.length == 0) {
         group.cards = getShuffledSet(group.cardSet, group.decks)
       }
@@ -857,9 +854,21 @@ function startMove(group, player) {
           newCards.push(group.cards.pop())
         }
         group.players.forEach(player => {
+          let earlyShowTeams = []
           if (player.team == i) {
             player.cards = newCards;
-            // TODO: check for early close
+            const tot = computePoints(group, player)
+            if (game.earlyShow.includes(tot)) {
+              earlyShowTeams.push(player.team)
+              player.visible = true;
+              if (!earlyShowTeams.includes(player.team)) {
+                if (i == 0) {
+                  sendImpressedText(group, 'Il banco dichiara ' + tot);
+                } else {
+                  sendImpressedText(group, 'La squadra ' + i  + 'dichiara ' + tot);
+                }
+              }
+            }
           }
         });
       }
@@ -1289,7 +1298,23 @@ function setGhost(group, player, value, notification = true) {
 function computeLosers(group) {
   const game = games.find(x => x.id == group.game)
   if (game.fixedDealer && game.teams) {
-    // TODO: calc have to pay
+    const dealer = group.players.find(x => x.team == 0)
+    const dealerResult = computePoints(group, dealer.cards)
+    for (let i = 1; i < game.teams + 1; i++) {
+      const team = group.players.find(x => x.team == i)
+      const teamResult = computePoints(group, team.cards)
+      group.players.forEach(player => {
+        if (player.team == i) {
+          player.visible = true
+          if (teamResult > dealerResult) {
+            player.toBePaid = true;
+          } else if (teamResult < dealerResult) {
+            player.haveToPay = true;
+          }
+        }
+      });
+    }
+
   } else {
     let results = []
     for (let i = 0; i < group.players.length; i++) {
@@ -1467,4 +1492,14 @@ function checkVote(group, team) {
   } else {
     return undefined;
   }
+}
+
+function computePoints(group, player) {
+  const game = games.find(x => x.id == group.game)
+  let total
+  player.cards.array.forEach(card => {
+    const tempValue = (card % game.maxValue) + 1
+    total += tempValue < 10 ? tempValue : 0
+  });
+  return total
 }
