@@ -1005,7 +1005,7 @@ function voteMove(group, player, vote) {
   player.canMove = false;
   player.moves = [];
   let allVoted = true;
-  group.players.foreEach(player => {
+  group.players.forEach(player => {
     if (player.team != 0 && vote == undefined) {
       allVoted = false;
     }
