@@ -1166,6 +1166,7 @@ function resetGroup(group, hard?) {
     group.players[i].moves = group.players[i].isAdmin ? getAdminMoves(group) : []
     group.players[i].visible = false
     group.players[i].lastMove = undefined
+    group.players[i].vote = undefined
     if (hard) {
       group.players[i].ghost = false
       group.players[i].haveToPay = false
