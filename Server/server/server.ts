@@ -915,6 +915,7 @@ function cardMove(group, player) {
     const newCard = group.cards.pop()
     group.players.forEach(player => {
       if (player.team == 0) {
+        player.canMove = false;
         player.cards.push(newCard)
       }
     });
@@ -1016,7 +1017,6 @@ function passMove(group, player) {
 
 function voteMove(group, player, vote) {
   player.vote = vote;
-  player.canMove = false;
   if (player.team == 0) {
     player.moves = getAdminMoves(group);
     const vote = checkVote(group, 0);
@@ -1026,6 +1026,7 @@ function voteMove(group, player, vote) {
         const icon = 'No'
         sendNotification(group, text, icon)
       } else {
+        player.canMove = false;
         const text = 'Il banco è chiuso'
         const icon = 'Ok'
         sendNotification(group, text, icon)
