@@ -922,10 +922,10 @@ function cardMove(group, player) {
   const vote = checkVote(group, 0);
   if (vote != undefined) {
     const newCard = group.cards.pop()
-    group.players.forEach(player => {
-      if (player.team == 0) {
-        player.canMove = false;
-        player.cards.push(newCard)
+    group.players.forEach(x => {
+      if (x.team == 0) {
+        x.canMove = false;
+        x.cards.push(newCard)
       }
     });
     computeLosers(group);
@@ -935,17 +935,17 @@ function cardMove(group, player) {
       if (vote != undefined) {
         if (vote == true) {
           const newCard = group.cards.pop()
-          group.players.forEach(player => {
-            if (player.team == i) {
-              player.cards.push(newCard)
+          group.players.forEach(x => {
+            if (x.team == i) {
+              x.cards.push(newCard)
             }
           });
         }
       }
     }
-    group.players.forEach(player => {
-      if (player.team == 0) {
-        player.moves = getAdminMoves(group).concat(getPlayerMoves(group));
+    group.players.forEach(x => {
+      if (x.team == 0) {
+        x.moves = getAdminMoves(group).concat(getPlayerMoves(group));
       }
     })
   }
@@ -1473,7 +1473,7 @@ function checkVote(group, team) {
   let closeVote = 0
   let total = 0
   group.players.forEach(player => {
-    if (player.team == team) {
+    if (player.team == team && !player.ghost) {
       if (player.vote == true) {
         openVote += 1
       }
