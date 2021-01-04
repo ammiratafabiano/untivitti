@@ -87,7 +87,7 @@ export class StateUpdateService {
   }
 
   public storeHandPosition(newVw, newVh, forced?) {
-    if (this.websocket && ((Date.now() - this.lastHandUpdate > 100) || forced)) {
+    if (this.websocket && ((Date.now() - this.lastHandUpdate > 50) || forced)) {
       this.lastHandUpdate = Date.now();
       this.websocket.send(JSON.stringify({type: 'hand', uuid: this.uuid, newVw, newVh}));
     }
