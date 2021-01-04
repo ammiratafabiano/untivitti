@@ -1011,7 +1011,7 @@ function voteMove(group, player, vote) {
     }
   })
   if (allVoted) {
-    group.players.foreEach(player => {
+    group.players.forEach(player => {
       if (player.team == 0) {
         player.canMove = true;
       }
