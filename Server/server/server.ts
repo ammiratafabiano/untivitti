@@ -1061,20 +1061,26 @@ function voteMove(group, player, vote) {
       }
     }
     let allVoted = true
+    let open = 0
     for (let i = 1; i < game.teams + 1; i++) {
       if (checkEarlyShow(group, i)) continue
-      group.players.forEach(player => {
-        if (player.team == i && !player.ghost && player.vote == undefined) {
-          allVoted = false
-        }
-      })   
+      const vote = checkVote(group, i)
+      if (vote != undefined) {
+        if (vote == true) {
+          open += 1
+        } 
+      } else {
+        allVoted = false
+      } 
     }
     if (allVoted) {
       let excludeList = []
       group.players.forEach(player => {
         if (player.team == 0) {
           player.canMove = true
-          player.moves = getAdminMoves(group).concat(getPlayerMoves(group));
+          if (open == 0) {
+            player.moves.concat(getPlayerMoves(group))
+          }
         } else {
           excludeList.push(player.name)
         }
