@@ -487,6 +487,7 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
       if (player) {
         player.haveToPay = false
         player.balance = newBalance
+        player.bet = 0
         if (newBalance == 0 || (group.maxBet && newBalance < group.maxBet)) {
           setGhost(group, player, true, false)
           if (group.money) {
@@ -1056,7 +1057,6 @@ function voteMove(group, player, vote) {
           const text = 'La squadra ' + player.team + ' è chiusa'
           const icon = 'Ok'
           sendNotification(group, text, icon)
-          computeLosers(group);
         }
       }
     }
@@ -1329,7 +1329,7 @@ function computeLosers(group) {
         if (player.team == i) {
           player.visible = true
           if (teamResult > dealerResult) {
-            player.toBePaid = true;
+            player.haveToBePaid = true;
           } else if (teamResult < dealerResult) {
             player.haveToPay = true;
           }
