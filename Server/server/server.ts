@@ -1067,7 +1067,6 @@ function voteMove(group, player, vote) {
       const vote = checkVote(group, i)
       if (vote != undefined) {
         if (vote == true) {
-          console.log(vote,i)
           open += 1
         } 
       } else {
@@ -1075,12 +1074,13 @@ function voteMove(group, player, vote) {
         break
       } 
     }
-    console.log(open)
+    console.log(allVoted)
     if (allVoted) {
       let excludeList = []
       group.players.forEach(player => {
         if (player.team == 0) {
           player.canMove = true
+          console.log(open)
           if (open == 0) {
             player.moves.concat(getPlayerMoves(group))
           }
