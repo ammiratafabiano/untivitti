@@ -1012,7 +1012,7 @@ function passMove(group, player) {
 }
 
 function voteMove(group, player, vote) {
-  let allVoted = true
+  const game = games.find(x => x.id == group.game)
   player.vote = vote
   if (player.team == 0) {
     player.moves = getAdminMoves(group)
@@ -1059,11 +1059,15 @@ function voteMove(group, player, vote) {
           computeLosers(group);
         }
       }
+    }
+    let allVoted = true
+    for (let i = 1; i < game.teams + 1; i++) {
+      if (checkEarlyShow(group, i)) continue
       group.players.forEach(player => {
-        if (player.team != 0 && !player.ghost && player.vote == undefined) {
+        if (player.team == i && !player.ghost && player.vote == undefined) {
           allVoted = false
         }
-      })
+      })   
     }
     if (allVoted) {
       let excludeList = []
