@@ -1120,13 +1120,15 @@ function turnChange(group, player) {
         player.canMove = true
         player.moves = []
       }
-      getPlayerMoves(group).forEach(move => {
-        if (move.id == 7 && checkEarlyShow(group, player.team)) {
-          player.moves.push(copyMove(move, true))
-        } else {
-          player.moves.push(copyMove(move))
-        }
-      });
+      if (checkEarlyShow(group, player.team)) {
+        getPlayerMoves(group).forEach(move => {
+          if (move.id == 7) {
+            player.moves.push(copyMove(move, true))
+          } else {
+            player.moves.push(copyMove(move))
+          }
+        });
+      }
     });
     sendImpressedText(group, 'E\' il vostro turno!', excludeList);
   } else {
