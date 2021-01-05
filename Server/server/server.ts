@@ -1116,13 +1116,20 @@ function turnChange(group, player) {
     group.players.forEach(player => {
       if (player.team == 0) {
         excludeList.push(player.name)
+        if (checkEarlyShow(group, player.team)) {
+          getPlayerMoves(group).forEach(move => {
+            if (move.id == 7 && checkEarlyShow(group, player.team)) {
+              player.moves.push(copyMove(move, true))
+            } else {
+              player.moves.push(copyMove(move))
+            }
+          });
+        }
       } else {
         player.canMove = true
         player.moves = []
-      }
-      if (checkEarlyShow(group, player.team)) {
         getPlayerMoves(group).forEach(move => {
-          if (move.id == 7) {
+          if (move.id == 7 && checkEarlyShow(group, player.team)) {
             player.moves.push(copyMove(move, true))
           } else {
             player.moves.push(copyMove(move))
