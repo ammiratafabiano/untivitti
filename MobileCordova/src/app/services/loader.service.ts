@@ -12,14 +12,16 @@ export class LoaderService {
   { }
 
   async show() {
-    this.isLoading = true;
-    return await this.loadingController.create().then(a => {
-      a.present().then(() => {
-        if (!this.isLoading) {
-          a.dismiss();
-        }
+    if (!this.isLoading) {
+      this.isLoading = true;
+      return await this.loadingController.create().then(a => {
+        a.present().then(() => {
+          if (!this.isLoading) {
+            a.dismiss();
+          }
+        });
       });
-    });
+    }
   }
 
   async hide() {

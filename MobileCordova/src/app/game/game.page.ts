@@ -417,7 +417,7 @@ export class GamePage implements OnInit {
           break;
         case WarningMoveTypeEnum.NotBet:
           if (this.state.money) {
-            if (this.state.players.findIndex(x => !x.isAdmin && x.bet === 0) !== -1) {
+            if (this.state.players.findIndex(x => !x.isAdmin && !x.ghost && x.bet === 0) !== -1) {
               warningToShow = warning;
             }
           }
@@ -429,10 +429,32 @@ export class GamePage implements OnInit {
             }
           }
           break;
+        case WarningMoveTypeEnum.NotOpen:
+          let allClose = true;
+          for (let i = 0; i < this.currentGame.teams + 1; i++) {
+            let openVote = 0;
+            let total = 0;
+            this.state.players.forEach(player => {
+              if (player.team === i && !player.ghost && !(player.cards.length == 3)) {
+                if (player.vote === true) {
+                  openVote += 1;
+                }
+                total += 1;
+              }
+            });
+            if (openVote !== 0 && openVote >= (total / 2)) {
+              allClose = false;
+            }
+          }
+          if (allClose) {
+            warningToShow = warning;
+          }
+          break;
         case WarningMoveTypeEnum.NotMove:
           if (!this.currentPlayer.canMove) {
             warningToShow = warning;
           }
+          break;
       }
     }
 

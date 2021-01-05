@@ -17,8 +17,6 @@ import { PlayerModel } from '../models/player.model';
 })
 export class PlayersPage implements OnInit {
 
-  loop: any;
-
   code: string;
   currentPlayer: PlayerModel;
   players: PlayerModel[] = [];
@@ -145,7 +143,7 @@ export class PlayersPage implements OnInit {
     await alert.present();
   }
 
-  setGhost(player, value) {
+  setGhost(player: PlayerModel, value) {
     this.loaderService.show().then(_ => {
       this.api.setGhost(player.name, this.code, value)
       .pipe(finalize(() => this.loaderService.hide() ))
@@ -161,7 +159,7 @@ export class PlayersPage implements OnInit {
     tutorialModal.present();
   }
 
-  setBalance(player, value) {
+  setBalance(player: PlayerModel, value) {
     this.loaderService.show().then(_ => {
       this.api.updateBalance(player.name, this.code, value)
       .pipe(finalize(() => this.loaderService.hide() ))
@@ -173,20 +171,43 @@ export class PlayersPage implements OnInit {
     });
   }
 
-  onClickPay() {
-    const value = this.currentPlayer.balance -= 1;
-    this.loaderService.show().then(_ => {
-      this.api.updateBalance(this.currentPlayer.name, this.code, value).subscribe(() => {
-        let attempt = 0;
-        const payment = setInterval(() => {
-          attempt += 1;
-          if (this.currentPlayer.haveToPay === false || attempt === 4) {
-            clearInterval(payment);
-            this.loaderService.hide();
-          }
-        }, 500);
+  onClickPay(player?: PlayerModel) {
+    if (player && this.game.fixedDealer) {
+      const bet = player.bet;
+      if (player.haveToPay) {
+        const negative = player.balance - bet;
+        this.updateBalance(player, negative);
+        const positive = this.currentPlayer.balance + bet;
+        this.updateBalance(this.currentPlayer, positive);
+      }
+      if (player.haveToBePaid) {
+        const negative = this.currentPlayer.balance - bet;
+        this.updateBalance(this.currentPlayer, negative);
+        const positive = player.balance + bet;
+        this.updateBalance(player, positive);
+      }
+    } else {
+      const value = this.currentPlayer.balance -= 1;
+      this.updateBalance(this.currentPlayer, value);
+    }
+  }
+
+  updateBalance(player: PlayerModel, value: number) {
+    if (value != undefined) {
+      this.loaderService.show().then(_ => {
+        this.api.updateBalance(player.name, this.code, value).subscribe(() => {
+          let attempt = 0;
+          const payment = setInterval(() => {
+            attempt += 1;
+            const currentPlayer = this.players.find(x => x.name === player.name);
+            if (currentPlayer.balance === value || attempt === 4) {
+              clearInterval(payment);
+              this.loaderService.hide();
+            }
+          }, 500);
+        });
       });
-    });
+    }
   }
 
   getTeamSize(team) {

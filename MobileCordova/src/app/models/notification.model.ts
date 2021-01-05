@@ -6,6 +6,7 @@ export enum NotificationIcons {
     Start = 'play-outline',
     Pause = 'pause-outline',
     Ok = 'thumbs-up-outline',
+    No = 'thumbs-up-outline',
     Swap = 'repeat-outline',
     Blocked = 'hand-left-outline',
     Watcher = 'eye-outline',

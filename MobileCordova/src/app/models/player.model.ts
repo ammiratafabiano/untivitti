@@ -9,6 +9,7 @@ export class PlayerModel {
     visible: boolean;
     balance: number;
     haveToPay: boolean;
+    haveToBePaid: boolean;
     ghost: boolean;
     uuid: string;
     timestamp: number;

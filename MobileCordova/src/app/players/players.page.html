@@ -19,10 +19,10 @@
     <ion-item-sliding *ngFor="let player of players; let i = index" [ngClass]="{'canMove': player.canMove, 'ion-margin-top': game.teams && (i == 0 || players[i].team != players[i-1].team)}">
       <ion-item class="player-container" [disabled]="player.ghost">
         <ion-label [ngClass]="{'myself': player.name == currentPlayer.name}">{{ player.name }}</ion-label>
-        <ion-row *ngIf="status && player.cards.length > 0 || (status && player.cards.length > 0 && game.teams && (i == 0 || players[i].team != players[i-1].team))" class="cards-container">
-          <ion-col class="card" *ngFor="let card of player.cards">
-            <img *ngIf="player.visible || player.name == currentPlayer.name || currentPlayer.ghost" src="./assets/cardSets/{{cardSet.id}}/{{card}}.png" />
-            <img *ngIf="!(player.visible || player.name == currentPlayer.name || currentPlayer.ghost)" src="./assets/cardSets/{{cardSet.id}}/-1.png" />
+        <ion-row *ngIf="(status && player.cards.length > 0 && !game.teams) || (status && player.cards.length > 0 && game.teams && (i == 0 || players[i].team != players[i-1].team))" class="cards-container">
+          <ion-col class="card" *ngFor="let card of player.cards; let j = index">
+            <img *ngIf="player.visible || player.name == currentPlayer.name || currentPlayer.ghost || j >= game.handCards" src="./assets/cardSets/{{cardSet.id}}/{{card}}.png" />
+            <img *ngIf="!(player.visible || player.name == currentPlayer.name || currentPlayer.ghost || j >= game.handCards)" src="./assets/cardSets/{{cardSet.id}}/-1.png" />
           </ion-col>
         </ion-row>
         <div *ngIf="status && player.isAdmin && ground.length > 0" class="ground-container">
@@ -31,17 +31,37 @@
           </div>
         </div>
         <ion-icon *ngIf="player.isAdmin" name="albums-outline" class="rotate-right"></ion-icon>
-        <ion-chip outline *ngIf="moneyMode && !player.haveToPay" (click)="currentPlayer.isAdmin && !status && changeBalance(player)">
-          <ion-icon name="server" color="warning"></ion-icon>
-          <ion-label>
-            <ion-text *ngIf="(player.bet && !status) || !player.bet">{{ player.balance }}</ion-text>
-            <ion-text *ngIf="player.bet && !status"> | </ion-text>
-            <ion-text *ngIf="player.bet" color="success">{{ player.bet }}</ion-text>
-          </ion-label>
-        </ion-chip>
-        <ion-chip [outline]="player.name != currentPlayer.name" color="danger" *ngIf="moneyMode && player.haveToPay" (click)="player.name == currentPlayer.name && onClickPay()">
-          <ion-label>Paga</ion-label>
-        </ion-chip>
+        <ng-container *ngIf="!game.fixedDealer">
+          <ion-chip outline *ngIf="!player.haveToPay" (click)="currentPlayer.isAdmin && !status && changeBalance(player)">
+            <ion-icon *ngIf="!player.bet" name="server" color="warning"></ion-icon>
+            <ion-label>
+              <ion-text *ngIf="(player.bet && !status) || !player.bet">{{ player.balance }}</ion-text>
+              <ion-text *ngIf="player.bet && !status"> | </ion-text>
+              <ion-text *ngIf="player.bet" [color]="player.haveToPay ? 'success' : player.haveToBePaid ? 'danger' : 'success'">{{ player.bet }}</ion-text>
+            </ion-label>
+          </ion-chip>
+          <ion-chip [outline]="player.name != currentPlayer.name" color="danger" *ngIf="moneyMode && player.haveToPay" (click)="player.name == currentPlayer.name && onClickPay()">
+            <ion-label>Paga</ion-label>
+          </ion-chip>
+        </ng-container>
+        <ng-container *ngIf="game.fixedDealer">
+          <ion-chip outline (click)="currentPlayer.isAdmin && !status && changeBalance(player)">
+            <ion-icon *ngIf="!player.bet" name="server" color="warning"></ion-icon>
+            <ion-label>
+              <ion-text *ngIf="(player.bet && !status) || !player.bet">{{ player.balance }}</ion-text>
+              <ion-text *ngIf="player.bet && !status"> | </ion-text>
+              <ion-text *ngIf="player.bet" [color]="player.haveToPay ? 'success' : player.haveToBePaid ? 'danger' : 'success'">{{ player.bet }}</ion-text>
+            </ion-label>
+          </ion-chip>
+          <ion-chip *ngIf="currentPlayer.team == 0 && (player.haveToPay || player.haveToBePaid)" (click)="onClickPay(player)"
+            [color]="player.haveToPay ? 'success' : player.haveToBePaid ? 'danger' : undefined">
+            <ion-label>{{ player.haveToPay ? 'Ritira' : player.haveToBePaid ? 'Paga' : '' }}</ion-label>
+          </ion-chip>
+          <ion-chip *ngIf="currentPlayer.team != 0 && (player.haveToPay || player.haveToBePaid)"
+            [color]="player.haveToPay ? 'danger' : player.haveToBePaid ? 'success' : undefined">
+            <ion-label>{{ player.balance }}</ion-label>
+          </ion-chip>
+        </ng-container>
         <ion-reorder *ngIf="getTeamSize(player.team) > 1" slot="end"></ion-reorder>
       </ion-item>
       <ion-item-options side="end">
