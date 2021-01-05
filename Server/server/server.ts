@@ -1199,6 +1199,7 @@ function resetGroup(group, hard?) {
     if (hard) {
       group.players[i].ghost = false
       group.players[i].haveToPay = false
+      group.players[i].haveToBePaid = false
       group.players[i].balance = group.balance
     }
   }
