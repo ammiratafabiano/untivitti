@@ -1034,16 +1034,12 @@ function voteMove(group, player, vote) {
       const vote = checkVote(group, 0)
       if (vote != undefined) {
         if (vote == true) {
-          group.players.forEach(x => {
-            player.visible = true
-          })
           const text = 'Il banco è aperto'
           const icon = 'No'
           sendNotification(group, text, icon)
         } else {
           group.players.forEach(x => {
             player.canMove = false
-            player.visible = true
           })
           const text = 'Il banco è chiuso'
           const icon = 'Ok'
@@ -1345,6 +1341,9 @@ function setGhost(group, player, value, notification = true) {
 function computeLosers(group) {
   const game = games.find(x => x.id == group.game)
   if (game.fixedDealer && game.teams) {
+    group.players.forEach(x => {
+      x.visible = true
+    })
     const dealer = group.players.find(x => x.team == 0)
     const dealerResult = computePoints(group, dealer.cards)
     for (let i = 1; i < game.teams + 1; i++) {
