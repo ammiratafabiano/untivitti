@@ -1017,22 +1017,39 @@ function voteMove(group, player, vote) {
   const game = games.find(x => x.id == group.game)
   player.vote = vote
   if (player.team == 0) {
-    player.moves = getAdminMoves(group)
-    const vote = checkVote(group, 0)
-    if (vote != undefined) {
-      if (vote == true) {
-        const text = 'Il banco è aperto'
-        const icon = 'No'
-        sendNotification(group, text, icon)
-      } else {
-        group.players.forEach(x => {
+    if (checkEarlyShow(group, player.team)) {
+      group.players.forEach(x => {
+        if (x.team == player.team) {
           player.canMove = false
-          player.visible = true
-        })
-        const text = 'Il banco è chiuso'
-        const icon = 'Ok'
-        sendNotification(group, text, icon)
-        computeLosers(group)
+          player.moves = player.isAdmin ? getAdminMoves(group) : []
+        } else {
+          player.canMove = false
+          player.vote = undefined
+        }
+      });
+      const tot = computePoints(group, player.cards)
+      sendImpressedText(group, 'Il banco dichiara ' + tot)
+      computeLosers(group)
+    } else {
+      const vote = checkVote(group, 0)
+      if (vote != undefined) {
+        if (vote == true) {
+          group.players.forEach(x => {
+            player.visible = true
+          })
+          const text = 'Il banco è aperto'
+          const icon = 'No'
+          sendNotification(group, text, icon)
+        } else {
+          group.players.forEach(x => {
+            player.canMove = false
+            player.visible = true
+          })
+          const text = 'Il banco è chiuso'
+          const icon = 'Ok'
+          sendNotification(group, text, icon)
+          computeLosers(group)
+        }
       }
     }
   } else {
@@ -1102,14 +1119,14 @@ function turnChange(group, player) {
       } else {
         player.canMove = true
         player.moves = []
-        getPlayerMoves(group).forEach(move => {
-          if (move.id == 7 && checkEarlyShow(group, player.team)) {
-            player.moves.push(copyMove(move, true))
-          } else {
-            player.moves.push(copyMove(move))
-          }
-        });
       }
+      getPlayerMoves(group).forEach(move => {
+        if (move.id == 7 && checkEarlyShow(group, player.team)) {
+          player.moves.push(copyMove(move, true))
+        } else {
+          player.moves.push(copyMove(move))
+        }
+      });
     });
     sendImpressedText(group, 'E\' il vostro turno!', excludeList);
   } else {
@@ -1326,7 +1343,6 @@ function computeLosers(group) {
       const teamResult = computePoints(group, team.cards)
       group.players.forEach(player => {
         if (player.team == i) {
-          player.visible = true
           if (teamResult > dealerResult) {
             player.haveToBePaid = true;
           } else if (teamResult < dealerResult) {
