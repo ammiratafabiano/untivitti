@@ -480,15 +480,11 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
   const newBalance = parseInt(req.params['balance'], 10)
   const group = groups.find(x => x.code == code)
   let response
-  console.log(nickname, code, newBalance)
   if (group) {
-    console.log("ok group")
     const game = games.find(x => x.id == group.game)
-    if (newBalance >= 0 && newBalance <= group.balance) {
-      console.log("ok balance")
+    if (newBalance >= 0) {
       const player = group.players.find(x => x.name == nickname)
       if (player) {
-        console.log("ok player")
         player.haveToPay = false
         player.balance = newBalance
         player.bet = 0
