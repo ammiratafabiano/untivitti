@@ -1082,7 +1082,7 @@ function voteMove(group, player, vote) {
           player.canMove = true
           console.log(open)
           if (open == 0) {
-            player.moves.concat(getPlayerMoves(group))
+            player.moves = player.moves.concat(getPlayerMoves(group))
           }
         } else {
           excludeList.push(player.name)
