@@ -184,7 +184,7 @@ const games = [
           },
           {
             type: 'NOT_PAID',
-            description: 'Prima di ritirare le carte è necessario che tutti i giocatori paghino.',
+            description: 'Prima di ritirare le carte è necessario pagare o ritirare le puntate.',
             block: true
           }
         ]
@@ -1058,6 +1058,8 @@ function voteMove(group, player, vote) {
         if (x.team == player.team) {
           player.canMove = false
           player.moves = []
+          player.visible = true
+          player.vote = false
         }
       });
       const tot = computePoints(group, player.cards)
