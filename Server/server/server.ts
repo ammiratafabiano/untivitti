@@ -1092,6 +1092,7 @@ function turnChange(group, player) {
         player.moves = []
         getPlayerMoves(group).forEach(move => {
           if (move.id == 7 && checkEarlyShow(group, player.team)) {
+            console.log(copyMove(move, true))
             player.moves.push(copyMove(move, true))
           } else {
             player.moves.push(copyMove(move))
