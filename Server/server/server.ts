@@ -1507,9 +1507,9 @@ function computePoints(group, cards) {
   let total = 0
   cards.forEach(card => {
     const tempValue = (card % game.maxValue) + 1
-    total += tempValue < 10 ? tempValue : 0
+    total += tempValue < 10 ? tempValue : 10
   });
-  return total
+  return total % 10
 }
 
 function checkEarlyShow(group, team) {
