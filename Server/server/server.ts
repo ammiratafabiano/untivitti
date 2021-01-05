@@ -1092,7 +1092,6 @@ function turnChange(group, player) {
         player.moves = []
         getPlayerMoves(group).forEach(move => {
           if (move.id == 7 && checkEarlyShow(group, player.team)) {
-            console.log(copyMove(move, true))
             player.moves.push(copyMove(move, true))
           } else {
             player.moves.push(copyMove(move))
@@ -1514,10 +1513,12 @@ function computePoints(group, cards) {
 }
 
 function checkEarlyShow(group, team) {
+  console.log(team)
   const game = games.find(x => x.id == group.game)
   group.players.forEach(player => {
     if (player.team == team) {
       const tot = computePoints(group, player.cards)
+      console.log(tot)
       if (game.earlyShow.includes(tot)) {
         return true
       }
