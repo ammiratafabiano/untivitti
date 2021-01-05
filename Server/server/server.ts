@@ -1034,6 +1034,9 @@ function voteMove(group, player, vote) {
       const vote = checkVote(group, 0)
       if (vote != undefined) {
         if (vote == true) {
+          group.players.forEach(x => {
+            x.moves = x.isAdmin ? getAdminMoves(group) : []
+          })
           const text = 'Il banco è aperto'
           const icon = 'No'
           sendNotification(group, text, icon)
