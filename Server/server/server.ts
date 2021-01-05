@@ -1012,10 +1012,11 @@ function passMove(group, player) {
 }
 
 function voteMove(group, player, vote) {
-  player.vote = vote;
+  let allVoted = true
+  player.vote = vote
   if (player.team == 0) {
-    player.moves = getAdminMoves(group);
-    const vote = checkVote(group, 0);
+    player.moves = getAdminMoves(group)
+    const vote = checkVote(group, 0)
     if (vote != undefined) {
       if (vote == true) {
         const text = 'Il banco è aperto'
@@ -1023,48 +1024,58 @@ function voteMove(group, player, vote) {
         sendNotification(group, text, icon)
       } else {
         group.players.forEach(x => {
-          player.canMove = false;
-          player.visible = true;
+          player.canMove = false
+          player.visible = true
         })
         const text = 'Il banco è chiuso'
         const icon = 'Ok'
         sendNotification(group, text, icon)
-        computeLosers(group);
+        computeLosers(group)
       }
     }
   } else {
-    player.canMove = false;
-    player.moves = [];
-    const vote = checkVote(group, player.team);
-    if (vote != undefined) {
-      if (vote == true) {
-        const text = 'La squadra ' + player.team + ' è aperta'
-        const icon = 'No'
-        sendNotification(group, text, icon)
-      } else {
-        const text = 'La squadra ' + player.team + ' è chiusa'
-        const icon = 'Ok'
-        sendNotification(group, text, icon)
-        computeLosers(group);
+    if (checkEarlyShow(group, player.team)) {
+      group.players.forEach(x => {
+        if (x.team == player.team) {
+          player.canMove = false
+          player.moves = []
+        }
+      });
+      const tot = computePoints(group, player.cards)
+      sendImpressedText(group, 'La squadra ' + player.team + ' dichiara ' + tot)
+    } else {
+      player.canMove = false
+      player.moves = []
+      const vote = checkVote(group, player.team)
+      if (vote != undefined) {
+        if (vote == true) {
+          const text = 'La squadra ' + player.team + ' è aperta'
+          const icon = 'No'
+          sendNotification(group, text, icon)
+        } else {
+          const text = 'La squadra ' + player.team + ' è chiusa'
+          const icon = 'Ok'
+          sendNotification(group, text, icon)
+          computeLosers(group);
+        }
       }
+      group.players.forEach(player => {
+        if (player.team != 0 && !player.ghost && player.vote == undefined) {
+          allVoted = false
+        }
+      })
     }
-    let allVoted = true;
-    group.players.forEach(player => {
-      if (player.team != 0 && !player.ghost && player.vote == undefined) {
-        allVoted = false;
-      }
-    })
     if (allVoted) {
       let excludeList = []
       group.players.forEach(player => {
         if (player.team == 0) {
-          player.canMove = true;
+          player.canMove = true
           player.moves = getAdminMoves(group).concat(getPlayerMoves(group));
         } else {
-          excludeList.push(player.name);
+          excludeList.push(player.name)
         }
       })
-      sendImpressedText(group, 'E\' il vostro turno!', excludeList);
+      sendImpressedText(group, 'E\' il vostro turno!', excludeList)
     }
   }
 }
@@ -1084,6 +1095,7 @@ function turnChange(group, player) {
             move = copyMove(move, true)
           }
         });
+        console.log(moves)
         player.moves = moves
       }
     });
