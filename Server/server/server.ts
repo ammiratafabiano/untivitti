@@ -1067,12 +1067,15 @@ function voteMove(group, player, vote) {
       const vote = checkVote(group, i)
       if (vote != undefined) {
         if (vote == true) {
+          console.log(vote,i)
           open += 1
         } 
       } else {
         allVoted = false
+        break
       } 
     }
+    console.log(open)
     if (allVoted) {
       let excludeList = []
       group.players.forEach(player => {
