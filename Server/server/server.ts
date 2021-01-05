@@ -1039,7 +1039,8 @@ function voteMove(group, player, vote) {
           sendNotification(group, text, icon)
         } else {
           group.players.forEach(x => {
-            player.canMove = false
+            x.canMove = false;
+            x.moves = x.isAdmin ? getAdminMoves(group) : []
           })
           const text = 'Il banco è chiuso'
           const icon = 'Ok'
