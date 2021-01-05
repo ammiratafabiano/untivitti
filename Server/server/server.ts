@@ -486,6 +486,7 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
       const player = group.players.find(x => x.name == nickname)
       if (player) {
         player.haveToPay = false
+        player.haveToBePaid = false
         player.balance = newBalance
         player.bet = 0
         if (newBalance == 0 || (group.maxBet && newBalance < group.maxBet)) {
