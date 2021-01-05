@@ -1197,10 +1197,10 @@ function resetGroup(group, hard?) {
     group.players[i].visible = false
     group.players[i].lastMove = undefined
     group.players[i].vote = undefined
+    group.players[i].haveToPay = false
+    group.players[i].haveToBePaid = false
     if (hard) {
       group.players[i].ghost = false
-      group.players[i].haveToPay = false
-      group.players[i].haveToBePaid = false
       group.players[i].balance = group.balance
     }
   }
