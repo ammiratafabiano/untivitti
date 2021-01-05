@@ -1089,16 +1089,14 @@ function turnChange(group, player) {
         excludeList.push(player.name)
       } else {
         player.canMove = true
-        let moves = []
+        player.moves = []
         getPlayerMoves(group).forEach(move => {
           if (move.id == 7 && checkEarlyShow(group, player.team)) {
-            moves.push(copyMove(move, true))
+            player.moves.push(copyMove(move, true))
           } else {
-            moves.push(copyMove(move))
+            player.moves.push(copyMove(move))
           }
         });
-        console.log(moves)
-        player.moves = moves
       }
     });
     sendImpressedText(group, 'E\' il vostro turno!', excludeList);
