@@ -1089,10 +1089,12 @@ function turnChange(group, player) {
         excludeList.push(player.name)
       } else {
         player.canMove = true
-        const moves = getPlayerMoves(group)
-        moves.forEach(move => {
+        let moves = []
+        getPlayerMoves(group).forEach(move => {
           if (move.id == 7 && checkEarlyShow(group, player.team)) {
-            move = copyMove(move, true)
+            moves.push(copyMove(move, true))
+          } else {
+            moves.push(copyMove(move))
           }
         });
         console.log(moves)
