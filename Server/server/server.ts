@@ -1513,16 +1513,16 @@ function computePoints(group, cards) {
 }
 
 function checkEarlyShow(group, team) {
-  console.log(team)
   const game = games.find(x => x.id == group.game)
   group.players.forEach(player => {
     if (player.team == team) {
       const tot = computePoints(group, player.cards)
-      console.log(tot)
       if (game.earlyShow.includes(tot)) {
+        console.log("true")
         return true
       }
     }
   });
+  console.log("false")
   return false
 }
