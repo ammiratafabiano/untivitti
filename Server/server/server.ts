@@ -926,6 +926,7 @@ function cardMove(group, player) {
           const newCard = group.cards.pop()
           group.players.forEach(x => {
             if (x.team == i && !x.ghost) {
+              console.log(x.name, x.team, newCard)
               x.cards.push(newCard)
             }
           });
