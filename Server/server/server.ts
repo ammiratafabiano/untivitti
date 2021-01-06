@@ -910,11 +910,14 @@ function cardMove(group, player) {
   const game = games.find(x => x.id == group.game)
   const vote = checkVote(group, 0);
   if (vote != undefined) {
+    const teamPlayer = group.players.find(x => x.team == 0)
+    const newCards = teamPlayer ? [...teamPlayer.cards] : []
     const newCard = group.cards.pop()
+    newCards.push(newCard)
     group.players.forEach(x => {
       if (x.team == 0) {
         x.canMove = false;
-        x.cards.push(newCard)
+        x.cards = newCards
       }
     });
     computeLosers(group);
@@ -929,7 +932,6 @@ function cardMove(group, player) {
               x.cards.push(newCard)
             }
           });
-          console.log(group.players)
         }
       }
     }
