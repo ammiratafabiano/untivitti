@@ -53,6 +53,8 @@
           <ng-container *ngFor="let team of playersBoard">
             <ion-col class="player-status">
               <ion-chip>
+                <ion-icon *ngIf="team.vote == true" name="thumbs-down-outline" color="danger"></ion-icon>
+                <ion-icon *ngIf="team.vote == false" name="thumbs-up-outline" color="success"></ion-icon>
                 <ion-label>{{ team.name }}</ion-label>
               </ion-chip>
             </ion-col>
@@ -61,7 +63,8 @@
       </ion-grid>
     </div>
     <div class="cards-container">
-      <div *ngIf="currentGame.fixedDealer && currentGame.teams && state.status" id="hand" mwlDraggable class="hiding-hand"
+      <div mwlDraggable id="hand" class="hiding-hand" [ngClass]="{'dragging': dragging}"
+      *ngIf="currentGame.fixedDealer && currentGame.teams"
       (dragStart)="onHandDragStart($event)" (dragEnd)="onHandDragEnd($event)" (dragging)="onHandDragging($event)">
         <img src="./assets/hand.png">
       </div>

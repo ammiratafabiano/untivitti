@@ -186,7 +186,7 @@ export class TutorialPage implements OnInit {
             items: [
               {
                 title: 'Consente di effettuare le mosse. Queste cambieranno se il giocatore è il mazziere.',
-                img: './assets/tutorial/notifications.png'
+                img: './assets/tutorial/move-button.png'
               },
               {
                 title: 'Attenzione',
@@ -471,7 +471,7 @@ export class TutorialPage implements OnInit {
             items: [
               {
                 title: 'Nella parte superiore ci sono diversi bottoni e indicatori utili al gioco.',
-                img: './assets/tutorial/game-header.png'
+                img: './assets/tutorial/game-header-1.png'
               },
               {
                 title: 'Bottone di uscita',
@@ -490,12 +490,12 @@ export class TutorialPage implements OnInit {
               },
               {
                 title: 'Indicatore monete',
-                subtitle: 'Indica la quantità di monete disponibili.',
+                subtitle: 'Indica la quantità di monete disponibili. Prima di inizare il turno è possibile cliccarlo per scegliere la puntata.',
                 icon: 'server-outline'
               },
               {
                 title: 'Bottone messaggio di testo',
-                subtitle: 'Consente di mandare un messaggio testuale visibile a tutti i giocatori.',
+                subtitle: 'Consente di mandare un messaggio testuale visibile ai giocatori. Quando il suo colore è nero (bianco in dark mode) è possibile mandare un messaggio solo ai membri del team. Fuori dal turno i messaggi sono per tutti.',
                 icon: 'chatbubble-ellipses-outline'
               }
             ]
@@ -504,7 +504,7 @@ export class TutorialPage implements OnInit {
             title: 'Carta',
             items: [
               {
-                title: 'Durante il gioco nella parte centrale si trova la vostra carta.',
+                title: 'Durante il gioco nella parte centrale si trovano le vostre carta.',
                 img: './assets/tutorial/cards-1.png'
               }
             ]
@@ -514,7 +514,7 @@ export class TutorialPage implements OnInit {
             items: [
               {
                 title: 'Consente di effettuare le mosse. Queste cambieranno se il giocatore è il mazziere.',
-                img: './assets/tutorial/notifications.png'
+                img: './assets/tutorial/move-button-1.png'
               },
               {
                 title: 'Attenzione',
@@ -529,6 +529,15 @@ export class TutorialPage implements OnInit {
               {
                 title: 'Durante la partita, e non solo, compariranno delle notifiche in basso per comunicazioni generali o per avvisare il giocatore di operazioni effettuate dal mazziere o da altri partecipanti.',
                 img: './assets/tutorial/notifications-1.png'
+              }
+            ]
+          },
+          {
+            title: 'Mano che nasconde',
+            items: [
+              {
+                title: 'E\' possibile trascinare una mano per nascondere le carte ai compagni di squadra e creare suspance.',
+                img: './assets/tutorial/hiding-hand.png'
               }
             ]
           },
@@ -573,6 +582,12 @@ export class TutorialPage implements OnInit {
                 img: './assets/tutorial/admin-moves-game-1.png'
               },
               {
+                title: 'Bottone "Dai carta"',
+                subtitle: 'Consente di dare la carta ai giocatori che si dichiarano aperti.',
+                icon: 'albums-outline',
+                rotateIcon: true
+              },
+              {
                 title: 'Bottone "Ritira"',
                 subtitle: 'Se questa mossa viene fatta durante il gioco consente di ritirare le carte dei giocatori nel caso succeda un errore. Quando invece viene fatta alla fine del turno consente di ritirare le carte e di automaticamente passare il mazzo al giocatore attivo successivo.',
                 icon: 'download-outline'
@@ -606,7 +621,7 @@ export class TutorialPage implements OnInit {
               },
               {
                 title: 'Indicatore monete',
-                subtitle: 'Indica la quantità di monete disponibili del giocatore.',
+                subtitle: 'Indica la quantità di monete disponibili del giocatore. Durante il turno il totale viene sostituito dalla puntata.',
                 icon: 'server-outline'
               },
               {
@@ -664,7 +679,7 @@ export class TutorialPage implements OnInit {
               },
               {
                 title: 'E\' possibile cambiare l\'ordine dei giocatori nella lista.',
-                img: './assets/tutorial/players-update-1.png'
+                img: './assets/tutorial/players-update.png'
               }
             ]
           },
@@ -672,7 +687,7 @@ export class TutorialPage implements OnInit {
             title: 'Pagamento',
             items: [
               {
-                title: 'Nel caso di scelta di partita con uso di monete è importante che vengano effettuati i pagamenti virtuali prima di cominciare un nuovo turno. Per pagare basta cliccare sul tasto "Paga" nella pagina di riepilogo giocatori.',
+                title: 'E\' importante che il banco effettui i pagamenti virtuali prima di cominciare un nuovo turno. Per pagare/ritirare basta cliccare sul tasto "Paga"/"Ritira" nella pagina di riepilogo giocatori.',
                 img: './assets/tutorial/payment-1.png'
               }
             ]

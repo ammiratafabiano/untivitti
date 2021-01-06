@@ -346,15 +346,37 @@ export class GamePage implements OnInit {
     } else {
       const list: TeamModel[] = [];
       this.state.players.forEach(player => {
-        const team = list.find(x => x.id === player.team);
-        if (!team) {
-          const newTeam: TeamModel = new TeamModel();
-          newTeam.id = player.team;
-          newTeam.name = player.team === 0 ? 'Banco' : 'Squadra ' + player.team;
-          newTeam.members = [player];
-          list.push(newTeam);
-        } else {
-          team.members.push(player);
+        if (!player.ghost) {
+          const team = list.find(x => x.id === player.team);
+          if (!team) {
+            const newTeam: TeamModel = new TeamModel();
+            newTeam.id = player.team;
+            newTeam.name = player.team === 0 ? 'Banco' : 'Squadra' + player.team;
+            newTeam.members = [player];
+            list.push(newTeam);
+          } else {
+            team.members.push(player);
+          }
+        }
+      });
+      list.forEach(team => {
+        let open = 0;
+        let close = 0;
+        team.members.forEach(player => {
+          if (player.vote !== undefined) {
+            if (player.vote === true) {
+              open += 1;
+            } else {
+              close += 1;
+            }
+          }
+        });
+        if (open + close === team.members.length) {
+          if (open >= close) {
+            team.vote = true;
+          } else {
+            team.vote = false;
+          }
         }
       });
       if (this.utils.detectChange(this.playersBoard, list)) {
@@ -435,7 +457,7 @@ export class GamePage implements OnInit {
             let openVote = 0;
             let total = 0;
             this.state.players.forEach(player => {
-              if (player.team === i && !player.ghost && !(player.cards.length == 3)) {
+              if (player.team === i && !player.ghost && player.cards.length !== 3) {
                 if (player.vote === true) {
                   openVote += 1;
                 }
@@ -544,7 +566,7 @@ export class GamePage implements OnInit {
   }
 
   onHandDragEnd(event) {
-    this.updateStateService.storeHandPosition('0vw', '-20vh', true);
+    this.updateStateService.storeHandPosition('0vw', '-25vh', true);
     this.dragging = false;
   }
 

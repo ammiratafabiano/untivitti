@@ -155,14 +155,20 @@
 
 .hiding-hand {
   position: absolute;
-  bottom: -20vh;
+  bottom: -25vh;
   left: 0vw;
   overflow: hidden;
-  height: 40vh;
-  width: 320vh;
+  height: 50vh;
+  width: 400vh;
   overflow: hidden;
   z-index: 9998;
   transition: bottom 100ms, left 100ms;
+  opacity: 0.5;
+}
+
+.dragging, .hiding-hand:active {
+  transition: opacity 200ms cubic-bezier(0, 0, 0.2, 1);
+  opacity: 1;
 }
 
 $particles: 50;
