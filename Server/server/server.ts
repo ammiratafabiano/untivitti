@@ -928,6 +928,7 @@ function cardMove(group, player) {
             if (x.team == i && !x.ghost) {
               console.log(x.name, x.team, newCard)
               x.cards.push(newCard)
+              console.log(x)
             }
           });
         }
