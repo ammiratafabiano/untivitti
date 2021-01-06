@@ -1096,6 +1096,7 @@ function voteMove(group, player, vote) {
       group.players.forEach(player => {
         if (player.team == 0) {
           player.canMove = true
+          player.visible = true
           if (open == 0) {
             player.moves = player.moves.concat(getPlayerMoves(group))
           }
@@ -1347,7 +1348,6 @@ function computeLosers(group) {
     group.players.forEach(x => {
       x.visible = true
       x.canMove = false
-      x.vote = undefined
       x.moves = x.isAdmin ? getAdminMoves(group) : []
     })
     const dealer = group.players.find(x => x.team == 0)
@@ -1557,7 +1557,7 @@ function computePoints(group, cards) {
 
 function checkEarlyShow(group, team) {
   const game = games.find(x => x.id == group.game)
-  const player = group.players.find(x => x.team == team);
+  const player = group.players.find(x => x.team == team && x.vote != undefined);
   if (player) {
     const tot = computePoints(group, player.cards)
     if (game.earlyShow.includes(tot)) {
