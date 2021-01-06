@@ -926,10 +926,13 @@ function cardMove(group, player) {
       const vote = checkVote(group, i);
       if (vote != undefined) {
         if (vote == true) {
+          const teamPlayer = group.players.find(x => x.team == i)
+          const newCards = teamPlayer ? [...teamPlayer.cards] : []
           const newCard = group.cards.pop()
+          newCards.push(newCard)
           group.players.forEach(x => {
             if (x.team == i && !x.ghost) {
-              x.cards.push(newCard)
+              x.cards = newCards
             }
           });
         }
