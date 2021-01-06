@@ -1018,15 +1018,6 @@ function voteMove(group, player, vote) {
   player.vote = vote
   if (player.team == 0) {
     if (checkEarlyShow(group, player.team)) {
-      group.players.forEach(x => {
-        if (x.team == player.team) {
-          player.canMove = false
-          player.moves = player.isAdmin ? getAdminMoves(group) : []
-        } else {
-          player.canMove = false
-          player.vote = undefined
-        }
-      });
       const tot = computePoints(group, player.cards)
       sendImpressedText(group, 'Il banco dichiara ' + tot)
       computeLosers(group)
@@ -1349,6 +1340,9 @@ function computeLosers(group) {
   if (game.fixedDealer && game.teams) {
     group.players.forEach(x => {
       x.visible = true
+      x.canMove = false
+      x.vote = undefined
+      x.moves = x.isAdmin ? getAdminMoves(group) : []
     })
     const dealer = group.players.find(x => x.team == 0)
     const dealerResult = computePoints(group, dealer.cards)
