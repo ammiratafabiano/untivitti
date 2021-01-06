@@ -925,7 +925,7 @@ function cardMove(group, player) {
         if (vote == true) {
           const newCard = group.cards.pop()
           group.players.forEach(x => {
-            if (x.team == i) {
+            if (x.team == i && !x.ghost) {
               x.cards.push(newCard)
             }
           });
@@ -1056,10 +1056,10 @@ function voteMove(group, player, vote) {
     if (checkEarlyShow(group, player.team)) {
       group.players.forEach(x => {
         if (x.team == player.team) {
-          player.canMove = false
-          player.moves = []
-          player.visible = true
-          player.vote = false
+          x.canMove = false
+          x.moves = []
+          x.visible = true
+          x.vote = false
         }
       });
       const tot = computePoints(group, player.cards)
