@@ -1079,8 +1079,12 @@ function voteMove(group, player, vote) {
     }
     let allVoted = true
     let open = 0
+    let early = 0
     for (let i = 1; i < game.teams + 1; i++) {
-      if (checkEarlyShow(group, i, true)) continue
+      if (checkEarlyShow(group, i, true)) {
+        early += 1
+        continue
+      }
       const vote = checkVote(group, i)
       if (vote != undefined) {
         if (vote == true) {
@@ -1091,7 +1095,9 @@ function voteMove(group, player, vote) {
         break
       } 
     }
-    if (allVoted) {
+    if (early == game.teams) {
+      computeLosers(group)
+    } else if (allVoted) {
       let excludeList = []
       group.players.forEach(player => {
         if (player.team == 0) {
