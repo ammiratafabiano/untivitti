@@ -1080,7 +1080,7 @@ function voteMove(group, player, vote) {
     let allVoted = true
     let open = 0
     for (let i = 1; i < game.teams + 1; i++) {
-      if (checkEarlyShow(group, i)) continue
+      if (checkEarlyShow(group, i, true)) continue
       const vote = checkVote(group, i)
       if (vote != undefined) {
         if (vote == true) {
@@ -1555,9 +1555,14 @@ function computePoints(group, cards) {
   return total % 10
 }
 
-function checkEarlyShow(group, team) {
+function checkEarlyShow(group, team, voted?) {
   const game = games.find(x => x.id == group.game)
-  const player = group.players.find(x => x.team == team && x.vote != undefined);
+  let player
+  if (!voted) {
+    player = group.players.find(x => x.team == team)
+  } else {
+    player = group.players.find(x => x.team == team && x.vote != undefined)
+  }
   if (player) {
     const tot = computePoints(group, player.cards)
     if (game.earlyShow.includes(tot)) {
