@@ -58,9 +58,11 @@ export class StateUpdateService {
             this.impressedTextService.addImpressedText(msg.text, msg.from);
             break;
           case 'hand':
-            this.lastVw = msg.newVw;
-            this.lastVh = msg.newVh;
-            this.moveHand(msg.newVw, msg.newVh);
+            if (msg.success != false) {
+              this.lastVw = msg.newVw;
+              this.lastVh = msg.newVh;
+              this.moveHand(msg.newVw, msg.newVh);
+            }
             break;
           default:
             console.log(msg);
