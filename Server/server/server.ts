@@ -478,6 +478,7 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
   const nickname = req.params['nick']
   const code = req.params['code']
   const newBalance = parseInt(req.params['balance'], 10)
+  console.log(nickname, code, newBalance)
   const group = groups.find(x => x.code == code)
   let response
   if (group) {
@@ -925,7 +926,6 @@ function cardMove(group, player) {
         excludeList.push(x.name)
       }
     });
-    setHand(group, excludeList)
     computeLosers(group);
   } else {
     for (let i = 1; i < game.teams + 1; i++) {
@@ -944,7 +944,6 @@ function cardMove(group, player) {
               excludeList.push(x.name)
             }
           });
-          setHand(group, excludeList)
         }
       }
     }
