@@ -669,13 +669,13 @@ wsServer.on('connection', (socket: any) => {
         groups.forEach(group => {
           group.players.forEach(player => {
             if (player.uuid == msg.uuid) {
-              group.players.forEach(player2 => {
-                wsServer.clients.forEach((ws) => {
-                  if (ws.uuid == player2.uuid && ws.isAlive && player2.uuid != msg.uuid && player.team == player2.team) {
-                    ws.send(JSON.stringify({type: 'hand', newVw: msg.newVw, newVh: msg.newVh})); 
-                  }
-                })
+              let excludeList = []
+              group.players.forEach(x => {
+                if (x.uuid == player.uuid || x.team != player.team) {
+                  excludeList.push(x.name)
+                }
               })
+              sendHandPosition(group, msg.newVw, msg.newVh, excludeList)
             }
           })
         })
@@ -845,6 +845,7 @@ function startMove(group, player) {
   const game = games.find(x => x.id == group.game)
   if (player.isAdmin) {
     if (game.fixedDealer && game.teams) {
+      setHand(group)
       group.status = true
       if (group.cards.length == 0) {
         group.cards = getShuffledSet(group.cardSet, group.decks)
@@ -889,7 +890,11 @@ function startMove(group, player) {
 }
 
 function stopMove(group, player) {
+  const game = games.find(x => x.id == group.game)
   if (player.isAdmin) {
+    if (game.fixedDealer && game.teams) {
+      unsetHand(group)
+    }
     const isFinished = group.players.findIndex(x => x.canMove) == -1;
     if (isFinished ) {
       passMove(group, player)
@@ -914,12 +919,16 @@ function cardMove(group, player) {
     const newCards = teamPlayer ? [...teamPlayer.cards] : []
     const newCard = group.cards.pop()
     newCards.push(newCard)
+    let excludeList = []
     group.players.forEach(x => {
-      if (x.team == 0) {
+      if (x.team == 0 && !x.ghost) {
         x.canMove = false;
         x.cards = newCards
+      } else {
+        excludeList.push(x.name)
       }
     });
+    setHand(group, excludeList)
     computeLosers(group);
   } else {
     for (let i = 1; i < game.teams + 1; i++) {
@@ -930,16 +939,20 @@ function cardMove(group, player) {
           const newCards = teamPlayer ? [...teamPlayer.cards] : []
           const newCard = group.cards.pop()
           newCards.push(newCard)
+          let excludeList = []
           group.players.forEach(x => {
             if (x.team == i && !x.ghost) {
               x.cards = newCards
+            } else {
+              excludeList.push(x.name)
             }
           });
+          setHand(group, excludeList)
         }
       }
     }
     group.players.forEach(x => {
-      if (x.team == 0) {
+      if (x.team == 0 && !x.ghost) {
         x.moves = getAdminMoves(group).concat(getPlayerMoves(group));
       }
     })
@@ -1022,6 +1035,7 @@ function passMove(group, player) {
 function voteMove(group, player, vote) {
   const game = games.find(x => x.id == group.game)
   player.vote = vote
+  unsetHand(group, undefined, player.name)
   if (player.team == 0) {
     if (checkEarlyShow(group, player.team)) {
       const tot = computePoints(group, player.cards)
@@ -1120,9 +1134,21 @@ function turnChange(group, player) {
   if (game.fixedDealer && game.teams) {
     let excludeList = []
     group.players.forEach(player => {
-      if (player.team == 0) {
-        excludeList.push(player.name)
-        if (checkEarlyShow(group, player.team)) {
+      if (!player.ghost) {
+        if (player.team == 0) {
+          excludeList.push(player.name)
+          if (checkEarlyShow(group, player.team)) {
+            getPlayerMoves(group).forEach(move => {
+              if (move.id == 7 && checkEarlyShow(group, player.team)) {
+                player.moves.push(copyMove(move, true))
+              } else {
+                player.moves.push(copyMove(move))
+              }
+            });
+          }
+        } else {
+          player.canMove = true
+          player.moves = []
           getPlayerMoves(group).forEach(move => {
             if (move.id == 7 && checkEarlyShow(group, player.team)) {
               player.moves.push(copyMove(move, true))
@@ -1132,15 +1158,7 @@ function turnChange(group, player) {
           });
         }
       } else {
-        player.canMove = true
-        player.moves = []
-        getPlayerMoves(group).forEach(move => {
-          if (move.id == 7 && checkEarlyShow(group, player.team)) {
-            player.moves.push(copyMove(move, true))
-          } else {
-            player.moves.push(copyMove(move))
-          }
-        });
+        excludeList.push(player.name)
       }
     });
     sendImpressedText(group, 'E\' il vostro turno!', excludeList);
@@ -1333,7 +1351,14 @@ function setAdmin(group, next = false, player?) {
 }
 
 function setGhost(group, player, value, notification = true) {
+  const game = games.find(x => x.id == group.game)
   player.ghost = value ? true : false
+
+  if (player.ghost && game.fixedDealer && game.teams) {
+    const currentIndex = group.players.findIndex(x => x.name == player.name)
+    const newIndex = getIndexByTeam(group, player.team)
+    group.players.splice(newIndex, 0, group.players.splice(currentIndex, 1)[0]);
+  }
 
   if (notification) {
     if (player.ghost) {
@@ -1565,9 +1590,9 @@ function checkEarlyShow(group, team, voted?) {
   const game = games.find(x => x.id == group.game)
   let player
   if (!voted) {
-    player = group.players.find(x => x.team == team)
+    player = group.players.find(x => x.team == team && !x.ghost)
   } else {
-    player = group.players.find(x => x.team == team && x.vote != undefined)
+    player = group.players.find(x => x.team == team && !x.ghost && x.vote != undefined)
   }
   if (player) {
     const tot = computePoints(group, player.cards)
@@ -1576,4 +1601,24 @@ function checkEarlyShow(group, team, voted?) {
     }
   }
   return false
+}
+
+function sendHandPosition(group, vw, vh, excludeList = [], direct?) {
+  group.players.forEach(player => {
+    if (!player.ghost) {
+      wsServer.clients.forEach((ws) => {
+        if (ws.uuid == player.uuid && ws.isAlive && (direct && player.name == direct || !direct && !excludeList.includes(player.name))) {
+          ws.send(JSON.stringify({type: 'hand', newVw: vw, newVh: vh})); 
+        }
+      })
+    }
+  })
+}
+
+function setHand(group, excludeList?, direct?) {
+  sendHandPosition(group, "0vw", "30vh", excludeList, direct)
+}
+
+function unsetHand(group, excludeList?, direct?) {
+  sendHandPosition(group, "27vw", "-27vh", excludeList, direct)
 }
