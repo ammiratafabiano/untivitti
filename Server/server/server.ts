@@ -892,9 +892,6 @@ function startMove(group, player) {
 function stopMove(group, player) {
   const game = games.find(x => x.id == group.game)
   if (player.isAdmin) {
-    if (game.fixedDealer && game.teams) {
-      unsetHand(group)
-    }
     const isFinished = group.players.findIndex(x => x.canMove) == -1;
     if (isFinished ) {
       passMove(group, player)
@@ -1236,6 +1233,7 @@ function resetGroup(group, hard?) {
   group.status = false
   if (!game.fixedDealer) {
     group.cards = []
+    unsetHand(group)
   }
   if (hard) {
     group.round = 0
