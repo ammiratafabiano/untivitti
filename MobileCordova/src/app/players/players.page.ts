@@ -193,7 +193,7 @@ export class PlayersPage implements OnInit {
   }
 
   updateBalance(player: PlayerModel, value: number) {
-    if (value != undefined) {
+    if (value !== undefined) {
       this.loaderService.show().then(_ => {
         this.api.updateBalance(player.name, this.code, value).subscribe(() => {
           let attempt = 0;

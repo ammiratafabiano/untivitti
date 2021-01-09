@@ -51,7 +51,7 @@
               <ion-text *ngIf="(player.bet && !status) || !player.bet">{{ player.balance }}</ion-text>
               <ion-text *ngIf="player.bet && !status"> | </ion-text>
               <ion-text *ngIf="currentPlayer.team != 0 && player.bet" [color]="player.haveToPay ? 'danger' : player.haveToBePaid ? 'success' : undefined">{{ player.bet }}</ion-text>
-              <ion-text *ngIf="currentPlayer.team == 0 && player.bet" [color]="player.haveToPay ? 'success' : player.haveToBePaid ? 'danger' : 'success'">{{ player.bet }}</ion-text>
+              <ion-text *ngIf="currentPlayer.team == 0 && player.bet" [color]="player.haveToPay ? 'success' : player.haveToBePaid ? 'danger' : undefined">{{ player.bet }}</ion-text>
             </ion-label>
           </ion-chip>
           <ion-chip *ngIf="currentPlayer.team == 0 && (player.haveToPay || player.haveToBePaid)" (click)="onClickPay(player)"

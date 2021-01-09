@@ -63,7 +63,7 @@
       </ion-grid>
     </div>
     <div class="cards-container">
-      <div mwlDraggable id="hand" class="hiding-hand" [ngClass]="{'dragging': dragging}"
+      <div mwlDraggable id="hand" class="hiding-hand"
       *ngIf="currentGame.fixedDealer && currentGame.teams"
       (dragStart)="onHandDragStart($event)" (dragEnd)="onHandDragEnd($event)" (dragging)="onHandDragging($event)">
         <img src="./assets/hand.png">

@@ -66,19 +66,19 @@
         <ion-select-option *ngFor="let game of filteredGames" [value]="game.id">{{ game.name }}</ion-select-option>
       </ion-select>
     </ion-item>
-    <ion-item *ngIf="selectedGame != undefined && balance != undefined">
+    <ion-item *ngIf="selectedGame != undefined && currentGame.defaultBalance">
       <ion-label>Monete:</ion-label>
       <ion-input type="number" [(ngModel)]="balance"></ion-input>
     </ion-item>
-    <ion-item *ngIf="selectedGame != undefined && minBet != undefined">
+    <ion-item *ngIf="selectedGame != undefined && currentGame.minBet">
       <ion-label>Puntata minima:</ion-label>
       <ion-input type="number" [(ngModel)]="minBet"></ion-input>
     </ion-item>
-    <ion-item *ngIf="selectedGame != undefined && maxBet != undefined">
+    <ion-item *ngIf="selectedGame != undefined && currentGame.maxBet">
       <ion-label>Puntata massima:</ion-label>
       <ion-input type="number" [(ngModel)]="maxBet"></ion-input>
     </ion-item>
-    <ion-item *ngIf="selectedGame != undefined && decks != undefined">
+    <ion-item *ngIf="selectedGame != undefined && currentGame.decks">
       <ion-label>Mazzi:</ion-label>
       <ion-input type="number" [(ngModel)]="decks"></ion-input>
     </ion-item>

@@ -44,6 +44,8 @@ export class HomePage {
 
   extraSetCounter = 0;
 
+  currentGame: GameModel;
+
   constructor(
     public alertController: AlertController,
     private route: ActivatedRoute,
@@ -321,11 +323,11 @@ export class HomePage {
   }
 
   onGameSelected() {
-    const game = this.games.find(x => x.id === this.selectedGame);
-    this.balance = game.defaultBalance;
-    this.minBet = game.minBet;
-    this.maxBet = game.maxBet;
-    this.decks = game.decks;
+    this.currentGame = this.games.find(x => x.id === this.selectedGame);
+    this.balance = this.currentGame.defaultBalance;
+    this.minBet = this.currentGame.minBet;
+    this.maxBet = this.currentGame.maxBet;
+    this.decks = this.currentGame.decks;
   }
 
 }

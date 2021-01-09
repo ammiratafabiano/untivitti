@@ -21,6 +21,8 @@ export class StateUpdateService {
   stateListener: BehaviorSubject<GameStateModel>;
 
   lastHandUpdate = 0;
+  lastVw;
+  lastVh;
 
   constructor(
     private notificationService: NotificationService,
@@ -56,6 +58,8 @@ export class StateUpdateService {
             this.impressedTextService.addImpressedText(msg.text, msg.from);
             break;
           case 'hand':
+            this.lastVw = msg.newVw;
+            this.lastVh = msg.newVh;
             this.moveHand(msg.newVw, msg.newVh);
             break;
           default:
@@ -91,6 +95,10 @@ export class StateUpdateService {
       this.lastHandUpdate = Date.now();
       this.websocket.send(JSON.stringify({type: 'hand', uuid: this.uuid, newVw, newVh}));
     }
+  }
+
+  public resetHandPosition() {
+    this.storeHandPosition(this.lastVw ? this.lastVw : '27vw', this.lastVh ? this.lastVh : '-27vh', true);
   }
 
   private moveHand(newVw, newVh) {
