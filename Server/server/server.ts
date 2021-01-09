@@ -1616,7 +1616,7 @@ function sendHandPosition(group, vw, vh, excludeList = [], direct?) {
 }
 
 function setHand(group, excludeList?, direct?) {
-  sendHandPosition(group, "0vw", "30vh", excludeList, direct)
+  sendHandPosition(group, "-10vw", "30vh", excludeList, direct)
 }
 
 function unsetHand(group, excludeList?, direct?) {
