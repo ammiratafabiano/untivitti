@@ -97,6 +97,12 @@ export class StateUpdateService {
       this.lastHandUpdate = Date.now();
       this.websocket.send(JSON.stringify({type: 'hand', uuid: this.uuid, newVw, newVh}));
     }
+    if (parseInt(newVh, 10) < 0 && this.lastVw && this.lastVh) {
+      this.lastVw = undefined;
+      this.lastVh = undefined;
+      this.resetHandPosition();
+      this.moveHand('27vw', '-27vh');
+    }
   }
 
   public resetHandPosition() {
