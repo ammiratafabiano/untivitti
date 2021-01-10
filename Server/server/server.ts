@@ -867,8 +867,8 @@ function startMove(group, player) {
       }
       group.ground = []
       for (let j = 0; j < game.handCards; j++) {
-        for (let i = 0; i < game.teams + 1; i++) {
-          setTimeout(() => {
+        setTimeout(() => {
+          for (let i = 0; i < game.teams + 1; i++) {
             const newCard = group.cards.pop()
             checkEndCards(group)
             group.players.forEach(player => {
@@ -878,8 +878,8 @@ function startMove(group, player) {
                 player.cards = tempCards
               }
             });
-          }, (i * j + 1) * 1000);
-        }
+          }
+        }, (j + 1) * 1000);
       }
     } else {
       group.status = true
