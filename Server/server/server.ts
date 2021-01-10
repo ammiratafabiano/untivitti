@@ -336,8 +336,7 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
     const cardSet = cardSets.concat(extraCardSets).find(x => x.id == group.cardSet)
     const savedPlayer = loadState(group, nickname)
     if ((group.status != true && group.round == 0) || 
-        (group.status != true && group.round > 0 && savedPlayer) ||
-        (group.status == true && group.round > 0 && savedPlayer && savedPlayer.ghost)) {
+        (group.round > 0 && savedPlayer)) {
       const game = games.find(x => x.id == group.game)
       if (getPlayersLength(group) < game.maxPlayers) {
         if (!group.players.find(x => x.name == nickname)) {
@@ -352,13 +351,14 @@ app.get('/joinGroup/:nick/:code', cors(corsOptions), (req, res) => {
           }
           const player = {
             name: nickname,
-            isAdmin: false,
-            canMove: false,
-            moves: [],
-            cards: [],
-            visible: false,
+            isAdmin: savedPlayer && group.round == savedPlayer.round ? savedPlayer.isAdmin : false,
+            canMove: savedPlayer && group.round == savedPlayer.round ? savedPlayer.canMove : false,
+            moves: savedPlayer && group.round == savedPlayer.round ? savedPlayer.moves : [],
+            cards: savedPlayer && group.round == savedPlayer.round ? savedPlayer.cards : [],
+            visible: savedPlayer && group.round == savedPlayer.round ? savedPlayer.visible: false,
             balance: savedPlayer ? savedPlayer.balance : group.balance,
             haveToPay: savedPlayer ? savedPlayer.haveToPay : false,
+            haveToBePaid: savedPlayer ? savedPlayer.haveToBePaid : false,
             ghost: savedPlayer ? savedPlayer.ghost : false,
             isWinner: false,
             index: game.teams ? index : savedPlayer ? savedPlayer.index : undefined,
@@ -879,7 +879,7 @@ function startMove(group, player) {
               }
             });
           }
-        }, (j + 1) * 1000);
+        }, (j + 1) * 2000);
       }
     } else {
       group.status = true
@@ -1256,17 +1256,29 @@ function resetGroup(group, hard?) {
   }
   group.ground = []
   for (let i = 0; i < group.players.length; i++) {
-    group.players[i].cards = []
-    group.players[i].canMove = false
-    group.players[i].moves = group.players[i].isAdmin ? getAdminMoves(group) : []
-    group.players[i].visible = false
-    group.players[i].lastMove = undefined
-    group.players[i].vote = undefined
-    group.players[i].haveToPay = false
-    group.players[i].haveToBePaid = false
+    let player = group.players[i]
+    player.cards = []
+    player.canMove = false
+    player.moves = player.isAdmin ? getAdminMoves(group) : []
+    player.visible = false
+    player.lastMove = undefined
+    player.vote = undefined
+    player.haveToPay = false
+    player.haveToBePaid = false
+    let savedPlayer = group.history.find(x => x.name == player.name)
+    savedPlayer.cards = []
+    savedPlayer.canMove = false
+    savedPlayer.moves = savedPlayer.isAdmin ? getAdminMoves(group) : []
+    savedPlayer.visible = false
+    savedPlayer.lastMove = undefined
+    savedPlayer.vote = undefined
+    savedPlayer.haveToPay = false
+    savedPlayer.haveToBePaid = false
     if (hard) {
-      group.players[i].ghost = false
-      group.players[i].balance = group.balance
+      player.ghost = false
+      player.balance = group.balance
+      savedPlayer.ghost = false
+      savedPlayer.balance = group.balance
     }
   }
 }
