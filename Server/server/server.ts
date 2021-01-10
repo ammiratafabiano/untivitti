@@ -867,19 +867,17 @@ function startMove(group, player) {
       }
       group.ground = []
       for (let j = 0; j < game.handCards; j++) {
-        setTimeout(() => {
-          for (let i = 0; i < game.teams + 1; i++) {
-            const newCard = group.cards.pop()
-            checkEndCards(group)
-            group.players.forEach(player => {
-              if (player.team == i) {
-                let tempCards = [...player.cards]
-                tempCards.push(newCard)
-                player.cards = tempCards
-              }
-            });
-          }
-        }, j * 2000);
+        for (let i = 0; i < game.teams + 1; i++) {
+          const newCard = group.cards.pop()
+          checkEndCards(group)
+          group.players.forEach(player => {
+            if (player.team == i) {
+              let tempCards = [...player.cards]
+              tempCards.push(newCard)
+              player.cards = tempCards
+            }
+          });
+        }
       }
     } else {
       group.status = true
@@ -1145,52 +1143,36 @@ function voteMove(group, player, vote) {
 function turnChange(group, player) {
   const game = games.find(x => x.id == group.game)
   if (game.fixedDealer && game.teams) {
-    let attempt = 0
-    const allCardsWaiting = setInterval(() => {
-      attempt += 1
-      if (attempt > 10) {
-        clearInterval(allCardsWaiting)
-      }
-      let allCards = true
-      group.players.forEach(player => {
-        if (player.cards.length != game.handCards) {
-          allCards = false
-        }
-      })
-      if (allCards) {
-        let excludeList = []
-        group.players.forEach(player => {
-          if (!player.ghost) {
-            if (player.team == 0) {
-              excludeList.push(player.name)
-              if (checkEarlyShow(group, player.team)) {
-                getPlayerMoves(group).forEach(move => {
-                  if (move.id == 7 && checkEarlyShow(group, player.team)) {
-                    player.moves.push(copyMove(move, true))
-                  } else {
-                    player.moves.push(copyMove(move))
-                  }
-                });
+    let excludeList = []
+    group.players.forEach(player => {
+      if (!player.ghost) {
+        if (player.team == 0) {
+          excludeList.push(player.name)
+          if (checkEarlyShow(group, player.team)) {
+            getPlayerMoves(group).forEach(move => {
+              if (move.id == 7 && checkEarlyShow(group, player.team)) {
+                player.moves.push(copyMove(move, true))
+              } else {
+                player.moves.push(copyMove(move))
               }
-            } else {
-              player.canMove = true
-              player.moves = []
-              getPlayerMoves(group).forEach(move => {
-                if (move.id == 7 && checkEarlyShow(group, player.team)) {
-                  player.moves.push(copyMove(move, true))
-                } else {
-                  player.moves.push(copyMove(move))
-                }
-              });
-            }
-          } else {
-            excludeList.push(player.name)
+            });
           }
-          clearInterval(allCardsWaiting)
-        }, 1000);
-        sendImpressedText(group, 'E\' il vostro turno!', excludeList)
+        } else {
+          player.canMove = true
+          player.moves = []
+          getPlayerMoves(group).forEach(move => {
+            if (move.id == 7 && checkEarlyShow(group, player.team)) {
+              player.moves.push(copyMove(move, true))
+            } else {
+              player.moves.push(copyMove(move))
+            }
+          });
+        }
+      } else {
+        excludeList.push(player.name)
       }
-    })
+    });
+    sendImpressedText(group, 'E\' il vostro turno!', excludeList);
   } else {
     const newPlayer = getNextPlayer(group, player)
     player.canMove = false
