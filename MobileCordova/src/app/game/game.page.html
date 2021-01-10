@@ -27,7 +27,7 @@
     </ion-fab-button>
   </ion-fab>
   <ion-fab class="my-balance" horizontal="start" vertical="start">
-    <ion-chip outline *ngIf="state.money" (click)="!currentPlayer.isAdmin && placeBet(currentPlayer)">
+    <ion-chip outline *ngIf="state.money" (click)="!currentPlayer.isAdmin && !state.status && placeBet(currentPlayer)">
       <ion-icon name="server" color="warning"></ion-icon>
       <ion-label>
         <ion-text>{{ currentPlayer.balance }}</ion-text>
@@ -68,7 +68,7 @@
       (dragStart)="onHandDragStart($event)" (dragEnd)="onHandDragEnd($event)" (dragging)="onHandDragging($event)">
         <img src="./assets/hand.png">
       </div>
-      <ng-container *ngIf="currentPlayer.cards.length > 1">
+      <ng-container *ngIf="currentPlayer.cards.length > 1 || (currentGame.fixedDealer && currentGame.teams)">
         <ion-grid>
           <ion-row>
             <ion-col class="card multi-card" *ngFor="let card of currentPlayer.cards">
@@ -78,7 +78,7 @@
           </ion-row>
         </ion-grid>
       </ng-container>
-      <ng-container *ngIf="currentPlayer.cards.length <= 1">
+      <ng-container *ngIf="currentPlayer.cards.length <= 1 && !(currentGame.fixedDealer && currentGame.teams)">
         <div class="card" #card>
           <img *ngIf="tempCard != undefined" src="./assets/cardSets/{{state.cardSet}}/{{tempCard}}.png" />
         </div>

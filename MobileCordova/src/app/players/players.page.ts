@@ -200,7 +200,6 @@ export class PlayersPage implements OnInit {
           const payment = setInterval(() => {
             attempt += 1;
             const currentPlayer = this.players.find(x => x.name === player.name);
-            console.log(attempt, player, currentPlayer, value);
             if (currentPlayer.balance === value || attempt === 4) {
               clearInterval(payment);
               this.loaderService.hide();

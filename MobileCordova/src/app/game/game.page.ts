@@ -516,7 +516,7 @@ export class GamePage implements OnInit {
     return this.state.players.find(x => x.canMove);
   }
 
-  setBet(player, value) {
+  setBet(player, value: number) {
     this.loaderService.show().then(_ => {
       this.api.placeBet(player.name, this.state.code, value)
       .pipe(finalize(() => this.loaderService.hide() ))
@@ -535,7 +535,7 @@ export class GamePage implements OnInit {
       inputs: [
         {
           name: 'value',
-          value: this.state.minBet,
+          value: this.currentPlayer.bet ? this.currentPlayer.bet : this.state.minBet,
           type: 'number'
         }
       ],
@@ -548,7 +548,7 @@ export class GamePage implements OnInit {
         }, {
           text: 'Conferma',
           handler: (out) => {
-            this.setBet(player, out.value);
+            this.setBet(player, parseInt(out.value, 10));
           }
         }
       ]

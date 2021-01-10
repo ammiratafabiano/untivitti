@@ -18,4 +18,5 @@ export class PlayerModel {
     team: number;
     bet: number;
     vote: boolean;
+    wasTie: boolean;
 }

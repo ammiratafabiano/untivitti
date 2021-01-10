@@ -119,7 +119,7 @@ export class ApiService {
       );
   }
 
-  placeBet(nickname: string, code: string, value: boolean): Observable<ResponseModel<any>>{
+  placeBet(nickname: string, code: string, value: number): Observable<ResponseModel<any>>{
     return this.http
       .post<ResponseModel<any>>(this.endpoint + '/placeBet', { nickname, code, value })
       .pipe(

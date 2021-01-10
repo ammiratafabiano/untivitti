@@ -16,13 +16,13 @@
     </ion-fab-button>
   </ion-fab>
   <ion-reorder-group (ionItemReorder)="reorderPlayers($event)" [disabled]="!(currentPlayer.isAdmin && players.length >= game.minPlayers && !status)">
-    <ion-item-sliding *ngFor="let player of players; let i = index" [ngClass]="{'canMove': player.canMove, 'ion-margin-top': game.teams && (i == 0 || players[i].team != players[i-1].team)}">
+    <ion-item-sliding *ngFor="let player of players; let i = index" [ngClass]="{'canMove': player.canMove, 'first-player': game.teams && (i == 0 || players[i].team != players[i-1].team)}">
       <ion-item class="player-container" [disabled]="player.ghost">
         <ion-label [ngClass]="{'myself': player.name == currentPlayer.name}">{{ player.name }}</ion-label>
         <ion-row *ngIf="(status && player.cards.length > 0 && !game.teams) || (status && player.cards.length > 0 && game.teams && (i == 0 || players[i].team != players[i-1].team))" class="cards-container">
           <ion-col class="card" *ngFor="let card of player.cards; let j = index">
-            <img *ngIf="player.visible || player.name == currentPlayer.name || currentPlayer.ghost || j >= game.handCards" src="./assets/cardSets/{{cardSet.id}}/{{card}}.png" />
-            <img *ngIf="!(player.visible || player.name == currentPlayer.name || currentPlayer.ghost || j >= game.handCards)" src="./assets/cardSets/{{cardSet.id}}/-1.png" />
+            <img *ngIf="player.visible || player.name == currentPlayer.name || player.team == currentPlayer.team || currentPlayer.ghost || j >= game.handCards" src="./assets/cardSets/{{cardSet.id}}/{{card}}.png" />
+            <img *ngIf="!(player.visible || player.name == currentPlayer.name || player.team == currentPlayer.team || currentPlayer.ghost || j >= game.handCards)" src="./assets/cardSets/{{cardSet.id}}/-1.png" />
           </ion-col>
         </ion-row>
         <div *ngIf="status && player.isAdmin && ground.length > 0" class="ground-container">
