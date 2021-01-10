@@ -1651,7 +1651,7 @@ function unsetHand(group, excludeList?, direct?) {
 
 function range(cards, length) {
   let list = []
-  for (let i = 0; i != length; i++) {
+  for (let i = 0; i != Math.min(length, cards.length); i++) {
     list.push(cards[i])
   }
   return list
