@@ -139,7 +139,7 @@ const games = [
     name: 'Baccarà',
     handCards: 2,
     minPlayers: 3,
-    maxPlayers: 100,
+    maxPlayers: 200,
     clockwise: false,
     defaultBalance: 500,
     mustShow: true,
@@ -478,7 +478,6 @@ app.get('/updateBalance/:nick/:code/:balance', cors(corsOptions), (req, res) => 
   const nickname = req.params['nick']
   const code = req.params['code']
   const newBalance = parseInt(req.params['balance'], 10)
-  console.log(nickname, code, newBalance)
   const group = groups.find(x => x.code == code)
   let response
   if (group) {
@@ -584,22 +583,36 @@ app.post('/placeBet', jsonParser, cors(corsOptions), (req, res) => {
   const group = groups.find(x => x.code == code)
   let response
   if (group) {
-    if (bet >= group.minBet && bet <= group.maxBet) {
-      const player = group.players.find(x => x.name == nickname)
-      if (player) {
-        player.bet = bet
-        response = {
-          success: true
+    const player = group.players.find(x => x.name == nickname)
+    if (player) {
+      if (player.wasTie) {
+        if (bet == player.bet || bet == (player.bet * 2)) {
+          player.bet = bet
+          response = {
+            success: true
+          }
+        } else {
+          response = {
+            success: false,
+            errorCode: "In caso di \"come\" è solo possibile raddoppiare o lasciare intatta la puntata"
+          }
         }
       } else {
-        response = {
-          success: false
+        if (bet >= group.minBet && bet <= group.maxBet) {
+          player.bet = bet
+          response = {
+            success: true
+          }
+        } else {
+          response = {
+            success: false,
+            errorCode: "Valori ammessi tra " + group.minBet + " e " + group.maxBet
+          }
         }
       }
     } else {
       response = {
-        success: false,
-        errorCode: "Valori ammessi tra " + group.minBet + " e " + group.maxBet
+        success: false
       }
     }
   } else {
@@ -744,6 +757,7 @@ function checkGroup(code) {
 
 function deletePlayer(uuid) {
   groups.forEach(group => {
+    const game = games.find(x => x.id == group.game)
     group.players.forEach((player, i) => {
       if (player.uuid == uuid) {
         const text = player.name + ' si è disconnesso/a'
@@ -753,7 +767,7 @@ function deletePlayer(uuid) {
           setAdmin(group, true)
         }
         group.players.splice(i, 1)
-        if (group.status && group.ground.length == 0 && !player.ghost && getPlayersLength(group) > 0) {
+        if (group.status && group.ground.length == 0 && !player.ghost && getPlayersLength(group) > 0 && !(game.teams && game.fixedDealer)) {
           resetGroup(group)
           group.round -= 1;
           const text = 'Partita interrotta'
@@ -852,19 +866,20 @@ function startMove(group, player) {
         group.cards = getShuffledSet(group.cardSet, group.decks)
       }
       group.ground = []
-      for (let i = 0; i < game.teams + 1; i++) {
-        const newCards = []
-        for (let j = 0; j < game.handCards; j++) {
-          newCards.push(group.cards.pop())
+      for (let j = 0; j < game.handCards; j++) {
+        for (let i = 0; i < game.teams + 1; i++) {
+          setTimeout(() => {
+            const newCard = group.cards.pop()
+            checkEndCards(group)
+            group.players.forEach(player => {
+              if (player.team == i) {
+                let tempCards = [...player.cards]
+                tempCards.push(newCard)
+                player.cards = tempCards
+              }
+            });
+          }, i*j*1000);
         }
-        group.players.forEach(player => {
-          if (player.team == i) {
-            player.cards = newCards;
-          }
-        });
-      }
-      if (group.cards.length < 9 * 2) {
-        sendImpressedText(group, 'Il prossimo giro sarà l\'ultimo!');
       }
     } else {
       group.status = true
@@ -916,6 +931,7 @@ function cardMove(group, player) {
     const teamPlayer = group.players.find(x => x.team == 0)
     const newCards = teamPlayer ? [...teamPlayer.cards] : []
     const newCard = group.cards.pop()
+    checkEndCards(group)
     newCards.push(newCard)
     let excludeList = []
     group.players.forEach(x => {
@@ -935,6 +951,7 @@ function cardMove(group, player) {
           const teamPlayer = group.players.find(x => x.team == i)
           const newCards = teamPlayer ? [...teamPlayer.cards] : []
           const newCard = group.cards.pop()
+          checkEndCards(group)
           newCards.push(newCard)
           let excludeList = []
           group.players.forEach(x => {
@@ -1031,6 +1048,7 @@ function passMove(group, player) {
 function voteMove(group, player, vote) {
   const game = games.find(x => x.id == group.game)
   player.vote = vote
+  player.moves = player.isAdmin ? getAdminMoves(group) : []
   unsetHand(group, undefined, player.name)
   if (player.team == 0) {
     if (checkEarlyShow(group, player.team)) {
@@ -1073,7 +1091,6 @@ function voteMove(group, player, vote) {
       sendImpressedText(group, 'La squadra ' + player.team + ' dichiara ' + tot)
     } else {
       player.canMove = false
-      player.moves = []
       const vote = checkVote(group, player.team)
       if (vote != undefined) {
         if (vote == true) {
@@ -1379,16 +1396,18 @@ function computeLosers(group) {
       x.moves = x.isAdmin ? getAdminMoves(group) : []
     })
     const dealer = group.players.find(x => x.team == 0)
-    const dealerResult = computePoints(group, dealer.cards)
     for (let i = 1; i < game.teams + 1; i++) {
       const team = group.players.find(x => x.team == i)
       const teamResult = computePoints(group, team.cards)
       group.players.forEach(player => {
         if (player.team == i) {
+          const dealerResult = computePoints(group, range(dealer.cards, team.cards.length))
           if (teamResult > dealerResult) {
             player.haveToBePaid = true;
           } else if (teamResult < dealerResult) {
             player.haveToPay = true;
+          } else {
+            player.wasTie = true
           }
         }
       });
@@ -1618,4 +1637,18 @@ function setHand(group, excludeList?, direct?) {
 
 function unsetHand(group, excludeList?, direct?) {
   sendHandPosition(group, "27vw", "-27vh", excludeList, direct)
+}
+
+function range(cards, length) {
+  let list = []
+  for (let i = 0; i != length; i++) {
+    list.push(cards[i])
+  }
+  return list
+}
+
+function checkEndCards(group) {
+  if (group.cards.length == 18) {
+    sendImpressedText(group, 'Il prossimo giro sarà l\'ultimo!');
+  }
 }
