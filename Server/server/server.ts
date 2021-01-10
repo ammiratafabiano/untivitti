@@ -878,7 +878,7 @@ function startMove(group, player) {
                 player.cards = tempCards
               }
             });
-          }, i*j*1000);
+          }, (i * j + 1) * 1000);
         }
       }
     } else {
