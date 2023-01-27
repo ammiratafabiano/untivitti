@@ -10,7 +10,7 @@ import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
 import { HttpClientModule } from '@angular/common/http';
-import { Clipboard } from '@ionic-native/clipboard/ngx';
+import { DragAndDropModule } from 'angular-draggable-droppable';
 
 @NgModule({
   declarations: [AppComponent],
@@ -19,13 +19,13 @@ import { Clipboard } from '@ionic-native/clipboard/ngx';
     BrowserModule,
     IonicModule.forRoot(),
     AppRoutingModule,
-    HttpClientModule
+    HttpClientModule,
+    DragAndDropModule
   ],
   providers: [
     StatusBar,
     SplashScreen,
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    Clipboard
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }
   ],
   bootstrap: [AppComponent]
 })

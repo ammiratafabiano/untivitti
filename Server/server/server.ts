@@ -1,4 +1,4 @@
-import e from "express";
+//import e from "express";
 
 const express = require('express');
 const bodyParser = require('body-parser')
@@ -7,9 +7,21 @@ const cors = require('cors')
 const { groupCollapsed } = require('console')
 const ws = require('ws');
 const { v4: uuidv4 } = require('uuid');
+const fs = require('fs');
+//const http = require('http');
+const https = require('https');
+
+const privateKey = fs.readFileSync('/home/pi/certs/private.key', 'utf8');
+const certificate = fs.readFileSync('/home/pi/certs/certificate.crt', 'utf8');
+const credentials = {key: privateKey, cert: certificate};
 
 const app = express();
-const port = 3000
+
+//let httpServer = http.createServer(app);
+let httpsServer = https.createServer(credentials, app);
+
+//const port = 3000;
+const sslPort = 3440;
 
 const jsonParser = bodyParser.json()
 
@@ -253,7 +265,14 @@ const allowedOrigins = [
   'ionic://www.untivitti.it',
   'http://www.untivitti.it',
   'http://www.untivitti.it:8080',
-  'http://www.untivitti.it:8100'
+  'http://www.untivitti.it:8100',
+  'ionic://2.238.108.96',
+  'http://2.238.108.96',
+  'http://2.238.108.96:8080',
+  'http://2.238.108.96:8100',
+  'https://2.238.108.96',
+  'https://2.238.108.96:8080',
+  'https://2.238.108.96:8100'
 ];
 
 // Reflect the origin if it's in the allowed list or not defined (cURL, Postman, etc.)
@@ -267,6 +286,27 @@ const corsOptions = {
     }
   }
 }
+
+/*
+httpServer.listen(port, () => {
+  console.log(`App listening at http://localhost:${port}`)
+})
+
+httpsServer.listen(sslPort, () => {
+  console.log(`App listening at https://localhost:${sslPort}`)
+})
+*/
+
+httpsServer.listen(sslPort, (err: any) => {
+  if (err) console.log(err); 
+  console.log(`Example app listening at https://localhost:${sslPort}`)
+})
+
+httpsServer.on('upgrade', (request: any, socket: any, head: any) => {
+  wsServer.handleUpgrade(request, socket, head, (socket: any) => {
+    wsServer.emit('connection', socket, request);
+  });
+});
 
 // Enable preflight requests for all routes
 app.options('*', cors(corsOptions));
@@ -624,6 +664,7 @@ app.post('/placeBet', jsonParser, cors(corsOptions), (req, res) => {
 });
 
 const wsServer = new ws.Server({ noServer: true });
+//const wsServer = new ws.Server({ server: httpsServer });
 wsServer.on('connection', (socket: any) => {
   socket.isAlive = true;
 
@@ -731,17 +772,6 @@ setInterval(function() {
   })
   
 }, 1000);
-
-const server = app.listen(port, (err: any) => {
-  if (err) console.log(err); 
-  console.log(`Example app listening at http://localhost:${port}`)
-})
-
-server.on('upgrade', (request: any, socket: any, head: any) => {
-  wsServer.handleUpgrade(request, socket, head, (socket: any) => {
-    wsServer.emit('connection', socket, request);
-  });
-});
 
 function newCode() {
   const id = crypt.randomBytes(3).toString("hex")

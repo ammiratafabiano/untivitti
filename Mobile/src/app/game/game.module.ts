@@ -7,13 +7,15 @@ import { IonicModule } from '@ionic/angular';
 import { GamePageRoutingModule } from './game-routing.module';
 
 import { GamePage } from './game.page';
+import { DragAndDropModule } from 'angular-draggable-droppable';
 
 @NgModule({
   imports: [
     CommonModule,
     FormsModule,
     IonicModule,
-    GamePageRoutingModule
+    GamePageRoutingModule,
+    DragAndDropModule
   ],
   declarations: [GamePage]
 })

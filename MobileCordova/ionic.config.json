@@ -1,7 +1,0 @@
-{
-  "name": "untivitti",
-  "integrations": {
-    "cordova": {}
-  },
-  "type": "angular"
-}

@@ -3,17 +3,8 @@ import { PreloadAllModules, RouterModule, Routes } from '@angular/router';
 
 const routes: Routes = [
   {
-    path: 'untivitti',
-    loadChildren: () => import('./home/home.module').then( m => m.HomePageModule)
-  },
-  {
-    path: 'untivitti/join/:code',
-    loadChildren: () => import('./home/home.module').then( m => m.HomePageModule)
-  },
-  {
     path: '',
-    redirectTo: 'untivitti',
-    pathMatch: 'full'
+    loadChildren: () => import('./home/home.module').then( m => m.HomePageModule)
   },
   {
     path: 'game',
@@ -22,6 +13,14 @@ const routes: Routes = [
   {
     path: 'players',
     loadChildren: () => import('./players/players.module').then( m => m.PlayersPageModule)
+  },
+  {
+    path: 'tutorial',
+    loadChildren: () => import('./tutorial/tutorial.module').then( m => m.TutorialPageModule)
+  },
+  {
+    path: 'impressed-text',
+    loadChildren: () => import('./impressed-text/impressed-text.module').then( m => m.ImpressedTextPageModule)
   },
 ];
 

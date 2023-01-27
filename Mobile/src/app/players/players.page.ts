@@ -1,12 +1,14 @@
 import { Component, OnInit } from '@angular/core';
 import { AlertController, ModalController, NavParams } from '@ionic/angular';
-import { GameStateModel, PlayerModel } from '../models/game-state.model';
 import { ApiService } from '../services/api.service';
-import { Clipboard } from '@ionic-native/clipboard/ngx';
 import { finalize } from 'rxjs/operators';
 import { NotificationService } from '../services/notification.service';
 import { NotificationModel } from '../models/notification.model';
-import { CardTypeEnum } from '../models/card-set.model';
+import { CardSetModel } from '../models/card-set.model';
+import { TutorialPage } from '../tutorial/tutorial.page';
+import { LoaderService } from '../services/loader.service';
+import { GameModel } from '../models/game.model';
+import { PlayerModel } from '../models/player.model';
 
 @Component({
   selector: 'app-players',
@@ -15,8 +17,6 @@ import { CardTypeEnum } from '../models/card-set.model';
 })
 export class PlayersPage implements OnInit {
 
-  loop: any;
-
   code: string;
   currentPlayer: PlayerModel;
   players: PlayerModel[] = [];
@@ -24,27 +24,32 @@ export class PlayersPage implements OnInit {
   reordering = false;
 
   status = true;
-  cardSet: CardTypeEnum;
+  cardSet: CardSetModel;
+  game: GameModel;
 
   moneyMode: boolean;
+
+  ground: number[];
 
   constructor(
     public modalController: ModalController,
     public navParams: NavParams,
     private api: ApiService,
-    private clipboard: Clipboard,
     private notificationService: NotificationService,
-    public alertController: AlertController) {
+    public alertController: AlertController,
+    private loaderService: LoaderService) {
     const stateListener = this.navParams.get('state');
     const nickname = this.navParams.get('nickname');
+    this.cardSet = this.navParams.get('cardSet');
+    this.game = this.navParams.get('game');
     stateListener.subscribe(value => {
       if (!this.reordering && this.detectChange(this.players, value.players)) {
         this.players = value.players;
         this.code = value.code;
         this.currentPlayer = value.players.find(x => x.name === nickname);
         this.status = value.status;
-        this.cardSet = value.cardSet;
         this.moneyMode = value.money;
+        this.ground = value.ground;
       }
     });
   }
@@ -57,12 +62,29 @@ export class PlayersPage implements OnInit {
   }
 
   reorderPlayers(ev: any) {
-    this.reordering = true;
-    const itemMove = this.players.splice(ev.detail.from, 1)[0];
-    this.players.splice(ev.detail.to, 0, itemMove);
-    ev.detail.complete();
-    this.api.updatePlayers(this.players, this.code).pipe(
-      finalize(() => this.reordering = false)).subscribe();
+    if (ev.detail.to < this.players.length) {
+      this.loaderService.show().then(_ => {
+        this.reordering = true;
+        const itemMove = this.players.splice(ev.detail.from, 1)[0];
+        this.players.splice(ev.detail.to, 0, itemMove);
+        if (this.game.teams) {
+          if (ev.detail.to < ev.detail.from) {
+            this.players[ev.detail.to].team = this.players[ev.detail.to + 1].team;
+          } else {
+            this.players[ev.detail.to].team = this.players[ev.detail.to - 1].team;
+          }
+        }
+        ev.detail.complete();
+        this.api.updatePlayers(this.players, this.code)
+        .pipe(finalize(() => {
+          this.reordering = false;
+          this.loaderService.hide();
+        }
+        )).subscribe();
+      });
+    } else {
+      ev.detail.complete();
+    }
   }
 
   detectChange(list1, list2) {
@@ -72,10 +94,7 @@ export class PlayersPage implements OnInit {
   }
 
   shareLink() {
-    // Mobile App
-    const link = this.api.clientEndpoint + '/join/' + this.code;
-    this.clipboard.copy(link);
-    // Web App
+    const link = this.api.clientEndpoint + '?code=' + this.code;
     const el = document.createElement('textarea');
     el.value = link;
     document.body.appendChild(el);
@@ -88,18 +107,22 @@ export class PlayersPage implements OnInit {
   }
 
   remove(player: PlayerModel) {
-    this.api.exitGroup(player.name, this.code).subscribe();
+    this.loaderService.show().then(_ => {
+      this.api.exitGroup(player.name, this.code)
+      .pipe(finalize(() => this.loaderService.hide() ))
+        .subscribe();
+    });
   }
 
-  async changeBalance(player: PlayerModel) {
+  async changeBalance(player: PlayerModel, error?) {
     const alert = await this.alertController.create({
       header: 'Cambio bilancio',
+      subHeader: error ? error : undefined,
       inputs: [
         {
           name: 'value',
           value: player.balance,
-          type: 'number',
-          min: 0
+          type: 'number'
         }
       ],
       buttons: [
@@ -111,9 +134,7 @@ export class PlayersPage implements OnInit {
         }, {
           text: 'Conferma',
           handler: (out) => {
-            this.api.updateBalance(player.name, this.code, out.value).subscribe(_ => {
-
-            });
+            this.setBalance(player, out.value);
           }
         }
       ]
@@ -122,8 +143,74 @@ export class PlayersPage implements OnInit {
     await alert.present();
   }
 
-  setGhost(player, value) {
-    this.api.setGhost(player.name, this.code, value).subscribe(_ => {});
+  setGhost(player: PlayerModel, value) {
+    this.loaderService.show().then(_ => {
+      this.api.setGhost(player.name, this.code, value)
+      .pipe(finalize(() => this.loaderService.hide() ))
+        .subscribe();
+    });
   }
 
+  async openTutorialModal() {
+    const tutorialModal = await this.modalController.create({
+      component: TutorialPage,
+      componentProps: { type: 'PLAYERS_PAGE', game: this.game.id }
+    });
+    tutorialModal.present();
+  }
+
+  setBalance(player: PlayerModel, value) {
+    this.loaderService.show().then(_ => {
+      this.api.updateBalance(player.name, this.code, value)
+      .pipe(finalize(() => this.loaderService.hide() ))
+        .subscribe(response => {
+          if (!response.success) {
+            this.changeBalance(player, response.errorCode);
+          }
+        });
+    });
+  }
+
+  onClickPay(player?: PlayerModel) {
+    if (player && this.game.fixedDealer) {
+      const bet = player.bet;
+      if (player.haveToPay) {
+        const negative = player.balance - bet;
+        this.updateBalance(player, negative);
+        const positive = this.currentPlayer.balance + bet;
+        this.updateBalance(this.currentPlayer, positive);
+      }
+      if (player.haveToBePaid) {
+        const negative = this.currentPlayer.balance - bet;
+        this.updateBalance(this.currentPlayer, negative);
+        const positive = player.balance + bet;
+        this.updateBalance(player, positive);
+      }
+    } else {
+      const value = this.currentPlayer.balance -= 1;
+      this.updateBalance(this.currentPlayer, value);
+    }
+  }
+
+  updateBalance(player: PlayerModel, value: number) {
+    if (value !== undefined) {
+      this.loaderService.show().then(_ => {
+        this.api.updateBalance(player.name, this.code, value).subscribe(() => {
+          let attempt = 0;
+          const payment = setInterval(() => {
+            attempt += 1;
+            const currentPlayer = this.players.find(x => x.name === player.name);
+            if (currentPlayer.balance === value || attempt === 4) {
+              clearInterval(payment);
+              this.loaderService.hide();
+            }
+          }, 500);
+        });
+      });
+    }
+  }
+
+  getTeamSize(team) {
+    return this.players.filter(x => x.team === team).length;
+  }
 }

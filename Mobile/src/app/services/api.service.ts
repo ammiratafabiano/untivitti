@@ -3,8 +3,9 @@ import { Injectable } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
 import { retry, catchError } from 'rxjs/operators';
 import { CardSetModel, CardTypeEnum } from '../models/card-set.model';
-import { GameStateModel, PlayerModel } from '../models/game-state.model';
+import { GameStateModel } from '../models/game-state.model';
 import { GameModel, GameTypeEnum } from '../models/game.model';
+import { PlayerModel } from '../models/player.model';
 import { ResponseModel } from '../models/response.model';
 
 @Injectable({
@@ -12,10 +13,10 @@ import { ResponseModel } from '../models/response.model';
 })
 export class ApiService {
 
-  ip = '2.238.108.96';
-  domain = 'ammireto.cloud';
-  endpoint = 'http://' + this.ip + ':3000';
-  clientEndpoint = 'http://' +  this.domain + ':8100';
+  endpoint = 'https://2.238.108.96:3440';
+  // clientEndpoint = 'http://www.untivitti.it';
+  // clientEndpoint = 'http://localhost:8100';
+  clientEndpoint = 'http://2.238.108.96/untivitti';
 
   constructor(private http: HttpClient) { }
 
@@ -36,9 +37,10 @@ export class ApiService {
       'Something bad happened; please try again later.');
   }
 
-  getCardSets(): Observable<ResponseModel<CardSetModel[]>>{
+  getCardSets(extraSet?): Observable<ResponseModel<CardSetModel[]>>{
+    extraSet = extraSet ? extraSet : 'NONE';
     return this.http
-      .get<ResponseModel<CardSetModel[]>>(this.endpoint + '/getCardSets')
+      .get<ResponseModel<CardSetModel[]>>(this.endpoint + '/getCardSets/' + extraSet)
       .pipe(
         retry(2),
         catchError(this.handleError)
@@ -54,16 +56,17 @@ export class ApiService {
       );
   }
 
-  createGroup(nickname: string, cardSet: CardTypeEnum, game: GameTypeEnum, money: boolean): Observable<ResponseModel<GameStateModel>>{
+  createGroup(nickname: string, cardSet: CardTypeEnum, game: GameTypeEnum,
+              money: boolean, balance: number, minBet: number, maxBet: number, decks: number): Observable<ResponseModel<GameStateModel>>{
     return this.http
-      .post<ResponseModel<any>>(this.endpoint + '/createGroup', { nickname, cardSet, game, money })
+      .post<ResponseModel<any>>(this.endpoint + '/createGroup', { nickname, cardSet, game, money, balance, minBet, maxBet, decks })
       .pipe(
         retry(2),
         catchError(this.handleError)
       );
   }
 
-  joinGroup(nickname: string, code: string): Observable<ResponseModel<GameStateModel>>{
+  joinGroup(nickname: string, code: string): Observable<ResponseModel<any>>{
     return this.http
       .get<ResponseModel<any>>(this.endpoint + '/joinGroup/' + nickname + '/' + code)
       .pipe(
@@ -107,4 +110,23 @@ export class ApiService {
         catchError(this.handleError)
       );
   }
+
+  retrieveSession(uuid: string): Observable<ResponseModel<any>>{
+    return this.http
+      .get<ResponseModel<GameStateModel>>(this.endpoint + '/retrieveSession/' + uuid)
+      .pipe(
+        retry(2),
+        catchError(this.handleError)
+      );
+  }
+
+  placeBet(nickname: string, code: string, value: number): Observable<ResponseModel<any>>{
+    return this.http
+      .post<ResponseModel<any>>(this.endpoint + '/placeBet', { nickname, code, value })
+      .pipe(
+        retry(2),
+        catchError(this.handleError)
+      );
+  }
+
 }

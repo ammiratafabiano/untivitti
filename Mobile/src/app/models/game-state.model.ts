@@ -1,26 +1,6 @@
-import { CardSetModel, CardTypeEnum } from './card-set.model';
+import { CardTypeEnum } from './card-set.model';
 import { GameTypeEnum } from './game.model';
-
-export class MoveModel {
-    name: string;
-    id: number;
-}
-
-export class CardModel {
-    set: CardSetModel;
-    index: number;
-}
-
-export class PlayerModel {
-    name: string;
-    isAdmin: boolean;
-    canMove: boolean;
-    moves: MoveModel[];
-    timestamp: number;
-    cards: CardModel[];
-    visible: boolean;
-    balance: number;
-}
+import { PlayerModel } from './player.model';
 
 export class GameStateModel {
     code: string;
@@ -29,4 +9,11 @@ export class GameStateModel {
     status: boolean;
     players: PlayerModel[];
     money: boolean;
+    balance: number;
+    round: number;
+    cards: number[];
+    ground: number[];
+    activePlayers: number;
+    minBet: number;
+    maxBet: number;
 }

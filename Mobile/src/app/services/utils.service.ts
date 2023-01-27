@@ -1,6 +1,4 @@
 import { Injectable } from '@angular/core';
-import { Plugins } from '@capacitor/core';
-const { Storage } = Plugins;
 
 @Injectable({
   providedIn: 'root'
@@ -9,15 +7,62 @@ export class UtilsService {
 
   constructor() { }
 
-  async setStorage(key: string, value: any): Promise<void> {
-    await Storage.set({
-      key,
-      value: JSON.stringify(value)
-    });
+  setStorage(key: string, value: any) {
+    window.localStorage.setItem(key, value);
   }
 
-  async getStorage(key: string): Promise<any> {
-    const item = await Storage.get({ key });
-    return JSON.parse(item.value);
+  getStorage(key: string) {
+    const valueToRet = window.localStorage.getItem(key);
+    if (valueToRet !== 'undefined' && valueToRet !== undefined && valueToRet !== '') {
+      return valueToRet;
+    } else {
+      return undefined;
+    }
+  }
+
+  detectChange(list1, list2) {
+    if (list1 && list2) {
+      const copyList1 = Array.isArray(list1) ? [...list1] : Object.assign(list1);
+      const copyList2 = Array.isArray(list2) ? [...list2] : Object.assign(list2);
+      this.setProperty(copyList1, 'timestamp', undefined);
+      this.setProperty(copyList2, 'timestamp', undefined);
+      return JSON.stringify(copyList1) !== JSON.stringify(copyList2);
+    } else {
+      return true;
+    }
+  }
+
+  setProperty(o, id, value) {
+    if (o) {
+      if (o[id] !== undefined) {
+        o[id] = value;
+      }
+      let p;
+      for (p in o) {
+        if (o.hasOwnProperty(p) && typeof o[p] === 'object') {
+          this.setProperty(o[p], id, value);
+        } else if (o.hasOwnProperty(p) && Array.isArray(o[p])) {
+          o[p].array.forEach(el => {
+            this.setProperty(el, id, value);
+          });
+        }
+      }
+    }
+  }
+
+  getViewport() {
+    let viewPortWidth;
+    let viewPortHeight;
+    if (typeof document.documentElement !== 'undefined'
+    && typeof document.documentElement.clientWidth !==
+    'undefined' && document.documentElement.clientWidth !== 0) {
+       viewPortWidth = document.documentElement.clientWidth,
+       viewPortHeight = document.documentElement.clientHeight;
+    }
+    else {
+      viewPortWidth = document.getElementsByTagName('body')[0].clientWidth,
+      viewPortHeight = document.getElementsByTagName('body')[0].clientHeight;
+    }
+    return [viewPortWidth, viewPortHeight];
   }
 }

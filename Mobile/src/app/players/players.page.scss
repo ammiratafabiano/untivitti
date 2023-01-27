@@ -1,18 +1,10 @@
 .player-container {
-    --min-height: 20vw !important;
-}
-
-.cards-container {
-    width: 100%;
-    height: 18vw;
-    position: absolute;
-    bottom: 0;
-    padding: 0;
-    text-align: center;
+    --min-height: 10vh !important;
 }
 
 .canMove {
-    --ion-background-color: #fff9f7;
+    --ion-background-color: #fff4f0;
+    border: 1px solid #fff9f7;
     animation: fade 2s infinite;
     -moz-animation: fade 2s infinite; /* Firefox */
     -webkit-animation: fade 2s infinite; /* Safari and Chrome */
@@ -20,42 +12,68 @@
 
 @keyframes fade {
     0% {--ion-background-color: #fff4f0;}
-    50% {--ion-background-color:#ffffff;}
-    100% {--ion-background-color: #fff4f0;}
+    50% {--ion-background-color: #ffffff;}
+    100% {--ion-background-color: #ffffff;}
 }
 
 @-moz-keyframes fade /* Firefox */ {
     0% {--ion-background-color: #fff4f0;}
-    50% {--ion-background-color:#ffffff;}
+    50% {--ion-background-color: #ffffff;}
     100% {--ion-background-color: #fff4f0;}
 }
 
 @-webkit-keyframes fade /* Safari and Chrome */ {
     0% {--ion-background-color: #fff4f0;}
-    50% {--ion-background-color:#ffffff;}
-    100% {--ion-background-color: #fff4f0;;}
+    50% {--ion-background-color: #ffffff;}
+    100% {--ion-background-color:  #fff4f0;}
+}
+
+.cards-container {
+    width: 100%;
+    height: 9vh;
+    position: absolute;
+    right: 20px;
+    bottom: 0;
+    padding: 0 30%;
+    text-align: center;
+    ion-col {
+        padding: 0;
+    }
+}
+
+.ground-container {
+    width: 100%;
+    height: 9vh;
+    position: absolute;
+    bottom: 0;
+    left: 10vw;
+    padding: 0;
+    text-align: center;
 }
 
 .card {
-    height: 25vw;
-    
-
     img {
-        height: 100%;
-        border: 0.05px solid lightgrey;
-        border-radius: 1vw;
+        max-height: 9vh;
+        border: 0.5px solid lightgrey;
+        border-radius: 5px;
         filter: contrast(1.2);
     }
 }
 
-.rotate90 {
-    -moz-transform: rotate(270deg);
-    -webkit-transform: rotate(270deg);
-    -o-transform: rotate(270deg);
-    -ms-transform: rotate(270deg);
-    transform: rotate(270deg);
-}
-
 .myself {
     font-weight: bold;
+}
+
+.help {
+    top: 1vh;
+    right: 1vw;
+}
+
+.content {
+    --padding-top: 9vh;
+    --padding-bottom: 9vh;
+}
+
+.first-player {
+    margin-top: 6vh;
 }
