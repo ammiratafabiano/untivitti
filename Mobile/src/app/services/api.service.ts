@@ -13,10 +13,8 @@ import { ResponseModel } from '../models/response.model';
 })
 export class ApiService {
 
-  endpoint = 'https://2.238.108.96:3440';
-  // clientEndpoint = 'http://www.untivitti.it';
-  // clientEndpoint = 'http://localhost:8100';
-  clientEndpoint = 'http://2.238.108.96/untivitti';
+  endpoint = 'https://ammiratafabiano.dev:3442';
+  clientEndpoint = 'https://untivitti.ammiratafabiano.dev';
 
   constructor(private http: HttpClient) { }
 

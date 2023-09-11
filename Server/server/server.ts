@@ -11,8 +11,8 @@ const fs = require('fs');
 //const http = require('http');
 const https = require('https');
 
-const privateKey = fs.readFileSync('/home/pi/certs/private.key', 'utf8');
-const certificate = fs.readFileSync('/home/pi/certs/certificate.crt', 'utf8');
+const privateKey = fs.readFileSync('/etc/letsencrypt/live/ammiratafabiano.dev/privkey.pem', 'utf8');
+const certificate = fs.readFileSync('/etc/letsencrypt/live/ammiratafabiano.dev/fullchain.pem', 'utf8');
 const credentials = {key: privateKey, cert: certificate};
 
 const app = express();
@@ -20,8 +20,8 @@ const app = express();
 //let httpServer = http.createServer(app);
 let httpsServer = https.createServer(credentials, app);
 
-//const port = 3000;
-const sslPort = 3440;
+//const port = 3002;
+const sslPort = 3442;
 
 const jsonParser = bodyParser.json()
 
@@ -253,26 +253,8 @@ const games = [
 ]
 
 const allowedOrigins = [
-  'capacitor://localhost',
-  'ionic://localhost',
-  'http://localhost',
-  'http://localhost:8080',
-  'http://localhost:8100',
-  'ionic://untivitti.it',
-  'http://untivitti.it',
-  'http://untivitti.it:8080',
-  'http://untivitti.it:8100',
-  'ionic://www.untivitti.it',
-  'http://www.untivitti.it',
-  'http://www.untivitti.it:8080',
-  'http://www.untivitti.it:8100',
-  'ionic://2.238.108.96',
-  'http://2.238.108.96',
-  'http://2.238.108.96:8080',
-  'http://2.238.108.96:8100',
-  'https://2.238.108.96',
-  'https://2.238.108.96:8080',
-  'https://2.238.108.96:8100'
+  'https://untivitti.ammiratafabiano.dev',
+  'http://localhost:8100'
 ];
 
 // Reflect the origin if it's in the allowed list or not defined (cURL, Postman, etc.)

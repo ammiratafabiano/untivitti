@@ -12,7 +12,7 @@ import { UtilsService } from './utils.service';
 })
 export class StateUpdateService {
 
-  endpoint = 'wss://2.238.108.96:3440';
+  endpoint = 'wss://ammiratafabiano.dev:3442';
 
   websocket: WebSocket;
 

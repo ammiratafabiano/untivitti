@@ -14,16 +14,16 @@ var groupCollapsed = require('console').groupCollapsed;
 var ws = require('ws');
 var uuidv4 = require('uuid').v4;
 var fs = require('fs');
-var http = require('http');
+//const http = require('http');
 var https = require('https');
-var privateKey = fs.readFileSync('/home/pi/certs/private.key', 'utf8');
-var certificate = fs.readFileSync('/home/pi/certs/certificate.crt', 'utf8');
+var privateKey = fs.readFileSync('/etc/letsencrypt/live/ammiratafabiano.dev/privkey.pem', 'utf8');
+var certificate = fs.readFileSync('/etc/letsencrypt/live/ammiratafabiano.dev/fullchain.pem', 'utf8');
 var credentials = { key: privateKey, cert: certificate };
 var app = express();
-var httpServer = http.createServer(app);
+//let httpServer = http.createServer(app);
 var httpsServer = https.createServer(credentials, app);
-var port = 3000;
-var sslPort = 3440;
+//const port = 3002;
+var sslPort = 3442;
 var jsonParser = bodyParser.json();
 var groups = [];
 var cardSets = [
@@ -249,23 +249,8 @@ var games = [
     }
 ];
 var allowedOrigins = [
-    'capacitor://localhost',
-    'ionic://localhost',
-    'http://localhost',
-    'http://localhost:8080',
-    'http://localhost:8100',
-    'ionic://untivitti.it',
-    'http://untivitti.it',
-    'http://untivitti.it:8080',
-    'http://untivitti.it:8100',
-    'ionic://www.untivitti.it',
-    'http://www.untivitti.it',
-    'http://www.untivitti.it:8080',
-    'http://www.untivitti.it:8100',
-    'ionic://2.238.108.96',
-    'http://2.238.108.96',
-    'http://2.238.108.96:8080',
-    'http://2.238.108.96:8100'
+    'https://untivitti.ammiratafabiano.dev',
+    'http://localhost:8100'
 ];
 // Reflect the origin if it's in the allowed list or not defined (cURL, Postman, etc.)
 var corsOptions = {
@@ -279,11 +264,24 @@ var corsOptions = {
         }
     }
 };
-httpServer.listen(port, function () {
-    console.log("App listening at http://localhost:" + port);
+/*
+httpServer.listen(port, () => {
+  console.log(`App listening at http://localhost:${port}`)
+})
+
+httpsServer.listen(sslPort, () => {
+  console.log(`App listening at https://localhost:${sslPort}`)
+})
+*/
+httpsServer.listen(sslPort, function (err) {
+    if (err)
+        console.log(err);
+    console.log("Example app listening at https://localhost:" + sslPort);
 });
-httpsServer.listen(sslPort, function () {
-    console.log("App listening at https://localhost:" + sslPort);
+httpsServer.on('upgrade', function (request, socket, head) {
+    wsServer.handleUpgrade(request, socket, head, function (socket) {
+        wsServer.emit('connection', socket, request);
+    });
 });
 // Enable preflight requests for all routes
 app.options('*', cors(corsOptions));
@@ -650,6 +648,7 @@ app.post('/placeBet', jsonParser, cors(corsOptions), function (req, res) {
     res.send(response);
 });
 var wsServer = new ws.Server({ noServer: true });
+//const wsServer = new ws.Server({ server: httpsServer });
 wsServer.on('connection', function (socket) {
     socket.isAlive = true;
     socket.on('pong', function () {
@@ -755,16 +754,6 @@ setInterval(function () {
         checkGroup(group.code);
     });
 }, 1000);
-var server = app.listen(port, function (err) {
-    if (err)
-        console.log(err);
-    console.log("Example app listening at http://localhost:" + port);
-});
-server.on('upgrade', function (request, socket, head) {
-    wsServer.handleUpgrade(request, socket, head, function (socket) {
-        wsServer.emit('connection', socket, request);
-    });
-});
 function newCode() {
     var id = crypt.randomBytes(3).toString("hex");
     return id;
