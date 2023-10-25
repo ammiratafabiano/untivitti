@@ -1,5 +1,3 @@
-//import e from "express";
-
 const express = require('express');
 const bodyParser = require('body-parser')
 const crypt = require("crypto")
@@ -8,7 +6,6 @@ const { groupCollapsed } = require('console')
 const ws = require('ws');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
-//const http = require('http');
 const https = require('https');
 
 const privateKey = fs.readFileSync('/etc/letsencrypt/live/ammiratafabiano.dev/privkey.pem', 'utf8');
@@ -17,10 +14,8 @@ const credentials = {key: privateKey, cert: certificate};
 
 const app = express();
 
-//let httpServer = http.createServer(app);
 let httpsServer = https.createServer(credentials, app);
 
-//const port = 3002;
 const sslPort = 3442;
 
 const jsonParser = bodyParser.json()
