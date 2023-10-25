@@ -264,16 +264,6 @@ const corsOptions = {
   }
 }
 
-/*
-httpServer.listen(port, () => {
-  console.log(`App listening at http://localhost:${port}`)
-})
-
-httpsServer.listen(sslPort, () => {
-  console.log(`App listening at https://localhost:${sslPort}`)
-})
-*/
-
 httpsServer.listen(sslPort, (err: any) => {
   if (err) console.log(err); 
   console.log(`Example app listening at https://localhost:${sslPort}`)
