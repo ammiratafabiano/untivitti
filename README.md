@@ -22,10 +22,9 @@ Welcome to Untivitti Game App, an Ionic 5 web application that allows you to pla
 
 5. **Enjoy the Festive Spirit:** Have a delightful time playing the game and embracing the Sicilian Christmas tradition with your friends and family!
 
-## Technologies Used:
-
-- **Ionic 5:** This app is developed using the Ionic 5 framework, ensuring a seamless and responsive user experience across various devices.
-- **Web Technologies:** Standard web technologies, including HTML, CSS, and JavaScript, are employed to create an interactive and captivating user interface.
+## Language
+- **Italian**
+- (English in the future)
   
 ## Installation:
 
