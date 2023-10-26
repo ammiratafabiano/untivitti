@@ -25,18 +25,11 @@ Welcome to Untivitti Game App, an Ionic 5 web application that allows you to pla
 ## Language
 - **Italian**
 - (English in the future)
-  
-## Installation:
 
-To run the app locally on your machine, follow these steps:
+## Screenshots
+<img src="https://github.com/ammiratafabiano/untivitti/assets/36988217/a92e3cb7-bbd2-46b5-9cbf-a43a770c3e00" alt="drawing" width="200"/>
+<img src="https://github.com/ammiratafabiano/untivitti/assets/36988217/d32a8d16-558a-4f51-8798-7f26f89eb79e" alt="drawing" width="200"/>
+<img src="https://github.com/ammiratafabiano/untivitti/assets/36988217/aa6b56e6-ae55-4d27-a544-b9495a0aa222" alt="drawing" width="200"/>
+<img src="https://github.com/ammiratafabiano/untivitti/assets/36988217/ab1bfd2d-34d5-4c40-a8e4-81248c3762ae" alt="drawing" width="200"/>
 
-1. **Clone the Repository:** `git clone https://github.com/ammiratafabiano/untivitti`
-2. **Navigate to the Project Directory:** `cd untivitti`
-3. **Install Dependencies:** `npm install`
-4. **Run the App:** `ionic serve`
 
-## Feedback:
-
-We value your feedback! For any questions, suggestions, or issues, please don't hesitate to [create an issue](https://github.com/ammiratafabiano/untivitti/issues) in our issue tracker.
-
-Enjoy playing Untivitti Game App and have a Joyful Sicilian Christmas!
