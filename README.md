@@ -2,7 +2,7 @@
 
 [DEMO](https://untivitti.ammiratafabiano.dev)
 
-Welcome to Untivitti Game App, an Ionic 5 web application that allows you to play the traditional Sicilian Christmas game "Cucù" (also called "Morto" or "Asso che corre"). The concept for this app originated during the COVID-19 pandemic in 2020 when physical gatherings for Christmas were limited. The name "Untivitti" is a playful phrase in Sicilian dialect, lit. "I can't see you", capturing the essence of the game and the spirit of togetherness during the holiday season.
+Welcome to Untivitti Game App, an Ionic 5 web application that allows you to play the traditional Sicilian Christmas game "Cucù" (also called "Morto" or "Asso che corre"). The concept for this app originated during the COVID-19 pandemic in 2020 when physical gatherings for Christmas were limited. The name "Untivitti" is a playful phrase in Sicilian dialect, lit. "I couldn't see you", capturing the essence of the game and the spirit of togetherness during the holiday season.
 
 ## Features:
 
