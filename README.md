@@ -10,6 +10,61 @@ Welcome to Untivitti Game App, an Ionic 5 web application that allows you to pla
   
 - **Remote Fun with Friends:** Connect and have fun with your friends and family even when you're physically separated, making the gaming experience even more special.
 
+## Architecture
+
+The project is split into two parts:
+
+- **Server/** — Node.js/Express + WebSocket server (TypeScript)
+- **Mobile/** — Ionic 5 / Angular frontend (TypeScript)
+
+## Development
+
+### Server
+
+```bash
+cd Server
+npm install
+npm run build   # Compiles TS → dist/
+npm start       # Runs dist/server.js
+```
+
+Environment variables:
+| Variable | Default | Description |
+|---|---|---|
+| `PORT` | `3442` | Server listen port |
+| `TLS_KEY_PATH` | _(none)_ | Path to TLS private key (omit for plain HTTP) |
+| `TLS_CERT_PATH` | _(none)_ | Path to TLS certificate (omit for plain HTTP) |
+| `ALLOWED_ORIGINS` | `https://untivitti.ammiratafabiano.dev,http://localhost:8100` | Comma-separated CORS origins |
+
+### Mobile (Frontend)
+
+```bash
+cd Mobile
+npm install
+npx ng serve    # Dev server on http://localhost:8100
+```
+
+## Docker
+
+Both components have multi-stage Dockerfiles. To run locally:
+
+```bash
+# Build images
+docker build -t untivitti-server ./Server
+docker build -t untivitti-frontend ./Mobile
+
+# Run
+docker run -d -p 3442:3442 untivitti-server
+docker run -d -p 8081:80 untivitti-frontend
+```
+
+### Production deploy
+
+```bash
+cd deploy
+docker compose up -d
+```
+
 ## How to Play:
 
 1. **Launch the App:** Open the app in your mobile browser for the best experience.

@@ -7,14 +7,15 @@ import { GameStateModel } from '../models/game-state.model';
 import { GameModel, GameTypeEnum } from '../models/game.model';
 import { PlayerModel } from '../models/player.model';
 import { ResponseModel } from '../models/response.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ApiService {
 
-  endpoint = 'https://ammiratafabiano.dev:3442';
-  clientEndpoint = 'https://untivitti.ammiratafabiano.dev';
+  endpoint = environment.apiEndpoint;
+  clientEndpoint = environment.clientEndpoint;
 
   constructor(private http: HttpClient) { }
 

@@ -42,7 +42,7 @@ export class UtilsService {
         if (o.hasOwnProperty(p) && typeof o[p] === 'object') {
           this.setProperty(o[p], id, value);
         } else if (o.hasOwnProperty(p) && Array.isArray(o[p])) {
-          o[p].array.forEach(el => {
+          o[p].forEach(el => {
             this.setProperty(el, id, value);
           });
         }

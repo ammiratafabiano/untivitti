@@ -1,7 +1,26 @@
+# Dependencies
 node_modules
-Mobile/.gradle
-Mobile/android
-Mobile/ios
+
+# Build outputs
+Server/dist
 Mobile/www
 Mobile/platforms
 Mobile/plugins
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Mobile native
+Mobile/.gradle
+Mobile/android
+Mobile/ios
+
+# Environment / secrets
+.env

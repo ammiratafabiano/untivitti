@@ -6,13 +6,14 @@ import { PlayerModel } from '../models/player.model';
 import { ImpressedTextService } from './impressed-text.service';
 import { NotificationService } from './notification.service';
 import { UtilsService } from './utils.service';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StateUpdateService {
 
-  endpoint = 'wss://ammiratafabiano.dev:3442';
+  endpoint = environment.wsEndpoint;
 
   websocket: WebSocket;
 

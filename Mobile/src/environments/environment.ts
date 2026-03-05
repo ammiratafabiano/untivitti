@@ -3,7 +3,10 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  production: false
+  production: false,
+  apiEndpoint: 'https://ammiratafabiano.dev:3442',
+  wsEndpoint: 'wss://ammiratafabiano.dev:3442',
+  clientEndpoint: 'http://localhost:8100'
 };
 
 /*

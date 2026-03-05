@@ -1,24 +1,27 @@
 const express = require('express');
-const bodyParser = require('body-parser')
 const crypt = require("crypto")
 const cors = require('cors')
-const { groupCollapsed } = require('console')
 const ws = require('ws');
 const { v4: uuidv4 } = require('uuid');
 const fs = require('fs');
+const http = require('http');
 const https = require('https');
-
-const privateKey = fs.readFileSync('/etc/letsencrypt/live/ammiratafabiano.dev/privkey.pem', 'utf8');
-const certificate = fs.readFileSync('/etc/letsencrypt/live/ammiratafabiano.dev/fullchain.pem', 'utf8');
-const credentials = {key: privateKey, cert: certificate};
 
 const app = express();
 
-let httpsServer = https.createServer(credentials, app);
+const port = parseInt(process.env.PORT || '3442', 10);
+const useTls = process.env.TLS_CERT_PATH && process.env.TLS_KEY_PATH;
 
-const sslPort = 3442;
+let server;
+if (useTls) {
+  const privateKey = fs.readFileSync(process.env.TLS_KEY_PATH, 'utf8');
+  const certificate = fs.readFileSync(process.env.TLS_CERT_PATH, 'utf8');
+  server = https.createServer({ key: privateKey, cert: certificate }, app);
+} else {
+  server = http.createServer(app);
+}
 
-const jsonParser = bodyParser.json()
+const jsonParser = express.json()
 
 let groups = []
 
@@ -247,10 +250,8 @@ const games = [
   }
 ]
 
-const allowedOrigins = [
-  'https://untivitti.ammiratafabiano.dev',
-  'http://localhost:8100'
-];
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'https://untivitti.ammiratafabiano.dev,http://localhost:8100')
+  .split(',').map(s => s.trim());
 
 // Reflect the origin if it's in the allowed list or not defined (cURL, Postman, etc.)
 const corsOptions = {
@@ -264,14 +265,14 @@ const corsOptions = {
   }
 }
 
-httpsServer.listen(sslPort, (err: any) => {
-  if (err) console.log(err); 
-  console.log(`Example app listening at https://localhost:${sslPort}`)
+server.listen(port, () => {
+  const protocol = useTls ? 'https' : 'http';
+  console.log(`Untivitti server listening at ${protocol}://localhost:${port}`)
 })
 
-httpsServer.on('upgrade', (request: any, socket: any, head: any) => {
-  wsServer.handleUpgrade(request, socket, head, (socket: any) => {
-    wsServer.emit('connection', socket, request);
+server.on('upgrade', (request: any, socket: any, head: any) => {
+  wsServer.handleUpgrade(request, socket, head, (ws: any) => {
+    wsServer.emit('connection', ws, request);
   });
 });
 
@@ -631,7 +632,6 @@ app.post('/placeBet', jsonParser, cors(corsOptions), (req, res) => {
 });
 
 const wsServer = new ws.Server({ noServer: true });
-//const wsServer = new ws.Server({ server: httpsServer });
 wsServer.on('connection', (socket: any) => {
   socket.isAlive = true;
 
@@ -701,6 +701,7 @@ wsServer.on('connection', (socket: any) => {
             }
           })
         })
+        break;
       default:
         socket.send(JSON.stringify({success: false, type: msg.type}))
     }
