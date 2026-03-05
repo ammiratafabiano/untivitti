@@ -1,6 +1,6 @@
 services:
   untivitti-frontend:
-    image: ghcr.io/ammiratafabiano/untivitti-frontend:main
+    image: ghcr.io/ammiratafabiano/untivitti-frontend:latest
     container_name: untivitti-frontend
     restart: unless-stopped
     ports:
@@ -9,7 +9,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
 
   untivitti-server:
-    image: ghcr.io/ammiratafabiano/untivitti-server:main
+    image: ghcr.io/ammiratafabiano/untivitti-server:latest
     container_name: untivitti-server
     restart: unless-stopped
     ports:
