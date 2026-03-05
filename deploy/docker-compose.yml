@@ -4,7 +4,7 @@ services:
     container_name: untivitti-frontend
     restart: unless-stopped
     ports:
-      - "8081:80"
+      - "127.0.0.1:8081:80"
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
@@ -13,7 +13,7 @@ services:
     container_name: untivitti-server
     restart: unless-stopped
     ports:
-      - "3442:3442"
+      - "127.0.0.1:3442:3442"
     environment:
       - PORT=3442
       - ALLOWED_ORIGINS=https://untivitti.ammiratafabiano.dev,http://localhost:8100
