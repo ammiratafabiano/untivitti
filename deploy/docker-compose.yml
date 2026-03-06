@@ -8,9 +8,9 @@ services:
     labels:
       - "com.centurylinklabs.watchtower.enable=true"
 
-  untivitti-server:
-    image: ghcr.io/ammiratafabiano/untivitti-server:latest
-    container_name: untivitti-server
+  untivitti-backend:
+    image: ghcr.io/ammiratafabiano/untivitti-backend:latest
+    container_name: untivitti-backend
     restart: unless-stopped
     ports:
       - "127.0.0.1:3442:3442"

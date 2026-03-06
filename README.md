@@ -14,15 +14,15 @@ Welcome to Untivitti Game App, an Ionic 5 web application that allows you to pla
 
 The project is split into two parts:
 
-- **Server/** — Node.js/Express + WebSocket server (TypeScript)
-- **Mobile/** — Ionic 5 / Angular frontend (TypeScript)
+- **backend/** — Node.js/Express + WebSocket backend (TypeScript)
+- **frontend/** — Ionic 5 / Angular frontend (TypeScript)
 
 ## Development
 
 ### Server
 
 ```bash
-cd Server
+cd backend
 npm install
 npm run build   # Compiles TS → dist/
 npm start       # Runs dist/server.js
@@ -36,10 +36,10 @@ Environment variables:
 | `TLS_CERT_PATH` | _(none)_ | Path to TLS certificate (omit for plain HTTP) |
 | `ALLOWED_ORIGINS` | `https://untivitti.ammiratafabiano.dev,http://localhost:8100` | Comma-separated CORS origins |
 
-### Mobile (Frontend)
+### Frontend
 
 ```bash
-cd Mobile
+cd frontend
 npm install
 npx ng serve    # Dev server on http://localhost:8100
 ```
@@ -50,11 +50,11 @@ Both components have multi-stage Dockerfiles. To run locally:
 
 ```bash
 # Build images
-docker build -t untivitti-server ./Server
-docker build -t untivitti-frontend ./Mobile
+docker build -t untivitti-backend ./backend
+docker build -t untivitti-frontend ./frontend
 
 # Run
-docker run -d -p 3442:3442 untivitti-server
+docker run -d -p 3442:3442 untivitti-backend
 docker run -d -p 8081:80 untivitti-frontend
 ```
 

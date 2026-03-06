@@ -9,7 +9,7 @@ on:
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME_FRONTEND: ${{ github.repository }}-frontend
-  IMAGE_NAME_SERVER: ${{ github.repository }}-server
+  IMAGE_NAME_BACKEND: ${{ github.repository }}-backend
 
 jobs:
   build-frontend:
@@ -45,8 +45,8 @@ jobs:
       - name: Build and push Frontend Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./Mobile
-          file: ./Mobile/Dockerfile
+          context: ./frontend
+          file: ./frontend/Dockerfile
           push: true
           platforms: linux/arm/v7
           tags: ${{ steps.meta-frontend.outputs.tags }}
@@ -54,7 +54,7 @@ jobs:
           cache-from: type=gha,scope=frontend
           cache-to: type=gha,mode=max,scope=frontend
 
-  build-server:
+  build-backend:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     permissions:
@@ -77,21 +77,21 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata for Server
-        id: meta-server
+      - name: Extract metadata for Backend
+        id: meta-backend
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_SERVER }}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}
           tags: type=raw,value=latest
 
-      - name: Build and push Server Docker image
+      - name: Build and push Backend Docker image
         uses: docker/build-push-action@v5
         with:
-          context: ./Server
-          file: ./Server/Dockerfile
+          context: ./backend
+          file: ./backend/Dockerfile
           push: true
           platforms: linux/arm/v7
-          tags: ${{ steps.meta-server.outputs.tags }}
-          labels: ${{ steps.meta-server.outputs.labels }}
-          cache-from: type=gha,scope=server
-          cache-to: type=gha,mode=max,scope=server
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
+          cache-from: type=gha,scope=backend
+          cache-to: type=gha,mode=max,scope=backend

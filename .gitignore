@@ -2,10 +2,10 @@
 node_modules
 
 # Build outputs
-Server/dist
-Mobile/www
-Mobile/platforms
-Mobile/plugins
+backend/dist
+frontend/www
+frontend/platforms
+frontend/plugins
 
 # IDE
 .idea/
@@ -18,9 +18,9 @@ Mobile/plugins
 Thumbs.db
 
 # Mobile native
-Mobile/.gradle
-Mobile/android
-Mobile/ios
+frontend/.gradle
+frontend/android
+frontend/ios
 
 # Environment / secrets
 .env
