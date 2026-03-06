@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  apiEndpoint: 'https://ammiratafabiano.dev:3442',
-  wsEndpoint: 'wss://ammiratafabiano.dev:3442',
+  apiEndpoint: 'http://localhost:3442',
+  wsEndpoint: 'ws://localhost:3442',
   clientEndpoint: 'http://localhost:8100'
 };
 
