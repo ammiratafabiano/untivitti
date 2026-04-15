@@ -715,14 +715,24 @@ setInterval(function() {
         resetGroup(group)
     }
     group.activePlayers = getPlayersLength(group)
+
+    // Fingerprint leggero: evita saveState e broadcast se lo stato non è cambiato
+    const fp = group.round + '|' + group.status + '|' + group.activePlayers + '|' +
+               (group.ground || []).length + '|' +
+               group.players.map(p => (p.canMove ? 1 : 0) + ',' + (p.cards || []).length + ',' + (p.haveToPay ? 1 : 0) + ',' + (p.isWinner ? 1 : 0)).join(';');
+    const stateChanged = fp !== (group as any)._fp;
+    if (stateChanged) (group as any)._fp = fp;
+
     group.players.forEach(player => {
-      saveState(group, player)
+      if (stateChanged) saveState(group, player)
       wsServer.clients.forEach(ws => {
         try {
           if (ws.uuid == player.uuid) {
             if (ws.isAlive) {
               player.timestamp = Date.now()
-              ws.send(JSON.stringify({type: 'update', state: group}))
+              if (stateChanged) {
+                ws.send(JSON.stringify({type: 'update', state: group}))
+              }
             }
             ws.isAlive = false;
             ws.ping(null, false, true);
